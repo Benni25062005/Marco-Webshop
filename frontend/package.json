@@ -1,0 +1,42 @@
+{
+  "name": "02_components",
+  "version": "1.0.0",
+  "description": "React components",
+  "source": "index.html",
+  "scripts": {
+    "dev": "parcel ",
+    "build": "parcel build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "buffer": "^5.7.1",
+    "parcel": "^2.8.0",
+    "postcss": "^8.4.27",
+    "process": "^0.11.10",
+    "tailwindcss": "^3.3.3"
+  },
+  "dependencies": {
+    "@alloc/quick-lru": "^5.2.0",
+    "@react-oauth/google": "^0.11.1",
+    "@reduxjs/toolkit": "^2.7.0",
+    "aos": "^2.3.4",
+    "axios": "^1.8.4",
+    "crypto": "^1.0.1",
+    "express": "^5.1.0",
+    "framer-motion": "^12.10.1",
+    "jwt-decode": "^3.1.2",
+    "lucide-react": "^0.485.0",
+    "mysql": "^2.18.1",
+    "nodemailer": "^7.0.3",
+    "nodemon": "^3.1.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
+    "react-hot-toast": "^2.5.2",
+    "react-phone-input-2": "^2.15.1",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^6.30.0"
+  }
+}

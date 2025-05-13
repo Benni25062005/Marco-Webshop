@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .nav-item {
+        @apply border-b-2 border-transparent hover:border-navorange hover:text-orange-600 transition cursor-pointer  transition-all duration-300 ease-in-out;
+    }
+    .pic-item{
+        @apply h-64 cursor-pointer
+    }
+    .inputStyle{
+        @apply bg-gray-100 rounded-xl shadow-sm focus:shadow-md focus:border-2 focus:border-bgorange p-2 focus:ring-bgorange focus:outline-none transition duration-300 w-full
+    }
+    .phoneInputStyle{
+        @apply !w-full !bg-gray-100 !rounded-xl !p-2 !pl-12 !shadow-sm focus:!shadow-md !border-white focus:!border-2 focus:!border-bgorange focus:!ring-bgorange focus:!outline-none transition duration-300
+    }
+}
+
+

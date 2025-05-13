@@ -1,0 +1,7 @@
+# Globale Ignorierung
+node_modules/
+.env
+dist/
+.cache/
+.parcel-cache/
+test.txt
