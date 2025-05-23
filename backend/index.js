@@ -92,14 +92,14 @@ app.get("/produkte/:id", (req,res)=>{
 })
 
 app.post("/user", async (req,res) => {
-    const { email, password, vorname, nachname, telefonnummer } = req.body;
+    const { email, password, vorname, nachname, telefonnummer, strasse, plz, ort, land } = req.body;
 
     try{
         const hashedPassword = await bcrypt.hash(password, 10);
         const emailToken = crypto.randomBytes(64).toString('hex');
-        const q = "INSERT INTO `user`(`email`, `password`, `vorname`, `nachname`, `telefonnummer`, `emailToken`, `isVerifiedEmail`) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        const q = "INSERT INTO `user`(`email`, `password`, `vorname`, `nachname`, `telefonnummer`, `strasse`, `plz`, `ort`, `land`, `emailToken`, `isVerifiedEmail`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-        const values = [email, hashedPassword, vorname, nachname, telefonnummer, emailToken, 0];
+        const values = [email, hashedPassword, vorname, nachname, telefonnummer, strasse, plz, ort, land, emailToken, 0];
         
         db.query(q, values, (err,data) => {
             if (err) {
@@ -180,7 +180,7 @@ app.get("/verify-email", (req, res) => {
 app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
 
-    const q = "SELECT idUser, email, vorname, nachname, telefonnummer, password, isVerifiedEmail FROM user WHERE email = ?";
+    const q = "SELECT idUser, email, vorname, nachname, telefonnummer, password, strasse, plz, ort, land, isVerifiedEmail FROM user WHERE email = ?";
 
     db.query(q, [email], async (err, data) => {
         if (err) { 
@@ -214,11 +214,106 @@ app.post("/api/login", async (req, res) => {
                 vorname: user.vorname,
                 nachname: user.nachname,
                 telefonnummer: user.telefonnummer,
+                strasse: user.strasse,
+                plz: user.plz,
+                ort: user.ort,
+                land: user.land,
             }
         });
 
     }) 
 })
+
+app.get("/api/cartItems", (req, res) => {
+    const user_id = req.query.user_id;
+
+    const q = `
+        SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild
+        FROM warenkorb w
+        JOIN produkte p ON w.product_id = p.idProdukt
+        WHERE w.user_id = ?
+    `
+
+    db.query(q, [user_id], (err, data) => {
+        if (err) {
+            console.error("Fehler beim Abrufen des Warenkorbs:", err);
+            return res.status(500).json({ message: "Fehler beim Abrufen des Warenkorbs", error: err });
+        }
+
+        const transformed = data.map((item) => {
+            let image = null;
+            if(item.Bild) {
+                 image = `data:image/jpeg;base64,${Buffer.from(item.Bild).toString("base64")}`;
+            }
+
+            return {
+                ...item,
+                Bild: image,
+            }
+        });
+        return res.status(200).json(transformed);
+    })
+})
+
+app.post("/api/cart", (req, res) => {
+    const { user_id, product_id, menge} = req.body;
+
+    const q = `
+        INSERT INTO warenkorb (user_id, product_id, menge)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE menge = menge + VALUES(menge)
+    `;
+    const values = [user_id, product_id, menge];
+
+    db.query(q, values, (err, data) => {
+        if (err) {
+            console.error("Fehler beim Hinzufügen zum Warenkorb:", err);
+            return res.status(500).json({ message: "Fehler beim Hinzufügen zum Warenkorb", error: err });
+        }
+        
+        return res.status(201).json({ message:"Produkt wurde erfolgreich zum Warenkorb hinzugefügt" });
+    });
+});
+
+app.delete("/api/cart/:user_id/:product_id", (req, res) => {
+  const { user_id, product_id } = req.params;
+
+  const q = "DELETE FROM warenkorb WHERE user_id = ? AND product_id = ?";
+  const values = [user_id, product_id];
+
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.error("Fehler beim Entfernen aus dem Warenkorb:", err);
+      return res.status(500).json({ message: "Fehler beim Entfernen aus dem Warenkorb", error: err });
+    }
+
+    if (data.affectedRows === 0) {
+      return res.status(404).json({ message: "Produkt nicht im Warenkorb gefunden" });
+    }
+
+    return res.status(200).json({ message: "Produkt wurde erfolgreich aus dem Warenkorb entfernt" });
+  });
+});
+
+app.put("/api/cart/:user_id/:product_id", (req, res) => {
+    const { user_id, product_id} = req.params;
+    const { menge} = req.body;
+    const q = "UPDATE warenkorb SET menge = ? WHERE user_id = ? AND product_ID = ?";
+    const values = [menge, user_id, product_id];
+
+    db.query(q, values, (err, data) => {
+        if (err) {
+            console.error("Fehler beim Aktualisieren der Menge:", err);
+            return res.status(500).json({ message: "Fehler beim Aktualisieren den Menge", error: err});
+        }
+        if (data.affectedRows === 0) {
+            return res.status(400).json({ message: "Produkt nicht im Warenkorb gefunden"});
+        }
+
+        return res.status(200).json({ message: "Menge erfolgreich aktualisiert"});
+    })
+})
+
 
 
 const port = process.env.PORT || 8800

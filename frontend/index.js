@@ -8,12 +8,14 @@ import { Provider } from 'react-redux';
 import productsReducer, { fetchFeuerloescher } from './src/features/productsSlice.js';
 import userReducer from './src/features/userSlice.js'
 import authReducer from './src/features/authSlice.js';
+import cartReducer from "./src/features/cartSlice.js";
 
 const store = configureStore({
     reducer:{
         products: productsReducer,
         user: userReducer,
         auth: authReducer,
+        cart: cartReducer,
     },
     devTools: process.env.NODE_ENV !== 'production',
 

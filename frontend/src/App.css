@@ -10,7 +10,7 @@
         @apply h-64 cursor-pointer
     }
     .inputStyle{
-        @apply bg-gray-100 rounded-xl shadow-sm focus:shadow-md focus:border-2 focus:border-bgorange p-2 focus:ring-bgorange focus:outline-none transition duration-300 w-full
+        @apply bg-gray-100 rounded-xl shadow-sm focus:shadow-md focus:border focus:border-red-600 p-2 focus:ring-bgorange focus:outline-none transition duration-300 w-full
     }
     .phoneInputStyle{
         @apply !w-full !bg-gray-100 !rounded-xl !p-2 !pl-12 !shadow-sm focus:!shadow-md !border-white focus:!border-2 focus:!border-bgorange focus:!ring-bgorange focus:!outline-none transition duration-300

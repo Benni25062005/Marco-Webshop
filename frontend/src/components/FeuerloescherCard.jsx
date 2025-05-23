@@ -20,7 +20,7 @@ export default function FeuerloescherCard({ item, onClick, onAddToCart, delay = 
             </div>
 
             <div className="flex flex-col justify-between flex-grow w-full p-4 relative">
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center ">
                     <h2 className="text-xl font-semibold text-center">{item.Name}</h2>
                     <p className="text-lg font-medium mt-2">
                         <span className="text-gray-500 text-sm align-top mr-1 pl-4">CHF</span>

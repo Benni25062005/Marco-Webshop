@@ -2,7 +2,8 @@ import React from "react";
 import { useNavigate} from "react-router-dom";
 import { useSelector, useDispatch   } from "react-redux";
 import { logout } from "./features/authSlice";
-
+import { Pencil, LogOut } from "lucide-react";
+ 
 export default function Main() {
     const { user, token } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
@@ -14,8 +15,9 @@ export default function Main() {
     }
 
 
+    
 
-    console.log("User:", user);
+
 
     if (!user) {
         return (
@@ -26,10 +28,64 @@ export default function Main() {
     }
 
     return (<>
-    
-        <h1>Willkommen, {user.vorname}!</h1>
-        <button onClick={handleLogout} className="mt-6 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">Logout</button>
+        
 
+        <div className="flex flex-col justify-center mt-16 ">
+            <h1 className="text-3xl text-center font-medium">Willkommen, {user.vorname}!</h1>
+
+            <div className="flex flex-col justif-center items-center">
+                {/* Kontaktdaten */}
+                <div className="mt-8 border border-red-600 rounded-xl p-6 w-full max-w-4xl mx-auto relative">
+                    <Pencil className="h-6 w-6 text-red-600 cursor-pointer absolute top-4 right-4"></Pencil>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6">
+                        <div>
+                            <p className="text-sm text-gray-500">Vorname</p>
+                            <p className="text-md font-medium">{user.vorname}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Nachname</p>
+                            <p className="text-md font-medium">{user.nachname}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">E-Mail</p>
+                            <p className="text-md font-medium">{user.email}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Telefonnummer</p>
+                            <p className="text-md font-medium">{user.telefonnummer}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Passwort</p>
+                            <p className="text-md font-medium">********</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Adresse */}
+                <div className="mt-8 border border-red-600 rounded-xl p-6 w-full max-w-4xl mx-auto relative">
+                    <Pencil className="h-6 w-6 text-red-600 cursor-pointer absolute top-4 right-4"></Pencil>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6">
+                        <div>
+                            <p className="text-sm text-gray-500">Land</p>
+                            <p className="text-md font-medium">{user.land}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Ort</p>
+                            <p className="text-md font-medium">{user.ort}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Strasse</p>
+                            <p className="text-md font-medium">{user.strasse}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">PLZ</p>
+                            <p className="text-md font-medium">{user.plz}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </>)
-
 }

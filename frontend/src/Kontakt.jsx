@@ -43,9 +43,7 @@ export default function Main(){
 
                         <input className=" border-2 rounded-md p-1 shadow-sm focus:border-bgorange  focus:ring-bgorange focus:outline-none"  placeholder="Email" type="email" id="email"></input>
                         
-
                         <textarea className=" border-2 rounded-md p-1 h-24 shadow-sm focus:border-bgorange  focus:ring-bgorange focus:outline-none" id="nachricht" placeholder="Hinterlassen Sie hier Ihre E-mail"></textarea>
-
 
                         <div className="w-full">
                             <PhoneInput

@@ -1,14 +1,42 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../features/authSlice";
 import logo from "../../assets/Logo_Marco1.png";
 import profile from "../../assets/profile.png";
 import cart from "../../assets/shopping_cart.png";
+import { User, ShoppingCart } from "lucide-react";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const menuRef = useRef(null);
+
+
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  }
+
 
   return (
     <header className="w-full border-b bg-bgorange border-bgorange  px-4 py-2">
@@ -32,12 +60,43 @@ export default function Header() {
 
         {/* Icons + Mobile Menu Button */}
         <div className="flex items-center space-x-6 ml-auto">
-          <Link to={token ? "/profile" : "/login"}>
-            <img src={profile} className="cursor-pointer h-8 md:h-10" alt="Profile" />
-          </Link>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => {
+                if (token) {
+                  setUserMenuOpen(!userMenuOpen);
+                } else {
+                  navigate("/login");
+                }
+              }}
+              >
+              <User className="h-10 w-10 cursor-pointer" />
+            </button>
+
+            {userMenuOpen && token && (
+              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded-md z-50">
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setUserMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Profil
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 font-medium text-red-600 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+
+          </div>
 
           <Link to="/warenkorb">
-          <img src={cart} className="cursor-pointer h-8 md:h-10" alt="Cart" />
+            <ShoppingCart className="h-9 w-9 cursor-pointer"></ShoppingCart>
           </Link>
 
           {/* Mobile Menu Toggle */}

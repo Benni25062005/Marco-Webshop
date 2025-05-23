@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { fetchFeuerloescher } from "./features/productsSlice";
 import FeuerloescherCard from "./components/FeuerloescherCard";
+import { addItemToCart } from "./features/cartSlice";
 
 
 
@@ -30,13 +31,19 @@ export default function Main(){
         navigate(`/feuerloescher/${idProdukt}?kategorie=${kategorie}`);
     }
 
-    const handleAddToCart = (e) => {   
+    const handleAddToCart = (item) => {   
         if(!user) {
           toast.error("Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen.");
           navigate("/login", {replace: true});
           return;
         }
 
+
+        dispatch(addItemToCart({
+            user_id: user.idUser,
+            product: item,
+            menge: 1, 
+        }))
         toast.success(`Wurde zum Warenkorb hinzugefügt!`)
     }
 
@@ -62,7 +69,7 @@ export default function Main(){
               key={item.idProdukt}
               item={item}
               onClick={handleClick}
-              onAddToCart={() => handleAddToCart()}
+              onAddToCart={() => handleAddToCart(item)}
               delay={i * 0.15}
             />
           ))}

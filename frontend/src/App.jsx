@@ -25,7 +25,6 @@ export default function App(){
     const dispatch = useDispatch();
 
     useEffect(() => {
-        console.log("Loading auth  from storage");
         dispatch(setAuthFromStorage());
     }, [dispatch]);
     

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { fetchFeuerloescherById } from "./features/productsSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { addItemToCart, addToCart } from "./features/cartSlice";
 import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp} from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -29,18 +30,21 @@ export default function Main() {
 
         }else{
             setNumber(number - 1)
-        }
-            
-        
+        } 
     }
 
-    const AddtoCart = (e) => {
+    const HandleAddToCart = (e) => {
         if(!user) {
             toast.error("Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen.");
             navigate("/login", {replace: true});
             return;
         }
 
+        dispatch(addItemToCart({
+            user_id: user.idUser,
+            product: selectedItem,
+            menge: number
+        }));
         toast.success(`Wurde zum Warenkorb hinzugefügt!`)
     }
 
@@ -103,7 +107,7 @@ export default function Main() {
                     whileTap={{ scale: 0.97 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    onClick={AddtoCart}
+                    onClick={HandleAddToCart}
                     className=" transition-opacity bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-md self-center"
                     >
                         Zum Warenkorb hinzufügen        
