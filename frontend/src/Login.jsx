@@ -37,7 +37,7 @@ export default function Main() {
             })
             .catch((error) => {
                 console.error("Login fehlgeschlagen:", error);
-                alert("Login fehlgeschlagen: " + error?.message || "Unbekannter Fehler");
+                toast.error(error.message ||"Email oder Passwort falsch");
             });
 
     }

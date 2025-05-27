@@ -26,6 +26,10 @@ app.get("/", (req,res)=>{
     res.json("hello this is the backend")
 })
 
+//#region Produkte
+
+
+
 app.get("/produkte", (req,res)=>{
     const kategorie = req.query.kategorie;
     const q = kategorie ? "SELECT * FROM produkte WHERE kategorie = ?" : "SELECT * FROM produkte";
@@ -54,8 +58,6 @@ app.get("/produkte", (req,res)=>{
         return res.json(transformed)
     })
 })
-
-
 
 app.get("/produkte/:id", (req,res)=>{
     const id = req.params.id;
@@ -90,6 +92,9 @@ app.get("/produkte/:id", (req,res)=>{
         
     })
 })
+//#endregion Produkte
+
+//#region user 
 
 app.post("/user", async (req,res) => {
     const { email, password, vorname, nachname, telefonnummer, strasse, plz, ort, land } = req.body;
@@ -140,7 +145,8 @@ app.post("/user", async (req,res) => {
 
                     <p style="font-size:12px; color:#6b7280; text-align:center;">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
                 </div>
-                `
+                `,
+                text: `Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den folgenden Link klicken: ${verificationLink}`
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
@@ -224,6 +230,190 @@ app.post("/api/login", async (req, res) => {
     }) 
 })
 
+app.put("/user/:id/contact", (req, res) => {
+  const { vorname, nachname, email, telefonnummer } = req.body;
+  const idUser = req.params.id;
+
+  const q = `
+    UPDATE user 
+    SET vorname = ?, nachname = ?, email = ?, telefonnummer = ? 
+    WHERE idUser = ?
+  `;
+
+    
+
+  db.query(q, [vorname, nachname, email, telefonnummer, idUser], (err, result) => {
+    if (err) {
+      console.error("SQL Fehler:", err);
+      return res.status(500).json({ error: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User nicht gefunden" });
+    }
+
+    const selectQuery = "SELECT * FROM user WHERE idUser = ?";
+    db.query(selectQuery, [idUser], (err, result) => {
+        if (err) {
+            console.error("Fehler beim Abrufen des aktualisierten Users:", err);
+            return res.status(500).json({message: "Fehler beim Abrufen", error: err});
+        }
+
+        return res.status(200).json({message: "Kontakt wurde erfolgreich gespeichert", updatedUser: result[0]})
+    })
+  });
+});
+
+
+app.put("/user/:id/address", (req,res) => {
+    const { strasse, plz, ort, land} = req.body;
+    const idUser = req.params.id;
+
+    const q = "UPDATE user SET strasse = ?, plz = ?, ort = ?, land = ? WHERE idUser = ?"
+    const values = [strasse, plz, ort, land, idUser];
+
+    db.query(q, values, (err, data) => {
+        if(err) {
+            console.error("Fehler beim Aktualisieren der Adresse:", err);
+            return res.status(500).json({ message: "Fehler beim Aktualisieren der Adresse", error: err });
+        }
+        if (data.affectedRows === 0) {
+            return res.status(404).json({ message: "User nicht gefunden"});
+        }
+
+        const selectQuery = "SELECT * FROM user WHERE idUser = ?";
+        db.query(selectQuery, [idUser], (err, result) => {
+            if (err) {
+                console.error("Fehler beim Abrufen des aktualisierten Users:", err);
+                return res.status(500).json({message: "Fehler beim Abrufen", error: err});
+            }
+
+
+            return res.status(200).json({message: "Adresse wurde erfolgreich gespeichert", updatedUser: result[0]})
+        })
+    })
+})
+
+app.get("/user/:id", (req, res) => {
+  const idUser = req.params.id;
+  db.query("SELECT * FROM user WHERE idUser = ?", [idUser], (err, result) => {
+    if (err) return res.status(500).json({ error: err });
+    if (result.length === 0) return res.status(404).json({ message: "User nicht gefunden" });
+    res.status(200).json({ user: result[0] });
+  });
+});
+
+app.put("/user/:id/password", async (req, res) => {
+    const idUser = req.params.id;
+    const { oldPassword, newPassword } = req.body;
+
+    const q = "SELECT password FROM user WHERE idUser = ?";
+    db.query(q, [idUser], async (err, result) => {
+        if (err) {
+            console.error("Fehler beim Abrufen des Users:", err);
+            return res.status(500).json({ message: "Fehler beim Abrufen des Users", error: err});
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ message: "User nicht gefunden"});
+        }
+        const valid = await bcrypt.compare(oldPassword, result[0].password);
+        if(!valid) return res.status(400).json({message: "Aktuelles Passwort ist falsch"});
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const updateQuery = "UPDATE user SET password = ? WHERE idUser = ?";
+
+        db.query(updateQuery, [hashedPassword, idUser], (err, data) => {
+            if(err) {
+                console.error("Fehler beim Aktualisieren des Passworts:", err);
+                return res.status(500).json({ message: "Fehler beim Aktualisieren des Passworts", error: err });
+            }
+            res.status(200).json({ message: "Passwort erfolgreich aktualisiert"});
+        });
+    });
+});
+
+app.put("/user/:id/email", async (req, res) => {
+    const idUser = req.params.id;
+    const { email, vorname } = req.body;
+
+    const emailToken = crypto.randomBytes(64).toString('hex');
+    const q = "UPDATE user SET email = ?, emailToken = ?, isVerifiedEmail = 0 WHERE idUser = ?";
+
+    db.query(q, [email, emailToken, idUser], (err, result) => {
+        if(err) {
+            console.error("Fehler beim Aktualisieren der E-Mail:", err);
+            return res.status(500).json({ message: "Fehler beim Aktualisieren der E-Mail", error: err });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "User nicht gefunden"});
+        }
+        const transporter = nodemailer.createTransport({
+            service: "Gmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.EMAIL_PASSWORD
+            },
+        })
+
+        const verificationLink = `http://localhost:8800/verify-email?token=${emailToken}`;
+        const mailOptions = {
+                from : process.env.EMAIL,
+                to: email,
+                subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
+                html: `
+                <div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
+                    <div style="text-align:center; margin-bottom:32px;">
+                    <img src="" alt="FeuerTech Logo" style="max-width:120px;" />
+                    </div>
+
+                    <h2 style="color:#dc2626;">Hallo ${vorname},</h2>
+                    <p style="font-size:16px; color:#111827;">Vielen Dank für deine Registrierung!.</p>
+
+                    <p style="margin:24px 0;">Um deine Registrierung abzuschließen, bestätige bitte deine E-Mail-Adresse über den folgenden Button:</p>
+
+                    <div style="text-align:center; margin:32px 0;">
+                    <a href="${verificationLink}"
+                        style="display:inline-block; padding:14px 28px; background-color:#dc2626; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">
+                        Jetzt bestätigen
+                    </a>
+                    </div>
+
+                    <p style="font-size:12px; color:#6b7280; text-align:center;">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
+                </div>
+                `,
+                text: `Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den folgenden Link klicken: ${verificationLink}`
+            };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Fehler beim Senden der E-Mail:", error);
+                return res.status(500).json({ message: "Fehler beim Senden der E-Mail", error });
+            }
+
+            console.log("Verifizierungs-E-Mail gesendet:", info.messageId);
+
+            const selectQuery = "SELECT * FROM user WHERE idUser = ?";
+            db.query(selectQuery, [idUser], (err, result) => {
+                if (err) {
+                    console.error("Fehler beim Abrufen des aktualisierten Users:", err);
+                    return res.status(500).json({message: "Fehler beim Abrufen", error: err});
+                }
+
+                return res.status(200).json({ message: "E-Mail erfolgreich aktualisiert. Bitte überprüfen Sie Ihre E-Mail, um Ihre Adresse zu bestätigen.", updatedUser: result[0] });
+            })
+
+
+           
+        });
+    });
+});
+
+
+
+
+//#endregion user
+
+
+//#region Warenkorb
 app.get("/api/cartItems", (req, res) => {
     const user_id = req.query.user_id;
 
@@ -313,6 +503,7 @@ app.put("/api/cart/:user_id/:product_id", (req, res) => {
         return res.status(200).json({ message: "Menge erfolgreich aktualisiert"});
     })
 })
+//#endregion Warenkorb
 
 
 
