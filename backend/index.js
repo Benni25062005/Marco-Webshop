@@ -128,7 +128,7 @@ app.post("/user", async (req,res) => {
                 html: `
                 <div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
                     <div style="text-align:center; margin-bottom:32px;">
-                    <img src="" alt="FeuerTech Logo" style="max-width:120px;" />
+                    <img src="" alt="Knapp Kaminfeger" style="max-width:120px;" />
                     </div>
 
                     <h2 style="color:#dc2626;">Hallo ${vorname},</h2>
@@ -403,6 +403,108 @@ app.put("/user/:id/email", async (req, res) => {
 
 
            
+        });
+    });
+});
+
+app.post("/api/request-reset", (req, res) => {
+    const { email } = req.body;
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+
+    const selectQuery = "SELECT vorname FROM user WHERE email = ?";
+    db.query(selectQuery, [email], (err, userResult) => {
+        if (err || userResult.length === 0) {
+            return res.status(404).json({ message: "E-Mail wurde nicht gefunden" });
+        }
+
+        const vorname = userResult[0].vorname;
+
+        const updateQuery = "UPDATE user SET resetCode = ?, resetCodeCreatedAt = NOW() WHERE email = ?";
+        db.query(updateQuery, [code, email], (err, result) => {
+            if (err) {
+                console.error("Fehler beim Setzen des Codes", err);
+                return res.status(500).json({ message: "Fehler beim Setzen des Codes", err });
+            }
+
+            const transporter = nodemailer.createTransport({
+                service: "Gmail",
+                auth: {
+                    user: process.env.EMAIL,
+                    pass: process.env.EMAIL_PASSWORD,
+                },
+            });
+
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to: email,
+                subject: "Passwort zurücksetzen",
+                html: `
+                    <div style="font-family:sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#f9fafb;">
+                        <div style="text-align:center; margin-bottom:32px;">
+                            <h1 style="color:#dc2626;">Knapp Kaminkehrer</h1>
+                        </div>
+
+                        <h2 style="color:#111827;">Hallo ${vorname},</h2>
+
+                        <p style="margin:20px 0; font-size:16px">du hast angefordert, dein Passwort zurückzusetzen. Gib den folgenden Bestätigungscode in der App ein:</p>
+
+                        <div style="text-align:center; margin:30px 0;">
+                            <span style="font-size:32px; font-weight:bold; letter-spacing:4px; color:#dc2626;">${code}</span>
+                        </div>
+
+                        <p style="color:#6b7280;">Wenn du das nicht warst, kannst du diese E-Mail ignorieren.</p>
+
+                        <p style="margin-top:40px; font-size:12px; color:#9ca3af; text-align:center;">© 2025 Knapp Kaminkehrer</p>
+                    </div>
+                `
+            };
+
+            transporter.sendMail(mailOptions, (error) => {
+                if (error) {
+                    console.error("E-Mail konnte nicht gesendet werden", error);
+                    return res.status(500).json({ message: "E-Mail konnte nicht gesendet werden", error });
+                }
+
+                res.status(200).json({ message: "Code wurde gesendet!" });
+            });
+        });
+    });
+});
+
+
+app.post("/api/reset-password", async (req, res) => {
+    const { email, code, newPassword } = req.body;
+
+    const q = "SELECT resetCode, resetCodeCreatedAt FROM user WHERE email = ?";
+    db.query(q, [email], async (err, result) => {
+        if (err) {
+            console.error("Fehler beim Abrufen", err);
+            return res.status(500).json({ message: "Fehler beim Abrufen", err });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ message: "User nicht gefunden" });
+        }
+
+        const user = result[0];
+        const now = new Date();
+        const created = new Date(user.resetCodeCreatedAt);
+        if ((now - created) / 1000 > 600) {
+            return res.status(400).json({ message: "Code abgelaufen" });
+        }
+
+        if (user.resetCode !== code) {
+            return res.status(400).json({ message: "Falscher Code" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const updateQ = "UPDATE user SET password = ?, resetCode = NULL, resetCodeCreatedAt = NULL WHERE email = ?";
+
+        db.query(updateQ, [hashedPassword, email], (err) => {
+            if (err) {
+                console.error("Fehler beim Ändern des Passworts", err);
+                return res.status(500).json({ message: "Fehler beim Speichern", err });
+            }
+            res.json({ message: "Passwort erfolgreich geändert" });
         });
     });
 });

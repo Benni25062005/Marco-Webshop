@@ -7,12 +7,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser} from "./features/authSlice";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import ResetPasswortModal from "./components/ResetPasswortModal";
 
 export default function Main() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [resetPassword, setResetPassword] = useState(false);
     const { loading } = useSelector((state) => state.auth);
+    const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -20,7 +23,7 @@ export default function Main() {
     const handleLogin = (e) => {
         e.preventDefault();
         
-        if (!email || !password) {
+        if (!email || !password) {            
             toast.error("Bitte füllen Sie alle Felder aus.");
             return;
         }
@@ -41,8 +44,19 @@ export default function Main() {
             });
 
     }
+    
 
     return(<>
+
+    {resetPassword && ( 
+        <div className="flex items-center justify-center gap-2">
+            <ResetPasswortModal 
+                isOpen={resetPassword}
+                onClose={() => setResetPassword(false)}
+            
+            />
+        </div>
+    )}
     
     <div className="flex flex-col justify-center items-center mt-36 w-full">
         
@@ -64,6 +78,10 @@ export default function Main() {
                 <p>Noch kein Konto?</p>
                 <Link to="/registrierung" className="text-red-600 font-medium">Jetzt registrieren</Link>
             </div>
+            <div className="flex items-center justify-center gap-2 -mt-4">
+                <button onClick={() => setResetPassword(true)} className="text-red-600 font-medium">Passwort vergessen</button>
+            </div>
+            
         </form>
         
     </div>

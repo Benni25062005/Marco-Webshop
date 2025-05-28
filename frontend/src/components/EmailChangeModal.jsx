@@ -64,42 +64,42 @@ export default function EmailChangeModal({ isOpen, onClose, idUser, vorname}) {
     return (
     <>
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">Email ändern</h2>
+            <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
+                <h2 className="text-xl font-semibold mb-4">Email ändern</h2>
 
-            <div className="flex flex-col gap-4">
-            <input
-                type="email"
-                name="email"
-                placeholder="Neue Email"
-                className="inputStyle"
-                value={email}
-                onChange={handleChange}
-            />
+                <div className="flex flex-col gap-4">
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Neue Email"
+                    className="inputStyle"
+                    value={email}
+                    onChange={handleChange}
+                />
 
-            {waitingForVerification && (
-                <p className="text-sm text-red-600">
-                Bitte überprüfen Sie Ihre E-Mail-Adresse und bestätigen Sie den Link.
-                </p>
-            )}
+                {waitingForVerification && (
+                    <p className="text-sm text-red-600">
+                    Bitte überprüfen Sie Ihre E-Mail-Adresse und bestätigen Sie den Link.
+                    </p>
+                )}
+                </div>
+
+                <div className="flex justify-end gap-3 mt-6">
+                <button
+                    onClick={onClose}
+                    className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                >
+                    Abbrechen
+                </button>
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                    {loading ? "Speichern..." : "Speichern"}
+                </button>
+                </div>
             </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-            <button
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-            >
-                Abbrechen
-            </button>
-            <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-                {loading ? "Speichern..." : "Speichern"}
-            </button>
-            </div>
-        </div>
         </div>
     </>
 );
