@@ -5,29 +5,23 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-
-
+import { db } from "./db.js";
 import dotenv from "dotenv"
+import sendSms from "./routes/sendSms.js";
+import verifySms from "./routes/verifySms.js";
+
+
 dotenv.config()
 
 const app = express()
-app.use(cors())
+app.use(cors());
 app.use(express.json())
-
-
-const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
-})
 
 app.get("/", (req,res)=>{
     res.json("hello this is the backend")
 })
 
 //#region Produkte
-
 
 
 app.get("/produkte", (req,res)=>{
@@ -96,37 +90,47 @@ app.get("/produkte/:id", (req,res)=>{
 
 //#region user 
 
-app.post("/user", async (req,res) => {
+app.post("/user", async (req, res) => {
     const { email, password, vorname, nachname, telefonnummer, strasse, plz, ort, land } = req.body;
 
-    try{
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const emailToken = crypto.randomBytes(64).toString('hex');
-        const q = "INSERT INTO `user`(`email`, `password`, `vorname`, `nachname`, `telefonnummer`, `strasse`, `plz`, `ort`, `land`, `emailToken`, `isVerifiedEmail`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-        const values = [email, hashedPassword, vorname, nachname, telefonnummer, strasse, plz, ort, land, emailToken, 0];
-        
-        db.query(q, values, (err,data) => {
+    try {
+        const checkQuery = "SELECT idUser FROM user WHERE email = ?";
+        db.query(checkQuery, [email], async (err, result) => {
             if (err) {
-                console.error("Fehler beim Einfügen des Users:", err);
-                return res.status(500).json({ message: "Fehler beim Einfügen des Users", error: err });
+                console.error("Fehler beim Abfragen", err);
+                return res.status(500).json({ message: "Fehler beim Abfragen des Users", error: err });
             }
-    
-            const transporter = nodemailer.createTransport({
-                service: "Gmail",
-                auth: {
-                    user: process.env.EMAIL,
-                    pass: process.env.EMAIL_PASSWORD
-                },
-            });
 
-            const verificationLink = `http://localhost:8800/verify-email?token=${emailToken}`;
-            const mailOptions = {
-                from : process.env.EMAIL,
-                to: email,
-                subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
-                html: `
-                <div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
+            if (result.length > 0) {
+                return res.status(400).json({ message: "E-Mail ist bereits registriert!" });
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const emailToken = crypto.randomBytes(64).toString('hex');
+            const q = `INSERT INTO user (email, password, vorname, nachname, telefonnummer, strasse, plz, ort, land, emailToken, isVerifiedEmail)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const values = [email, hashedPassword, vorname, nachname, telefonnummer, strasse, plz, ort, land, emailToken, 0];
+
+            db.query(q, values, (err, data) => {
+                if (err) {
+                    console.error("Fehler beim Einfügen des Users:", err);
+                    return res.status(500).json({ message: "Fehler beim Einfügen des Users", error: err });
+                }
+
+                const transporter = nodemailer.createTransport({
+                    service: "Gmail",
+                    auth: {
+                        user: process.env.EMAIL,
+                        pass: process.env.EMAIL_PASSWORD
+                    },
+                });
+
+                const verificationLink = `http://localhost:8800/verify-email?token=${emailToken}`;
+                const mailOptions = {
+                    from: process.env.EMAIL,
+                    to: email,
+                    subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
+                    html: `<div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
                     <div style="text-align:center; margin-bottom:32px;">
                     <img src="" alt="Knapp Kaminfeger" style="max-width:120px;" />
                     </div>
@@ -144,19 +148,19 @@ app.post("/user", async (req,res) => {
                     </div>
 
                     <p style="font-size:12px; color:#6b7280; text-align:center;">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
-                </div>
-                `,
-                text: `Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den folgenden Link klicken: ${verificationLink}`
-            };
+                </div>`, // dein HTML
+                    text: `Bitte bestätigen Sie Ihre E-Mail-Adresse: ${verificationLink}`
+                };
 
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.error("Fehler beim Senden der E-Mail:", error);
-                    return res.status(500).json({ message: "Fehler beim Senden der E-Mail", error });
-                }
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error("Fehler beim Senden der E-Mail:", error);
+                        return res.status(500).json({ message: "Fehler beim Senden der E-Mail", error });
+                    }
 
-                console.log("Verifizierungs-E-Mail gesendet:", info.messageId);
-                return res.status(201).json({ message: "User erfolgreich erstellt. Bitte überprüfen Sie Ihre E-Mail, um Ihre Adresse zu bestätigen." });
+                    console.log("Verifizierungs-E-Mail gesendet:", info.messageId);
+                    return res.status(201).json({ message: "User erfolgreich erstellt. Bitte bestätigen Sie Ihre E-Mail." });
+                });
             });
         });
     } catch (error) {
@@ -509,8 +513,9 @@ app.post("/api/reset-password", async (req, res) => {
     });
 });
 
+app.use("/api", sendSms);
 
-
+app.use("/api", verifySms);
 
 //#endregion user
 

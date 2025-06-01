@@ -33,6 +33,11 @@ export default function Main() {
             return;
         }
 
+        if(password.length < 8) {
+            toast.error("Passwort muss mindestens 8 Zeichen lang sein!")
+            return;
+        }
+
         const user = {
             email,
             password,
@@ -45,13 +50,15 @@ export default function Main() {
             land
             };
         dispatch(registerUser(user))
-        navigate("/profile")
+        .unwrap()
+        .then(() => {
+            navigate("/profile")
+        })
+        .catch((err) => {
+            toast.error(err.message || "Email bereits verwendet");
+        })
 
-        setPhone("");
         setEmail("");
-        setPassword("");
-        setVorname("");
-        setNachname("");
     };
 
 

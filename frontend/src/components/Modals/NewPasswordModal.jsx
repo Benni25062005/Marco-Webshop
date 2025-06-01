@@ -1,7 +1,7 @@
 import React, { use, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { updatePassword } from "../features/userSlice";
+import { updatePassword } from "../../features/userSlice";
 
 
 export default function PasswordChangeModal({ isOpen, onClose, idUser }) {

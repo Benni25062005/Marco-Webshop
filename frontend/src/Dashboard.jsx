@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
 import { Flame, FireExtinguisher, Shield } from "lucide-react";
-import avatar from "../assets/avatars.png";
 import marco from "../assets/Marco_main.jpg";
-import marco_dl from "../assets/Marco_Dienstleistung.jpg"
-import placeholder from "../assets/placeholder.png";
 import ServiceCard from "./components/ServiceCard";
+
+const logoUrl = new URL("../assets/Marco_main.jpg", import.meta.url).href;
 
 export default function Main() {
  
+  console.log("Bildfad", marco)
 
 
   return (
@@ -29,7 +29,7 @@ export default function Main() {
         <div className="flex justify-center mt-24 ">
           <div className="flex flex-col md:flex-row lg:space-x-24 md:space-x-16">
 
-            <img src={marco} className="w-auto max-w-full h-auto lg:h-[38em] md:h-[32em] sm:h-[26em] h-[16em] p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md"></img>
+            <img src={logoUrl} className="w-auto max-w-full h-auto lg:h-[38em] md:h-[32em] sm:h-[26em] h-[16em] p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md"></img>
             
             <div className="flex flex-col max-w-2xl md:max-w-2xl mx-auto space-y-2 md:space-y-4 p-4 sm:p-6 md:p-8 ">
 

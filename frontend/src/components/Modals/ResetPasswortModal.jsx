@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import CodeInputModal from "./CodeInputModal";
 import ChangePasswordModal from "./ChangePasswordModal"; 
-import { requestReset } from "../features/authSlice";
+import { requestReset } from "../../features/authSlice";
 
 export default function ResetPasswortModal({ isOpen, onClose}) {
     const [loading, setLoading] = useState(false);

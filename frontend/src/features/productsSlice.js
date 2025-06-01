@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+
 const initialState = {
     items: [],
     selectedItem:null,
@@ -11,7 +12,10 @@ export const fetchFeuerloescher = createAsyncThunk(
     "products/productsFetch",
     async (kategorie) => {
         try {
+            console.log(kategorie)
           const res = await axios.get(`http://localhost:8800/produkte?kategorie=${kategorie}`);
+
+          console.log("API Response", res.data)
           if (!res.data || res.data.length === 0) {
             throw new Error("No products found");
           }
@@ -21,6 +25,7 @@ export const fetchFeuerloescher = createAsyncThunk(
         }
       }
 )
+
 export const fetchFeuerloescherById = createAsyncThunk(
     "products/productsFetchById",
     async({idProdukt, kategorie}) => {
@@ -38,15 +43,9 @@ export const fetchFeuerloescherById = createAsyncThunk(
 )
 
 
-
-
 const productsSlice = createSlice({
     name: "products",
-    initialState: {
-        items: [],
-        selectedItem: null,
-        status: null
-    },
+    initialState,
     reducers: {
         clearFeuerloescher: (state) => {
             state.items = [];
@@ -62,8 +61,9 @@ const productsSlice = createSlice({
                 state.items = action.payload
                 state.status = "success"
             })
-            .addCase(fetchFeuerloescher.rejected, (state) => {
-                state.status = "failed"
+            .addCase(fetchFeuerloescher.rejected, (state, action) => {
+                state.status = "failed";
+
             })
             
             .addCase(fetchFeuerloescherById.pending, (state) => {

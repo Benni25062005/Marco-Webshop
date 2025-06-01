@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
-import logo from "../../assets/Logo_Marco1.png";
-import profile from "../../assets/profile.png";
-import cart from "../../assets/shopping_cart.png";
 import { User, ShoppingCart } from "lucide-react";
+
+const logoUrl = new URL("../../assets/Logo_Marco.png", import.meta.url).href;
+
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -16,8 +16,7 @@ export default function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const menuRef = useRef(null);
-
-
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -44,7 +43,7 @@ export default function Header() {
         {/* Logo */}
         <Link to="/main" className="flex justify-start flex-shrink-0 mr-24 ">
           <img
-            src={logo}
+            src={logoUrl} 
             alt="Logo"
             className="h-16 md:h-20 lg:h-28 cursor-pointer"
           />

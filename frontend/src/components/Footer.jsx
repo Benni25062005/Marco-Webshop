@@ -4,27 +4,27 @@ export default function Main(){
 
     return(<>
     
-    <footer class="flex justify-center space-x-24 border-t mt-36 mb-12 pt-12">
+    <footer className="flex justify-center space-x-24 border-t mt-36 mb-12 pt-12">
 
-        <div class="">
-            <p class="font-medium">Adresse</p>
+        <div className="">
+            <p className="font-medium">Adresse</p>
             <p>Kaminfegergeschäft Knapp Marco</p>
             <p>Schützenhausweg 8</p>
             <p>9470 Buchs</p>
         </div>
 
         <div>
-            <p class="font-medium">Telefon</p>
+            <p className="font-medium">Telefon</p>
             <p>Natel +41 79 814 81 32</p>
-            <p class="font-medium">Email</p>
+            <p className="font-medium">Email</p>
             <p>kaminfeger-knapp@gmx.ch</p>
         </div>
 
-        <div class="flex flex-col">
-            <p class="font-medium">Rechtliches</p>
-            <a href="/impressum" class="underline">Impressum</a>
-            <a href="/datenschutz" class="underline">Datenschutz</a>
-            <a href="/kontakt" class="underline">Kontakt</a>
+        <div className="flex flex-col">
+            <p className="font-medium">Rechtliches</p>
+            <a href="/impressum" className="underline">Impressum</a>
+            <a href="/datenschutz" className="underline">Datenschutz</a>
+            <a href="/kontakt" className="underline">Kontakt</a>
         </div>
 
     </footer>

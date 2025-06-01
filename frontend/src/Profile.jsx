@@ -3,8 +3,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateContact, updateAdress, setUser, fetchUserById } from "./features/userSlice";
 import toast from "react-hot-toast";
 import { Pencil, Check} from "lucide-react"
-import PasswordChangeModal from "./components/PasswordChangeModal";
-import EmailChangeModal from "./components/EmailChangeModal";
+import NewPasswordModal from "./components/Modals/NewPasswordModal";
+import EmailChangeModal from "./components/Modals/ChangeEmailModal";
+import ChangeNumberModal from "./components/Modals/ChangeNumberModal";
 
 export default function Main() {
   const { user, token } = useSelector((state) => state.auth);
@@ -16,6 +17,8 @@ export default function Main() {
   const [invalidAddressFields, setInvalidAddressFields] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+
 
   const [formData, setFormData] = useState({
     vorname: user.vorname,
@@ -27,6 +30,28 @@ export default function Main() {
     strasse: user.strasse,
     plz: user.plz,
   });
+
+  const countryDialCodes = {
+    ch: "+41",
+    at: "+43",
+    de: "+49"
+  }
+
+  const getCountryCode = (land) => {
+    switch (land.toLowerCase()) {
+      case "schweiz":
+        return "ch";
+      case "österreich":
+        return "at";
+      case "deutschland":
+        return "de";
+
+    }
+  }
+
+  const countryCode = getCountryCode(user.land);
+  const dialCode = countryDialCodes[countryCode];
+
 
  useEffect(() => {
   if (!user) {
@@ -159,7 +184,7 @@ useEffect(() => {
   return (
   <>
     {modalOpen && (
-      <PasswordChangeModal
+      <NewPasswordModal
       isOpen={modalOpen}
       onClose={() => setModalOpen(false)}
       idUser={user.idUser}
@@ -172,6 +197,14 @@ useEffect(() => {
       onClose={() => setEmailModalOpen(false)}
       idUser={user.idUser}
       vorname={user.vorname}
+      />
+    )}
+
+    {phoneModalOpen && (
+      <ChangeNumberModal 
+      isOpen={phoneModalOpen}
+      onClose={() => setPhoneModalOpen(false)}
+      
       />
     )}
     
@@ -202,28 +235,39 @@ useEffect(() => {
                 <p className="text-sm text-gray-500">
                   {field.charAt(0).toUpperCase() + field.slice(1)}
                 </p>
-                {editMode ? (
-                  <input
-                    type="text"
-                    name={field}
-                    className={`ProfileInputyStyle w-full max-w-md ${
-                      invalidFields.includes(field) && editMode ? "border-red-500" : ""
-                    }`}
-                    value={formData[field]}
-                    onChange={handleChange}
-                  />
-                ) : (
+
+                {field === "email" ? (
                   <>
-                  <p className="text-md font-medium break-words">{formData[field]}</p>
-                  {field === "email" && (
+                    <p className="text-md font-medium break-words">{formData[field]}</p>
                     <button onClick={() => setEmailModalOpen(true)} className="text-sm text-blue-600 hover:underline">
                       E-Mail ändern
                     </button>
-                  )}
                   </>
+                ) : field === "telefonnummer" && dialCode ? (
+                    <>
+                    <p className="text-md font-medium break-words">{dialCode} {formData[field]}</p>
+                    <button onClick={() => setPhoneModalOpen(true)} className="text-sm text-blue-600 hover:underline">
+                      Telefonnummer ändern
+                    </button>
+                    </>
+                ) : editMode ? (
+                    <input
+                      type="text"
+                      name={field}
+                      className={`ProfileInputyStyle w-full max-w-md ${
+                        invalidFields.includes(field) && editMode ? "border-red-500" : ""
+                      }`}
+                      value={formData[field]}
+                      onChange={handleChange}
+                  />
+                ) : (
+                    <p className="text-md font-medium break-words">
+                      {formData[field]}
+                    </p>
                 )}
               </div>
             ))}
+            
             <div className="w-full">
               <div className="items-center justify-between"> 
                 <div>
