@@ -1,5 +1,6 @@
 import React,{useState} from "react";
 import PhoneInput from "react-phone-input-2";
+import { motion } from "framer-motion";
 import "react-phone-input-2/lib/style.css";
 
 export default function Main(){
@@ -37,13 +38,13 @@ export default function Main(){
                         <h1 className="text-xl sm:text-2xl font-medium mb-4">Schicken Sie uns eine E-mail</h1>
 
                         <div className="flex flex-col sm:flex-row gap-4 ">
-                            <input className="border-2 rounded-md p-1 shadow-sm focus:border-bgorange  focus:ring-bgorange focus:outline-none"  placeholder="Vorname" type="text" id="vn"></input>
-                            <input className="border-2 rounded-md p-1 shadow-sm focus:border-bgorange focus:ring-bgorange focus:outline-none" placeholder="Nachname" type="text" id="nn"></input>
+                            <input className="ProfileInputyStyle"  placeholder="Vorname" type="text" id="vn"></input>
+                            <input className="ProfileInputyStyle" placeholder="Nachname" type="text" id="nn"></input>
                         </div>
 
-                        <input className=" border-2 rounded-md p-1 shadow-sm focus:border-bgorange  focus:ring-bgorange focus:outline-none"  placeholder="Email" type="email" id="email"></input>
+                        <input className="ProfileInputyStyle"  placeholder="Email" type="email" id="email"></input>
                         
-                        <textarea className=" border-2 rounded-md p-1 h-24 shadow-sm focus:border-bgorange  focus:ring-bgorange focus:outline-none" id="nachricht" placeholder="Hinterlassen Sie hier Ihre E-mail"></textarea>
+                        <textarea className="ProfileInputyStyle" id="nachricht" placeholder="Hinterlassen Sie hier Ihre E-mail"></textarea>
 
                         <div className="w-full">
                             <PhoneInput
@@ -58,7 +59,16 @@ export default function Main(){
                             />
                         </div>
 
-                        <button className="bg-bgorange text-white text-lg font-bold py-2 px-6 rounded-md shadow-md hover:bg-orange-600 transition">Senden</button>
+                        <motion.button 
+                            className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-md self-center"
+                            initial={{ opacity: 0, y: 0}}
+                            whileHover={{ scale: 1.02}}
+                            animate={{ opacity: 1, y: 0}}
+                            transition={{ duration: 0.3}}
+                            
+                        >
+                            Senden
+                        </motion.button>
 
                     </div>
 
@@ -67,7 +77,7 @@ export default function Main(){
                 {/*Map*/}
                 <div className="mt-16 flex justify-center ">
                     <iframe className="max-w-3xl rounded-md shadow-md" 
-                    width="100%" height="400" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=520&amp;height=400&amp;hl=en&amp;q=Sch%C3%BCtzenhausweg%208%209470%20Buchs+(Kaminfegermeister%20Marco%20Knapp)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"><a href="https://www.gps.ie/collections/drones/">buy drones</a></iframe>
+                    width="100%" height="400" frameBorder="0" scrolling="no" marginHeight="0" marginWidth="0" src="https://maps.google.com/maps?width=520&amp;height=400&amp;hl=en&amp;q=Sch%C3%BCtzenhausweg%208%209470%20Buchs+(Kaminfegermeister%20Marco%20Knapp)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"><a href="https://www.gps.ie/collections/drones/">buy drones</a></iframe>
                 </div>
             </div>
         </main>

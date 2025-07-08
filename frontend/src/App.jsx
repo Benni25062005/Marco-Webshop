@@ -37,7 +37,7 @@ export default function App(){
                     <ScrollToTop />
                     <Routes>
                             <Route index element={<Dashboard />} />
-                            <Route path="main" element={<Dashboard />} />
+                            <Route path="home" element={<Dashboard />} />
                             <Route path="feuerloescher" element={<Feuerloescher/>} />
                             <Route path="brandschutz" element={<Brandschutz/>} />
                             <Route path="kontakt" element={<Kontakt/>} />

@@ -22,6 +22,7 @@ export default function Main(){
       if (items.length === 0) {
         dispatch(fetchFeuerloescher("feuerloescher"));
       }
+      console.log("Items", items, Array.isArray(items))
     }, [dispatch, items.length]);
 
 
@@ -61,18 +62,24 @@ export default function Main(){
 
     return (<>
 
+        
         <h1 className="mb-24 mt-14 text-center text-4xl sm:text-5xl md:text-6xl font-medium">Feuerlöscher</h1>
             
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-24 gap-x-12 justify-items-center px-4 sm:px-8 md:px-16 lg:px-32 xl:px-64">
-          {items.map((item, i) => (
-            <FeuerloescherCard
-              key={item.idProdukt}
-              item={item}
-              onClick={handleClick}
-              onAddToCart={() => handleAddToCart(item)}
-              delay={i * 0.15}
-            />
-          ))}
+          {Array.isArray(items) ? (
+            items.map((item, i) => (
+              <FeuerloescherCard
+                key={item.idProdukt}
+                item={item}
+                onClick={handleClick}
+                onAddToCart={() => handleAddToCart(item)}
+                delay={i * 0.15}
+              />
+          ))
+          ): (
+            <p>Fehler beim Laden oder keine Produkte gefunden</p>
+          )}
+          
         </div>
     </>)
 

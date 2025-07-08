@@ -6,6 +6,7 @@ import { Pencil, Check} from "lucide-react"
 import NewPasswordModal from "./components/Modals/NewPasswordModal";
 import EmailChangeModal from "./components/Modals/ChangeEmailModal";
 import ChangeNumberModal from "./components/Modals/ChangeNumberModal";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Main() {
   const { user, token } = useSelector((state) => state.auth);
@@ -63,7 +64,7 @@ export default function Main() {
 }, []);
 
 useEffect(() => {
-  if (!user) return;
+  
 
 
   if (user) {
@@ -135,7 +136,7 @@ useEffect(() => {
           dispatch(setUser(res.updatedUser)); 
           localStorage.setItem("user", JSON.stringify(res.updatedUser)); 
           setFormData(res.updatedUser);
-          toast.success("Kontakt gespeichert");
+          toast.success("Erfolgreich gespeichert")
         })
         .catch(() => toast.error("Fehler beim Speichern der Daten"));
     
@@ -167,7 +168,7 @@ useEffect(() => {
         dispatch(setUser(res.updatedUser));
         localStorage.setItem("user", JSON.stringify(res.updatedUser));
         setFormData(res.updatedUser);
-        toast.success("Adresse gespeichert");
+        toast.success("Erfolgreich gespeichert")
       })
       .catch(() => toast.error("Fehler beim Speichern der Daten"));
   };
@@ -185,7 +186,7 @@ useEffect(() => {
   <>
     {modalOpen && (
       <NewPasswordModal
-      isOpen={modalOpen}
+      isOpen={modalOpen}s
       onClose={() => setModalOpen(false)}
       idUser={user.idUser}
     />
@@ -207,95 +208,133 @@ useEffect(() => {
       
       />
     )}
-    
 
-    <div className="flex flex-col justify-center mt-16 px-4 w-full">
+    
+    <div className="flex flex-col justify-center mt-16 px-4 w-full max-w-5xl mx-auto">
       <h1 className="text-3xl text-center font-medium mb-4">
         Willkommen, {user.vorname}!
       </h1>
 
       <div className="flex flex-col items-center w-full">
         {/* Kontaktinformationen */}
-        <div className="mt-8 border border-red-600 rounded-xl px-4 py-6 sm:px-6 w-full max-w-4xl relative">
-          {editMode ? (
-            <Check
-              onClick={handleContactSave}
-              className="h-8 w-8 text-red-600 cursor-pointer absolute top-4 right-4"
-            />
-          ) : (
-            <Pencil
-              onClick={() => setEditMode(true)}
-              className="h-6 w-6 text-red-600 cursor-pointer absolute top-4 right-4"
-            />
-          )}
+        <div className="mt-8 border border-gray-200 rounded-2xl shadow-md px-6 py-6 sm:px-8 w-full max-w-4xl relative bg-white">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-800">Kontaktinformationen</h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-            {["vorname", "nachname", "email", "telefonnummer"].map((field) => (
-              <div key={field} className="w-full">
-                <p className="text-sm text-gray-500">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
-                </p>
+              {editMode ? (
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleContactSave}
+                    className="text-sm font-medium px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
+                  >
+                    Speichern
+                  </button>
+                  <button
+                    onClick={() => setEditMode(false)}
+                    className="text-sm font-medium px-3 py-1 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition duration-200"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setEditMode(true)}
+                  className="flex items-center text-sm px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all duration-200"
+                >
+                  <Pencil className="h-4 w-4 mr-1 " />
+                  Bearbeiten
+                </button>
+              )}
+            </div>
 
-                {field === "email" ? (
-                  <>
-                    <p className="text-md font-medium break-words">{formData[field]}</p>
-                    <button onClick={() => setEmailModalOpen(true)} className="text-sm text-blue-600 hover:underline">
-                      E-Mail ändern
-                    </button>
-                  </>
-                ) : field === "telefonnummer" && dialCode ? (
-                    <>
-                    <p className="text-md font-medium break-words">{dialCode} {formData[field]}</p>
-                    <button onClick={() => setPhoneModalOpen(true)} className="text-sm text-blue-600 hover:underline">
-                      Telefonnummer ändern
-                    </button>
-                    </>
-                ) : editMode ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+              {["vorname", "nachname", "email", "telefonnummer"].map((field) => (
+                <div key={field} className="w-full">
+                  <p className="text-sm text-gray-500">
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                  </p>
+
+                  {field === "email" ? (
+                    <div className="flex flex-col gap-1 mt-1">
+                      <p className="text-md font-medium break-words">{formData[field]}</p>
+                      <button
+                        onClick={() => setEmailModalOpen(true)}
+                        className="text-sm text-blue-600 hover:underline w-fit"
+                      >
+                        E-Mail ändern
+                      </button>
+                    </div>
+                  ) : field === "telefonnummer" && dialCode ? (
+                    <div className="flex flex-col gap-1 mt-1">
+                      <p className="text-md font-medium break-words">{dialCode} {formData[field]}</p>
+                      <button
+                        onClick={() => setPhoneModalOpen(true)}
+                        className="text-sm text-blue-600 hover:underline w-fit"
+                      >
+                        Telefonnummer ändern
+                      </button>
+                    </div>
+                  ) : editMode ? (
                     <input
                       type="text"
                       name={field}
-                      className={`ProfileInputyStyle w-full max-w-md ${
-                        invalidFields.includes(field) && editMode ? "border-red-500" : ""
+                      className={`ProfileInputyStyle w-full ${
+                        invalidFields.includes(field) ? "border-red-500" : ""
                       }`}
                       value={formData[field]}
                       onChange={handleChange}
-                  />
-                ) : (
-                    <p className="text-md font-medium break-words">
+                    />
+                  ) : (
+                    <p className="text-md font-medium break-words mt-1">
                       {formData[field]}
                     </p>
-                )}
-              </div>
-            ))}
-            
-            <div className="w-full">
-              <div className="items-center justify-between"> 
-                <div>
-                  <p className="text-sm text-gray-500">Passwort</p>
-                  <p className="text-md font-medium">********</p>
+                  )}
                 </div>
-                
-                <button onClick={() => setModalOpen(true)} className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 duration-300 transition-colors">
+              ))}
+
+              <div className="w-full mt-2">
+                <p className="text-sm text-gray-500">Passwort</p>
+                <p className="text-md font-medium mt-1">********</p>
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="mt-2 text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors duration-200"
+                >
                   Passwort ändern
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
         {/* Adresse */}
-        <div className="mt-8 border border-red-600 rounded-xl px-4 py-6 sm:px-6 w-full max-w-4xl relative">
-          {editAddressMode ? (
-            <Check
-              onClick={handleAddressSave}
-              className="h-8 w-8 text-red-600 cursor-pointer absolute top-4 right-4"
-            />
-          ) : (
-            <Pencil
-              onClick={() => setEditAddressMode(true)}
-              className="h-6 w-6 text-red-600 cursor-pointer absolute top-4 right-4"
-            />
-          )}
+        <div className="mt-12 border border-gray-200 rounded-2xl shadow-md px-6 py-6 sm:px-8 w-full max-w-4xl relative bg-white">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-800">Adresse</h2>
+
+            {editAddressMode ? (
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAddressSave}
+                  className="text-sm font-medium px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
+                >
+                  Speichern
+                </button>
+                <button
+                  onClick={() => setEditAddressMode(false)}
+                  className="text-sm font-medium px-3 py-1 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition duration-200"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setEditAddressMode(true)}
+                className="flex items-center text-sm px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+                Bearbeiten
+              </button>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             {["land", "ort", "strasse", "plz"].map((field) => (
@@ -303,18 +342,21 @@ useEffect(() => {
                 <p className="text-sm text-gray-500">
                   {field.charAt(0).toUpperCase() + field.slice(1)}
                 </p>
+
                 {editAddressMode ? (
                   <input
                     type="text"
                     name={field}
-                    className={`ProfileInputyStyle w-full max-w-md ${
-                      invalidAddressFields.includes(field) && editAddressMode ? "border-red-500" : ""
+                    className={`ProfileInputyStyle w-full ${
+                      invalidAddressFields.includes(field) ? "border-red-500" : ""
                     }`}
                     value={formData[field]}
                     onChange={handleChange}
                   />
                 ) : (
-                  <p className="text-md font-medium break-words">{formData[field]}</p>
+                  <p className="text-md font-medium break-words mt-1">
+                    {formData[field]}
+                  </p>
                 )}
               </div>
             ))}

@@ -1,11 +1,19 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+
 import express from "express";
 import { sendVerificationCode } from "../services/sms.js";
-import { db } from "../db.js";
+import db from "../db.js";
+
 
 const router = express.Router();
 
 router.post("/send-sms-code", async (req, res)  => {
+     console.log(req.body)
+
     const {phone, idUser} = req.body;
+   
     
 
     if (!phone) {

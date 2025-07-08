@@ -6,8 +6,9 @@ import { LogIn } from "lucide-react";
 import { useEffect } from "react";
 import { removeItemFromCart } from "./features/cartSlice";
 import { updateItemQuantity } from "./features/cartSlice";
+import CartItems  from "./components/Modals/CartItems";
+import CartSummary from "./components/Modals/CartSummary";
 
-import { Plus, Minus} from "lucide-react";
 
 
 export default function Main() {
@@ -70,44 +71,20 @@ export default function Main() {
 
     return(<>
     
-      {cartItems.length === 0 ? (
-        <p className="text-center mt-10 text-gray-600 text-lg">Warenkorb ist leer.</p>
-      ) : (
-        <div className="space-y-6 px-4 max-w-3xl mx-auto mt-10">
-          {cartItems.map(item => (
-            <div key={item.product_id} className="flex items-center justify-between bg-white shadow-md rounded-xl p-4 border">
-              
-              <div className="flex items-center gap-4">
-                <img src={item.Bild} alt={item.Name} className="h-16 w-16 object-contain border rounded-md p-1 bg-gray-50" />
-                <div>
-                  <h2 className="font-semibold text-gray-800">{item.Name}</h2>
-                  <p className="text-sm text-gray-500">CHF {Number(item.Preis_brutto).toFixed(2)}</p>
-                  <p className="text-sm text-gray-400">Menge: {item.menge}</p>
-                </div>
-              </div>
-
-
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-x-4 border border-gray-300 rounded-xl px-2 py-1">
-                  <button onClick={() => handleUpdateQuantity(item.product_id, item.menge - 1)}> 
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <p className="text-md">{item.menge}</p>
-                  <button onClick={() => handleUpdateQuantity(item.product_id, item.menge + 1)}>
-                    <Plus className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => handleRemoveFromCart(item)}
-                  className="text-sm text-red-600 hover:text-red-700 hover:underline"
-                >
-                  Entfernen
-                </button>
-              </div>
-            </div>
-          ))}
+      <div className="flex flex-col md:flex-row gap-6 px-6 mt-10 max-w-6xl mx-auto">
+        <div className="w-full md:w-2/3">
+          <CartItems
+          cartItems={cartItems}
+          user={user}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveFromCart}
+          />
         </div>
-      )}
+        <div className="w-full md:w-1/3">
+          <CartSummary 
+          cartItems={cartItems}          
+          />
+        </div>
+      </div>
     </>)
 }

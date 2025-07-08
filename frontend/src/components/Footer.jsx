@@ -4,7 +4,7 @@ export default function Main(){
 
     return(<>
     
-    <footer className="flex justify-center space-x-24 border-t mt-36 mb-12 pt-12">
+    <footer className="flex justify-center space-x-[10%] border-t mt-36 mb-12 pt-12">
 
         <div className="">
             <p className="font-medium">Adresse</p>

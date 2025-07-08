@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import { db } from "./db.js";
+import db from "./db.js";
 import dotenv from "dotenv"
 import sendSms from "./routes/sendSms.js";
 import verifySms from "./routes/verifySms.js";
@@ -34,16 +34,10 @@ app.get("/produkte", (req,res)=>{
         if(err) return res.json(err);
 
         const transformed = data.map((item) => {
-            let image = null;
-
-            if(item.Bild) {
-                const base64Image = Buffer.from(item.Bild).toString("base64");
-                image = `data:image/jpeg;base64,${base64Image}`;
-            }
+            
 
             return {
                 ...item,
-                Bild: image,
                 Details: item.Details ? JSON.parse(item.Details) : null,
             };
         
@@ -65,16 +59,10 @@ app.get("/produkte/:id", (req,res)=>{
 
         if(data.length > 0) {
             const transformed = data.map((item) => {
-                let image = null;
-    
-                if(item.Bild) {
-                    const base64Image = Buffer.from(item.Bild).toString("base64");
-                    image = `data:image/jpeg;base64,${base64Image}`;
-                }
+                
     
                 return {
                     ...item,
-                    Bild: image,
                     Details: item.Details ? JSON.parse(item.Details) : null,
                 };
             
@@ -431,7 +419,9 @@ app.post("/api/request-reset", (req, res) => {
             }
 
             const transporter = nodemailer.createTransport({
-                service: "Gmail",
+                host: "smtp.gmail.com",
+                post: 465,
+                secure: true,
                 auth: {
                     user: process.env.EMAIL,
                     pass: process.env.EMAIL_PASSWORD,
@@ -519,7 +509,6 @@ app.use("/api", verifySms);
 
 //#endregion user
 
-
 //#region Warenkorb
 app.get("/api/cartItems", (req, res) => {
     const user_id = req.query.user_id;
@@ -538,14 +527,10 @@ app.get("/api/cartItems", (req, res) => {
         }
 
         const transformed = data.map((item) => {
-            let image = null;
-            if(item.Bild) {
-                 image = `data:image/jpeg;base64,${Buffer.from(item.Bild).toString("base64")}`;
-            }
+            
 
             return {
                 ...item,
-                Bild: image,
             }
         });
         return res.status(200).json(transformed);
@@ -611,7 +596,6 @@ app.put("/api/cart/:user_id/:product_id", (req, res) => {
     })
 })
 //#endregion Warenkorb
-
 
 
 const port = process.env.PORT || 8800

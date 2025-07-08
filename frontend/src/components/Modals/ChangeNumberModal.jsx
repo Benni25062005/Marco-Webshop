@@ -1,16 +1,51 @@
-import Reac, {useState} from "react";
+import react, {useState} from "react";
+import toast from "react-hot-toast";
+import CodeNumberModal from "./CodeNumberModal";
+import { useDispatch, useSelector } from "react-redux";
+import { sendSms } from "../../features/userSlice";
 
 export default function ChangeNumberModal({onClose, isOpen }) {
     const [number, SetNumber] = useState("");
-    const [step, setStep] = useState(""); 
+    const [step, setStep] = useState(1); 
+    const [code, setCode] = useState("");
+    const dispatch = useDispatch();
+    const { user } = useSelector((state) => state.auth)
+    
 
-    const handleChange = () => {
+    const handleChange = async () => {
+        if(!number) {
+            toast.error("Bitte geben Sie eine Telefonnummer ein");
+            return;
+        }
+
+        console.log(number)
+
+        // try{
+        //     const idUser = user.idUser;
+
+        //     await dispatch(sendSms({phone: number, idUser})).unwrap();
+        //     toast.success("Code wurde gesendet");
+        //     setStep(2)
+        // } catch (err) {
+        //     toast.error("Fehler beim Senden der SMS");
+        // } 
+
+        setStep(2)
+
+       
 
     }
 
     return(<>
+
+    {step === 2 && (
+        <CodeNumberModal 
+        onCodeChange={setCode}        
+        />
+    )}
     
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+    {step === 1 && (
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
         <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
             <div className="flex flex-col justify-center gap-2">
                     <h2 className="text-2xl font-medium mb-4">Telefonnummer eingeben</h2>
@@ -36,9 +71,9 @@ export default function ChangeNumberModal({onClose, isOpen }) {
                         Abbrechen
                     </button>
                     <button className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                        onClick={handleChange()}
+                        onClick={handleChange}
                         >
-                        Senden
+                        Code senden
                     </button>
                 </div>
 
@@ -47,6 +82,8 @@ export default function ChangeNumberModal({onClose, isOpen }) {
             </div>
         </div>
     </div>
+    )}
+    
 
     
     

@@ -41,7 +41,7 @@ export default function Header() {
     <header className="w-full border-b bg-bgorange border-bgorange  px-4 py-2">
       <div className="max-w-[85rem] mx-auto flex items-center justify-between relative">
         {/* Logo */}
-        <Link to="/main" className="flex justify-start flex-shrink-0 mr-24 ">
+        <Link to="/home" className="flex justify-start flex-shrink-0 mr-24 ">
           <img
             src={logoUrl} 
             alt="Logo"
@@ -51,7 +51,7 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 lg:space-x-10 text-lg md:text-xl lg:text-3xl font-medium">
-          <Link to="/main" className="nav-item hover:text-orange-500">Home</Link>
+          <Link to="/home" className="nav-item hover:text-orange-500">Home</Link>
           <Link to="/feuerloescher" className="nav-item hover:text-orange-500">Feuerlöscher</Link>
           <Link to="/brandschutz" className="nav-item hover:text-orange-500">Brandschutz</Link>
           <Link to="/feuerungskontrolle" className="nav-item hover:text-orange-500">Feuerungskontrollen</Link>

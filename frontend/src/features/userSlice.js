@@ -161,7 +161,7 @@ const userSlice = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
-             addCase(sendSms.pending, (state) => {
+            .addCase(sendSms.pending, (state) => {
                 state.smsStatus = "loading";
             })
             .addCase(sendSms.fulfilled, (state, action) => {
