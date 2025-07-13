@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateContact, updateAdress, setUser, fetchUserById } from "./features/userSlice";
+import { updateContact, updateAdress, setUser, fetchUserById } from "../user/userSlice";
 import toast from "react-hot-toast";
 import { Pencil, Check} from "lucide-react"
-import NewPasswordModal from "./components/Modals/NewPasswordModal";
-import EmailChangeModal from "./components/Modals/ChangeEmailModal";
-import ChangeNumberModal from "./components/Modals/ChangeNumberModal";
+import NewPasswordModal from "../../components/common/modals/NewPasswordModal";
+import EmailChangeModal from "../../components/common/modals/ChangeEmailModal";
+import ChangeNumberModal from "../../components/common/modals/ChangeNumberModal";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Main() {

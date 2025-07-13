@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { updateEmail } from "../../features/userSlice";
-import { setUser, fetchUserById } from "../../features/userSlice";
+import { updateEmail } from "../../../features/user/userSlice";
+import { setUser, fetchUserById } from "../../../features/user/userSlice";
 
 export default function EmailChangeModal({ isOpen, onClose, idUser, vorname}) {
     const [email, setEmail] = useState("");

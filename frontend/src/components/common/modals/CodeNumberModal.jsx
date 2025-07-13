@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { verifySms } from "../../features/userSlice";
+import { verifySms } from "../../../features/user/userSlice";
 
 export default function CodeNumberModal({ onCodeChange }) {
   const [code, setCode] = useState(["", "", "", ""]);

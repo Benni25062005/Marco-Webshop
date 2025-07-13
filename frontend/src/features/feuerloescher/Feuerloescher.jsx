@@ -5,9 +5,9 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { fetchFeuerloescher } from "./features/productsSlice";
-import FeuerloescherCard from "./components/FeuerloescherCard";
-import { addItemToCart } from "./features/cartSlice";
+import { fetchFeuerloescher } from "../products/productsSlice";
+import FeuerloescherCard from "../../components/common/cards/FeuerloescherCard.jsx";
+import { addItemToCart } from "../cart/cartSlice.js";
 
 
 

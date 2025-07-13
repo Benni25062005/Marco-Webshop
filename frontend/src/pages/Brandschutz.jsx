@@ -1,10 +1,9 @@
 import React from "react";
-import imgBrandschutz from "../assets/Bild_Brandschutz.jpg";
 import { MapPin, PackageCheck , Wrench  } from "lucide-react";
-import BrandschutzCard from "./components/BrandschutzCard";
+import BrandschutzCard from "../components/common/cards/BrandschutzCard";
 import { Link } from "react-router-dom";
 
-const logoUrl = new URL("../assets/Bild_Brandschutz.jpg", import.meta.url).href;
+const logoUrl = new URL("../../assets/Bild_Brandschutz.jpg", import.meta.url).href;
 
 export default function Main(){
 

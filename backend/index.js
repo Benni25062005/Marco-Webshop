@@ -5,10 +5,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import db from "./db.js";
+import db from "./config/db.js";
 import dotenv from "dotenv"
-import sendSms from "./routes/sendSms.js";
-import verifySms from "./routes/verifySms.js";
+import smsRoutes from "./routes/smsRoutes.js";
 
 
 dotenv.config()
@@ -503,9 +502,7 @@ app.post("/api/reset-password", async (req, res) => {
     });
 });
 
-app.use("/api", sendSms);
-
-app.use("/api", verifySms);
+app.use("/api/sms", smsRoutes);
 
 //#endregion user
 

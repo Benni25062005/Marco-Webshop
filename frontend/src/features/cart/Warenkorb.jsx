@@ -1,13 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCart, removeFromCart, updateItemQuantity} from "./features/cartSlice";
+import { fetchCart, removeFromCart, updateItemQuantity} from "./cartSlice";
 import { LogIn } from "lucide-react";
 import { useEffect } from "react";
-import { removeItemFromCart } from "./features/cartSlice";
-import { updateItemQuantity } from "./features/cartSlice";
-import CartItems  from "./components/Modals/CartItems";
-import CartSummary from "./components/Modals/CartSummary";
+import { removeItemFromCart } from "./cartSlice";
+import { updateItemQuantity } from "./cartSlice";
+import CartItems  from "../../components/common/modals/CartItems";
+import CartSummary from "../../components/common/modals/CartSummary";
 
 
 

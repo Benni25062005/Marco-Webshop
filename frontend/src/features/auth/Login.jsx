@@ -2,13 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser} from "./features/authSlice";
+import { loginUser} from "./authSlice";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import ResetPasswortModal from "./components//Modals/ResetPasswortModal";
+import ResetPasswortModal from "../../components/common/modals/ResetPasswortModal";
 
-const open = new URL("../assets/eye_open.png", import.meta.url).href;
-const closed = new URL("../assets/eye_close.png", import.meta.url).href;
+const open = new URL("../../../assets/eye_open.png", import.meta.url).href;
+const closed = new URL("../../../assets/eye_close.png", import.meta.url).href;
 
 export default function Main() {
     const [email, setEmail] = useState("");

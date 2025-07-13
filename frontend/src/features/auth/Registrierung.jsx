@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
-import open from "../assets/eye_open.png";
-import closed from "../assets/eye_close.png";
+import open from "../../../assets/eye_open.png";
+import closed from "../../../assets/eye_close.png";
 import { useSelector, useDispatch } from "react-redux";
-import { registerUser } from "./features/userSlice";
+import { registerUser } from "../user/userSlice";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { GeoapifyGeocoderAutocomplete, GeoapifyContext } from '@geoapify/react-geocoder-autocomplete';

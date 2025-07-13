@@ -1,11 +1,11 @@
 import React, {useState} from "react";
 import { useDispatch } from "react-redux";
-import { resetPassword } from "../../features/authSlice";
+import { resetPassword } from "../../../features/auth/authSlice";
 import toast from "react-hot-toast";
 
 
-const eyeOpen = new URL("../../../assets/eye_open.png", import.meta.url).href;
-const eyeClose = new URL("../../../assets/eye_close.png", import.meta.url).href;
+const eyeOpen = new URL("../../../../assets/eye_open.png", import.meta.url).href;
+const eyeClose = new URL("../../../../assets/eye_close.png", import.meta.url).href;
 
 
 export default function ChangePasswordModal({ email, code, onClose,  }) {

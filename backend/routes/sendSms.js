@@ -3,8 +3,8 @@ dotenv.config();
 
 
 import express from "express";
-import { sendVerificationCode } from "../services/sms.js";
-import db from "../db.js";
+import { sendVerificationCode } from "../services/smsService.js";
+import db from "../config/db.js";
 
 
 const router = express.Router();

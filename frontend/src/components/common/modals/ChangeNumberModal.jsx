@@ -2,7 +2,7 @@ import react, {useState} from "react";
 import toast from "react-hot-toast";
 import CodeNumberModal from "./CodeNumberModal";
 import { useDispatch, useSelector } from "react-redux";
-import { sendSms } from "../../features/userSlice";
+import { sendSms } from "../../../features/user/userSlice";
 
 export default function ChangeNumberModal({onClose, isOpen }) {
     const [number, SetNumber] = useState("");

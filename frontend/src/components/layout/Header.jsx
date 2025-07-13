@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../features/authSlice";
+import { logout } from "../../features/auth/authSlice";
 import { User, ShoppingCart } from "lucide-react";
 
-const logoUrl = new URL("../../assets/Logo_Marco.png", import.meta.url).href;
+const logoUrl = new URL("../../../assets/Logo_Marco.png", import.meta.url).href;
 
 
 export default function Header() {

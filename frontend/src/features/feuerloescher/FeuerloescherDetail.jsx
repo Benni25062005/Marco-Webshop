@@ -1,9 +1,9 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { fetchFeuerloescherById } from "./features/productsSlice";
+import { fetchFeuerloescherById } from "../products/productsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { addItemToCart, addToCart } from "./features/cartSlice";
+import { addItemToCart, addToCart } from "../cart/cartSlice";
 import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp} from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
