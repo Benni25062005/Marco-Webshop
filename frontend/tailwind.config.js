@@ -11,6 +11,7 @@ module.exports = {
         logoorange: "#DD7108",
         hoverDetail: "#F39B46",
         BGDetail: "#F6F9F6",
+        colorGray: "#999999",
       },
       fontWeight: {
         semiMedium: '450',

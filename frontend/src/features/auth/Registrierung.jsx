@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
-import open from "../../../assets/eye_open.png";
-import closed from "../../../assets/eye_close.png";
 import { useSelector, useDispatch } from "react-redux";
 import { registerUser } from "../user/userSlice";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { GeoapifyGeocoderAutocomplete, GeoapifyContext } from '@geoapify/react-geocoder-autocomplete';
 import '@geoapify/geocoder-autocomplete/styles/minimal.css';
 
-
+const open = new URL("../../../assets/eye_open.png", import.meta.url).href;
+const closed = new URL("../../../assets/eye_close.png", import.meta.url).href;
 
 export default function Main() {
     const [phone, setPhone] = useState("");
@@ -52,7 +52,7 @@ export default function Main() {
         dispatch(registerUser(user))
         .unwrap()
         .then(() => {
-            navigate("/profile")
+            navigate("/verify-email")
         })
         .catch((err) => {
             toast.error(err.message || "Email bereits verwendet");
@@ -111,9 +111,12 @@ export default function Main() {
                 <option value="Österreich">Österreich</option>
                 </select>
 
+                
                 <button type="submit" className="bg-red-600 text-lg text-white font-medium py-2 px-8 rounded-xl shadow-md hover:scale-[1.02] hover:shadow-lg transition duration-300">
                     Registrieren
                 </button>
+                
+                
             </div>
             </div>
 

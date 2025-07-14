@@ -11,6 +11,7 @@ import Registrierung from "../features/auth/Registrierung";
 import Warenkorb from "../features/cart/Warenkorb";
 import Profile from "../features/user/Profile";
 import PrivateRoute from "./PrivateRoute";
+import VerifyEmail from '../features/auth/VerifyEmail';
 
 export default function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ export default function AppRoutes() {
       <Route path="feuerloescher/:id" element={<FeuerloescherDetail />} />
       <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="not-found" element={<NotFound />} />
+      <Route path="verify-email" element={<VerifyEmail />} />
       <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   );

@@ -34,15 +34,14 @@ export default function Main() {
             password: password,
         }
 
-        dispatch(loginUser(userData))
-            .unwrap()
-            .then((result) => {
+        dispatch(loginUser(userData)).then((res) => {
+            if (res.meta.requestStatus === "fulfilled") {
                 navigate("/profile");
-            })
-            .catch((error) => {
-                console.error("Login fehlgeschlagen:", error);
-                toast.error(error.message ||"Email oder Passwort falsch");
-            });
+            } else {
+                toast.error(res.payload?.message || "Email oder Passwort falsch");
+            }
+        });
+
 
     }
     

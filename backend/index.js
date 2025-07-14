@@ -119,7 +119,7 @@ app.post("/user", async (req, res) => {
                     subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
                     html: `<div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
                     <div style="text-align:center; margin-bottom:32px;">
-                    <img src="" alt="Knapp Kaminfeger" style="max-width:120px;" />
+                    <img src="https://res.cloudinary.com/dv6cae2zi/image/upload/v1752425831/Logo_Marco_rfkt2g.png" alt="Knapp Kaminfeger" style="max-width:120px;" />
                     </div>
 
                     <h2 style="color:#dc2626;">Hallo ${vorname},</h2>

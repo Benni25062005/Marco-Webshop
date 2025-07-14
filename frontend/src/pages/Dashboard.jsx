@@ -5,12 +5,18 @@ import { motion } from "framer-motion";
 import { Flame, FireExtinguisher, Shield } from "lucide-react";
 import marco from "../../assets/Marco_main.jpg";
 import ServiceCard from "../components/common/cards/ServiceCard";
+import HeroSection from "../components/layout/HeroSection";
 
 const logoUrl = new URL("../../assets/Marco_main.jpg", import.meta.url).href;
 
 export default function Main() {
  
-  console.log("Bildfad", marco)
+  const paragraphs = [
+    "Mit über 25 Jahren Erfahrung reinigen wir zuverlässig alle Feuerungen: Holz, Pellets, Hackschnitzel, Öl- und Gasheizungen – ob Zentral- oder Einzelraumfeuerungen.",
+    "Durch eine fachgerechte Reinigung sorgen wir für den optimalen Unterhalt Ihrer Anlage. Ein sauberes System verbessert den Brandschutz, verhindert Kaminbrände und sichert die Abgasführung. Zudem reduziert eine regelmäßige Wartung Störungen und senkt den Verbrauch durch bessere Wärmeübertragung.",
+    "Auch kleinere Reparaturen wie der Austausch von Schamottsteinen oder Dichtungen übernehmen wir gerne. Zudem bieten wir Ofenscheibenreiniger und verschiedene Ofenventilatoren an – wir beraten Sie gerne!",
+    "Mit unserer Arbeit gewährleisten wir Brandschutz, Sicherheit und Umweltschutz – und helfen Ihnen dabei, Kosten zu sparen.",
+  ];
 
 
   return (
@@ -25,30 +31,51 @@ export default function Main() {
       </Helmet>
 
       <main>
+        <div className="bg-gradient-to-b from-[#fff] to-[#f6f6f6] w-full">
+  <div className="max-w-screen-xl mx-auto px-4 py-28 text-center">
+    <HeroSection />
+  </div>
+</div>
+
+
         <div className="flex justify-center mt-24 ">
           <div className="flex flex-col md:flex-row lg:space-x-24 md:space-x-16">
 
-            <img src={logoUrl} className="w-auto max-w-full h-auto lg:h-[38em] md:h-[32em] sm:h-[26em] h-[16em] p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md"></img>
+            <motion.img 
+              src={logoUrl} 
+              initial={{ opacity: 0, scale: 0.95}}
+              whileInView={{ opacity: 1, scale: 1}}
+              transition={{ duration: 0.6}}
+              viewport={{ once: true}}
+              className="w-auto max-w-full h-auto lg:h-[38em] md:h-[32em] sm:h-[26em] h-[16em] p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md"
+            />
             
             <div className="flex flex-col max-w-2xl md:max-w-2xl mx-auto space-y-2 md:space-y-4 p-4 sm:p-6 md:p-8 ">
 
-              <h2 className="lg:text-4xl md:text-2xl sm:text-xl  font-bold">Der Kaminfeger - Ihr Feuerungsfachmann</h2>
+              <motion.h2 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="lg:text-4xl md:text-2xl sm:text-xl  font-bold"
+              >
+                Der Kaminfeger - Ihr Feuerungsfachmann
+              </motion.h2>
               
-              <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left ">
-              Mit über 25 Jahren Erfahrung reinigen wir zuverlässig alle Feuerungen: Holz, Pellets, Hackschnitzel, Öl- und Gasheizungen - ob Zentral- oder Einzelraumfeuerungen.
-              </p>
-
-              <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left ">
-              Durch eine fachgerechte Reinigung sorgen wir für den optimalen Unterhalt Ihrer Anlage. Ein sauberes System verbessert den Brandschutz, verhindert Kaminbrände und sichert die Abgasführung. Zudem reduziert eine regelmäßige Wartung Störungen und senkt den Verbrauch durch bessere Wärmeübertragung.
-              </p>
-
-              <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left">
-              Auch kleinere Reparaturen wie der Austausch von Schamottsteinen oder Dichtungen übernehmen wir gerne. Zudem bieten wir Ofenscheibenreiniger und verschiedene Ofenventilatoren an – wir beraten Sie gerne!
-              </p>
-
-              <p className="text-base sm:text-lg md:text-xl font-semibold leading-relaxed text-justify sm:text-left">
-              Mit unserer Arbeit gewährleisten wir Brandschutz, Sicherheit und Umweltschutz - und helfen Ihnen dabei, Kosten zu sparen.
-              </p>
+              {paragraphs.map((text, i) => (
+                <motion.p
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 * (i + 1) }}
+                  viewport={{ once: true }}
+                  className={`text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left ${
+                    i === 3 ? "font-semibold" : ""
+                  }`}
+                >
+                  {text}
+                </motion.p>
+              ))}
 
             </div>
           </div>
