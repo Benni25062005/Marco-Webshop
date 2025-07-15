@@ -42,6 +42,34 @@ export const fetchFeuerloescherById = createAsyncThunk(
     }
 )
 
+export const fetchAllProducts = createAsyncThunk(
+    "products/fetchAll",
+    async(__DO_NOT_USE__ActionTypes, { rejectWithValue }) => {
+        try {
+            const res = await axios.get("http://localhost:8800/api/products");
+            console.log(res);
+            return res.data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data || "Fehler beim laden der Produkte");
+        }
+    }
+)
+
+export const fetchProductById = createAsyncThunk(
+  "products/fetchById",
+  async ({ idProdukt }, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(`http://localhost:8800/api/products/${idProdukt}`);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Produkt nicht gefunden");
+    }
+  }
+);
+
+
+
+
 
 const productsSlice = createSlice({
     name: "products",
@@ -76,6 +104,22 @@ const productsSlice = createSlice({
             .addCase(fetchFeuerloescherById.rejected, (state) => {
                 state.status = "failed"
             })
+            .addCase(fetchAllProducts.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchAllProducts.fulfilled, (state, action) => {
+                state.items = action.payload;
+                state.status = "success";
+            })
+            .addCase(fetchAllProducts.rejected, (state) => {
+                state.status = "failed";
+            })
+            .addCase(fetchProductById.fulfilled, (state, action) => {
+                state.selectedItem = action.payload;
+                state.status = "success";
+            })
+
+
 
     }
 

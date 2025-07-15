@@ -4,6 +4,7 @@ import { Plus, Minus, Trash2 } from "lucide-react";
 export default function CartItems({ cartItems, user, onUpdateQuantity, onRemoveItem }) {
 
 
+
     return (<>
     
         <div className="bg-white shadow-md rounded-xl p-6">
@@ -11,7 +12,7 @@ export default function CartItems({ cartItems, user, onUpdateQuantity, onRemoveI
 
             <div className="space-y-6">
                 {cartItems.map(item => (
-                    <div key={item.product_id} className="flex justify-between items-center bg-white shadow-md rounded-xl p-4 border">
+                    <div key={`${item.product_id || item.idProdukt}_${item.Name || Math.random()}`} className="flex justify-between items-center bg-white shadow-md rounded-xl p-4 border">
     
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                             <img
@@ -26,11 +27,11 @@ export default function CartItems({ cartItems, user, onUpdateQuantity, onRemoveI
 
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-2 py-1">
-                                <button onClick={() => onUpdateQuantity(item.product_id, item.menge - 1)}>
+                                <button onClick={() => onUpdateQuantity(item.product_id || item.idProdukt, item.menge - 1)}>
                                     <Minus className="h-4 w-4" />
                                 </button>
                                 <span className="w-6 text-center">{item.menge}</span>
-                                <button onClick={() => onUpdateQuantity(item.product_id, item.menge + 1)}>
+                                <button onClick={() => onUpdateQuantity(item.product_id || item.idProdukt, item.menge + 1)}>
                                     <Plus className="h-4 w-4" />
                                 </button>
                             </div>

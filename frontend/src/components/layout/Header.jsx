@@ -9,15 +9,18 @@ const logoUrl = new URL("../../../assets/Logo_Marco.png", import.meta.url).href;
 
 
 export default function Header() {
+  const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [isDropdownOpen, setIsDropdownopen] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const menuRef = useRef(null);
-  
+  const timoutRef = useRef(null);
+ 
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,6 +40,16 @@ export default function Header() {
     navigate("/login");
   }
 
+  const handleMouseEnter = () => {
+    clearTimeout(timoutRef.current);
+    setIsDropdownopen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timoutRef.current = setTimeout(() => {
+      setIsDropdownopen(false);
+    }, 150);
+  }
 
   return (
     <header className="w-full border-b border-gray px-4">
@@ -53,22 +66,28 @@ export default function Header() {
         <div className="flex justify-end space-x-16">
             {/* Desktop Navigation */}
           <nav className="hidden md:flex flex-[2] justify-center space-x-6 lg:space-x-8 text-lg md:text-xl lg:text-2xl font-medium">
-            <Link to="/home" className="flex items-center border-b-2 border-transparent hover:border-red-600 hover:text-red-600 space-x-1">
+            <Link to="/home" className="nav-item">
               <span>Home</span>
             </Link>
-            <Link to="/feuerloescher" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="flex items-center hover:text-colorGray transition-all duration-300 space-x-1">
-              <span>Produkte</span>
-              <ChevronDown
-                className={`w-5 h-5 text-grayColor transition-transform duration-200 mt-1 ${
-                  hovered ? "-rotate-180" : "rotate-0"
-                }`}
-              />
-              
-            </Link>
-            <Link to="/brandschutz" className="flex items-center border-b-2 border-transparent hover:border-red-600 hover:text-red-600 space-x-1">
+            
+            
+              <Link
+                to="/produkte"
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+                className="nav-item"
+              >
+                <span>Produkte</span>
+              </Link>
+            
+
+            
+
+
+            <Link to="/brandschutz" className="nav-item">
               <span>Brandschutz</span>
             </Link>
-            <Link to="/feuerungskontrolle" className="flex items-center border-b-2 border-transparent hover:border-red-600 hover:text-red-600 space-x-1">
+            <Link to="/feuerungskontrolle" className="nav-item">
               <span>Feuerungskontrollen</span>
             </Link>
           </nav>

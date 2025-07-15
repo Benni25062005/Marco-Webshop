@@ -1,4 +1,7 @@
+import react from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+
 
 export default function HeroSection() {
     return (<>
@@ -20,22 +23,26 @@ export default function HeroSection() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="text-2xl md:text-3xl text-gray-500 mt-4"
+        className="text-2xl md:text-3xl font-semibold text-gray-500 mt-4"
       >
         Sichere Lösungen. Saubere Arbeit.
       </motion.h2>
 
       {/* Button */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: "spring", stiffness: 300 }}
-        className="bg-red-600 text-white px-6 py-3 rounded-full mt-6 hover:bg-red-700 transition"
-      >
-        Angebot anfordern
-      </motion.button>
+      
+      <Link to="/kontakt">
+        <motion.button
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 300 }}
+          className="bg-red-600 text-white px-6 py-3 font-semibold rounded-full mt-6 hover:bg-red-700 transition"
+        >
+          Angebot anfordern
+        </motion.button>
+      </Link>
+      
     </section>
     
     

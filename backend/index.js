@@ -7,8 +7,13 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import db from "./config/db.js";
 import dotenv from "dotenv"
+
 import smsRoutes from "./routes/smsRoutes.js";
 
+//Routes
+import { productRouter } from "./routes/productRoutes.js";
+import { productDetailRouter } from "./routes/productDetailRoutes.js";
+import { userRouter } from "./routes/userRoutes.js";
 
 dotenv.config()
 
@@ -22,6 +27,9 @@ app.get("/", (req,res)=>{
 
 //#region Produkte
 
+app.use('/api', productRouter);
+
+app.use('/api', productDetailRouter);
 
 app.get("/produkte", (req,res)=>{
     const kategorie = req.query.kategorie;
@@ -77,84 +85,7 @@ app.get("/produkte/:id", (req,res)=>{
 
 //#region user 
 
-app.post("/user", async (req, res) => {
-    const { email, password, vorname, nachname, telefonnummer, strasse, plz, ort, land } = req.body;
-
-    try {
-        const checkQuery = "SELECT idUser FROM user WHERE email = ?";
-        db.query(checkQuery, [email], async (err, result) => {
-            if (err) {
-                console.error("Fehler beim Abfragen", err);
-                return res.status(500).json({ message: "Fehler beim Abfragen des Users", error: err });
-            }
-
-            if (result.length > 0) {
-                return res.status(400).json({ message: "E-Mail ist bereits registriert!" });
-            }
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const emailToken = crypto.randomBytes(64).toString('hex');
-            const q = `INSERT INTO user (email, password, vorname, nachname, telefonnummer, strasse, plz, ort, land, emailToken, isVerifiedEmail)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            const values = [email, hashedPassword, vorname, nachname, telefonnummer, strasse, plz, ort, land, emailToken, 0];
-
-            db.query(q, values, (err, data) => {
-                if (err) {
-                    console.error("Fehler beim Einfügen des Users:", err);
-                    return res.status(500).json({ message: "Fehler beim Einfügen des Users", error: err });
-                }
-
-                const transporter = nodemailer.createTransport({
-                    service: "Gmail",
-                    auth: {
-                        user: process.env.EMAIL,
-                        pass: process.env.EMAIL_PASSWORD
-                    },
-                });
-
-                const verificationLink = `http://localhost:8800/verify-email?token=${emailToken}`;
-                const mailOptions = {
-                    from: process.env.EMAIL,
-                    to: email,
-                    subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
-                    html: `<div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
-                    <div style="text-align:center; margin-bottom:32px;">
-                    <img src="https://res.cloudinary.com/dv6cae2zi/image/upload/v1752425831/Logo_Marco_rfkt2g.png" alt="Knapp Kaminfeger" style="max-width:120px;" />
-                    </div>
-
-                    <h2 style="color:#dc2626;">Hallo ${vorname},</h2>
-                    <p style="font-size:16px; color:#111827;">Vielen Dank für deine Registrierung!.</p>
-
-                    <p style="margin:24px 0;">Um deine Registrierung abzuschließen, bestätige bitte deine E-Mail-Adresse über den folgenden Button:</p>
-
-                    <div style="text-align:center; margin:32px 0;">
-                    <a href="${verificationLink}"
-                        style="display:inline-block; padding:14px 28px; background-color:#dc2626; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">
-                        Jetzt bestätigen
-                    </a>
-                    </div>
-
-                    <p style="font-size:12px; color:#6b7280; text-align:center;">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
-                </div>`, // dein HTML
-                    text: `Bitte bestätigen Sie Ihre E-Mail-Adresse: ${verificationLink}`
-                };
-
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        console.error("Fehler beim Senden der E-Mail:", error);
-                        return res.status(500).json({ message: "Fehler beim Senden der E-Mail", error });
-                    }
-
-                    console.log("Verifizierungs-E-Mail gesendet:", info.messageId);
-                    return res.status(201).json({ message: "User erfolgreich erstellt. Bitte bestätigen Sie Ihre E-Mail." });
-                });
-            });
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Fehler beim Erstellen des Users", error });
-    }
-});
+app.use("/api/user", userRouter);
 
 app.get("/verify-email", (req, res) => {
     const token = req.query.token;
@@ -593,6 +524,7 @@ app.put("/api/cart/:user_id/:product_id", (req, res) => {
     })
 })
 //#endregion Warenkorb
+
 
 
 const port = process.env.PORT || 8800

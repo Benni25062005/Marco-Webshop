@@ -12,6 +12,8 @@ import Warenkorb from "../features/cart/Warenkorb";
 import Profile from "../features/user/Profile";
 import PrivateRoute from "./PrivateRoute";
 import VerifyEmail from '../features/auth/VerifyEmail';
+import ProduktListe from '../pages/ProduktListe';
+import ProduktDetail from '../pages/ProduktDetail';
 
 export default function AppRoutes() {
   return (
@@ -19,6 +21,8 @@ export default function AppRoutes() {
       <Route index element={<Dashboard />} />
       <Route path="home" element={<Dashboard />} />
       <Route path="feuerloescher" element={<Feuerloescher />} />
+      <Route path="produkte" element={<ProduktListe />} />
+      <Route path="produkt/:id" element={<ProduktDetail />} />
       <Route path="brandschutz" element={<Brandschutz />} />
       <Route path="kontakt" element={<Kontakt />} />
       <Route path="login" element={<Login />} />

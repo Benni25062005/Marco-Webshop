@@ -4,7 +4,7 @@
 
 @layer components {
     .nav-item {
-        @apply  transition cursor-pointer  transition-all duration-300 ease-in-out;
+        @apply flex items-center border-b-2 border-transparent hover:border-red-600 hover:text-red-600 space-x-1 transition-all duration-200;
     }
     .pic-item{
         @apply h-64 cursor-pointer
