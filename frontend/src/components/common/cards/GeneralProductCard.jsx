@@ -10,7 +10,7 @@ export default function ProduktCard({item, onClick, onAddToCart, delay = 0}) {
         
             <motion.div
                 onClick={() => onClick(item.idProdukt, item.Kategorie)}
-                className="group bg-white rounded-2xl shadow-md hover:shadow-xl hover:border-2 hover:border-red-600 hover:scale-105 transition-all duration-300 overflow-hidden cursor-pointer mx-auto h-[32em] w-[28em] p-4 sm:p-6 flex flex-col items-center"
+                className="group flex flex-col bg-white rounded-2xl shadow-md hover:shadow-xl hover:border-2 hover:border-red-600 hover:scale-105 transition-all duration-300 overflow-hidden cursor-pointer mx-auto h-[32em] w-[28em] p-4 sm:p-6  items-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay, duration: 0.5, ease: "easeOut" }}

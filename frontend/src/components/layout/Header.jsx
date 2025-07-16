@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
 import { User, ShoppingCart, UserRound, ChevronDown, ChevronUp } from "lucide-react";
+import NavItem from "../common/NavItem";
 
 const logoUrl = new URL("../../../assets/Logo_Marco.png", import.meta.url).href;
 
@@ -23,6 +24,7 @@ export default function Header() {
  
 
   useEffect(() => {
+    console.log(window.location.href)
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
@@ -52,45 +54,27 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full border-b border-gray px-4">
+    <header className="w-full border-b border-gray h-20 px-4">
       <div className="max-w-[95rem] mx-auto flex items-center relative px-4">
         {/* Logo */}
         <Link to="/home" className="flex-[1] flex items-center pl-6">
           <img
             src={logoUrl} 
             alt="Logo"
-            className="h-16 md:h-18 lg:h-20 cursor-pointer"
+            className="h-16 md:h-18 lg:h-20 cursor-pointer "
+
           />
         </Link>
 
-        <div className="flex justify-end space-x-16">
+        <div className="flex items-center justify-end space-x-16 h-full">
             {/* Desktop Navigation */}
-          <nav className="hidden md:flex flex-[2] justify-center space-x-6 lg:space-x-8 text-lg md:text-xl lg:text-2xl font-medium">
-            <Link to="/home" className="nav-item">
-              <span>Home</span>
-            </Link>
-            
-            
-              <Link
-                to="/produkte"
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
-                className="nav-item"
-              >
-                <span>Produkte</span>
-              </Link>
-            
-
-            
-
-
-            <Link to="/brandschutz" className="nav-item">
-              <span>Brandschutz</span>
-            </Link>
-            <Link to="/feuerungskontrolle" className="nav-item">
-              <span>Feuerungskontrollen</span>
-            </Link>
+          <nav className="hidden md:flex flex-[2] items-center justify-center space-x-6 lg:space-x-8 text-lg md:text-xl lg:text-2xl font-medium h-full">
+            <NavItem to="/home" label="Home" />
+            <NavItem to="/produkte" label="Produkte" />
+            <NavItem to="/brandschutz" label="Brandschutz" />
+            <NavItem to="/feuerungskontrolle" label="Feuerungskontrollen" />
           </nav>
+
 
           {/* Icons + Mobile Menu Button */}
           <div className="flex-[1] flex items-center justify-end space-x-6 ">

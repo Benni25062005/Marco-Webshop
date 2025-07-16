@@ -32,10 +32,10 @@ export default function Main() {
 
       <main>
         <div className="bg-gradient-to-b from-[#fff] to-[#f6f6f6] w-full">
-  <div className="max-w-screen-xl mx-auto px-4 py-28 text-center">
-    <HeroSection />
-  </div>
-</div>
+          <div className="max-w-screen-xl mx-auto px-4 py-28 text-center">
+            <HeroSection />
+          </div>
+        </div>
 
 
         <div className="flex justify-center mt-24 ">
@@ -47,7 +47,7 @@ export default function Main() {
               whileInView={{ opacity: 1, scale: 1}}
               transition={{ duration: 0.6}}
               viewport={{ once: true}}
-              className="w-auto max-w-full h-auto lg:h-[38em] md:h-[32em] sm:h-[26em] h-[16em] p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md"
+              className="w-auto max-w-full lg:h-[38em] md:h-[32em] sm:h-[26em] h-[16em] p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md"
             />
             
             <div className="flex flex-col max-w-2xl md:max-w-2xl mx-auto space-y-2 md:space-y-4 p-4 sm:p-6 md:p-8 ">
@@ -126,7 +126,7 @@ export default function Main() {
           </div>
 
           <h3 className="text-center text-2xl font-semibold mt-20 mb-4">Persönlich, Professionell, Zuverlässig</h3>
-          <p className="text-base text-lg text-center leading-relaxed max-w-4xl mx-auto">
+          <p className="text-lg text-center leading-relaxed max-w-4xl mx-auto">
             Als erfahrener Kaminfeger arbeite ich mit Leidenschaft für Ihre Sicherheit.
             Ob Kontrolle, Reinigung oder Beratung – ich bin für Sie da. Kontaktieren Sie mich für eine unverbindliche Offerte.
           </p>

@@ -36,8 +36,8 @@ export default function HeroSection() {
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 300 }}
-          className="bg-red-600 text-white px-6 py-3 font-semibold rounded-full mt-6 hover:bg-red-700 transition"
+          transition={{ type: "spring", stiffness: 300 }}className="bg-red-600 text-white px-6 py-3 font-semibold rounded-full mt-6 hover:bg-red-700 transition"
+          
         >
           Angebot anfordern
         </motion.button>
