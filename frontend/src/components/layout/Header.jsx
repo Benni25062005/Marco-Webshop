@@ -3,11 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
-import { User, ShoppingCart, UserRound, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  User,
+  ShoppingCart,
+  UserRound,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import NavItem from "../common/NavItem";
 
-const logoUrl = new URL("../../../assets/Logo_Marco.png", import.meta.url).href;
-
+const logoUrl = new URL("../../../assets/logo_rot.png", import.meta.url).href;
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -21,10 +26,9 @@ export default function Header() {
   const dispatch = useDispatch();
   const menuRef = useRef(null);
   const timoutRef = useRef(null);
- 
 
   useEffect(() => {
-    console.log(window.location.href)
+    console.log(window.location.href);
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
@@ -34,13 +38,13 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-    }
+    };
   }, []);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
-  }
+  };
 
   const handleMouseEnter = () => {
     clearTimeout(timoutRef.current);
@@ -51,7 +55,7 @@ export default function Header() {
     timoutRef.current = setTimeout(() => {
       setIsDropdownopen(false);
     }, 150);
-  }
+  };
 
   return (
     <header className="w-full border-b border-gray h-20 px-4">
@@ -59,22 +63,20 @@ export default function Header() {
         {/* Logo */}
         <Link to="/home" className="flex-[1] flex items-center pl-6">
           <img
-            src={logoUrl} 
+            src={logoUrl}
             alt="Logo"
             className="h-16 md:h-18 lg:h-20 cursor-pointer "
-
           />
         </Link>
 
         <div className="flex items-center justify-end space-x-16 h-full">
-            {/* Desktop Navigation */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex flex-[2] items-center justify-center space-x-6 lg:space-x-8 text-lg md:text-xl lg:text-2xl font-medium h-full">
             <NavItem to="/home" label="Home" />
             <NavItem to="/produkte" label="Produkte" />
             <NavItem to="/brandschutz" label="Brandschutz" />
             <NavItem to="/feuerungskontrolle" label="Feuerungskontrollen" />
           </nav>
-
 
           {/* Icons + Mobile Menu Button */}
           <div className="flex-[1] flex items-center justify-end space-x-6 ">
@@ -87,7 +89,7 @@ export default function Header() {
                     navigate("/login");
                   }
                 }}
-                >
+              >
                 <UserRound className="h-8 w-8 align-middle cursor-pointer mt-2" />
               </button>
 
@@ -103,6 +105,15 @@ export default function Header() {
                     Profil
                   </button>
                   <button
+                    onClick={() => {
+                      navigate("/bestellungen");
+                      setUserMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Bestellungen
+                  </button>
+                  <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 font-medium text-red-600 hover:bg-gray-100"
                   >
@@ -110,7 +121,6 @@ export default function Header() {
                   </button>
                 </div>
               )}
-
             </div>
 
             <Link to="/warenkorb">
@@ -118,21 +128,47 @@ export default function Header() {
             </Link>
 
             {/* Mobile Menu Toggle */}
-            <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
+            <button
+              className="md:hidden p-2"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
               {menuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
-        
       </div>
 
       {/* Mobile Navigation */}
       {menuOpen && (
         <div className="absolute top-16 left-0 right-0 flex flex-col items-center space-y-4 py-6 bg-white text-lg font-medium">
-          <Link to="/main" onClick={() => setMenuOpen(false)} className="nav-item hover:text-orange-500">Home</Link>
-          <Link to="/feuerloescher" onClick={() => setMenuOpen(false)} className="nav-item hover:text-orange-500">Feuerlöscher</Link>
-          <Link to="/brandschutz" onClick={() => setMenuOpen(false)} className="nav-item hover:text-orange-500">Brandschutz</Link>
-          <Link to="/feuerungskontrollen" onClick={() => setMenuOpen(false)} className="nav-item hover:text-orange-500">Feuerungskontrollen</Link>
+          <Link
+            to="/main"
+            onClick={() => setMenuOpen(false)}
+            className="nav-item hover:text-orange-500"
+          >
+            Home
+          </Link>
+          <Link
+            to="/feuerloescher"
+            onClick={() => setMenuOpen(false)}
+            className="nav-item hover:text-orange-500"
+          >
+            Feuerlöscher
+          </Link>
+          <Link
+            to="/brandschutz"
+            onClick={() => setMenuOpen(false)}
+            className="nav-item hover:text-orange-500"
+          >
+            Brandschutz
+          </Link>
+          <Link
+            to="/feuerungskontrollen"
+            onClick={() => setMenuOpen(false)}
+            className="nav-item hover:text-orange-500"
+          >
+            Feuerungskontrollen
+          </Link>
         </div>
       )}
     </header>

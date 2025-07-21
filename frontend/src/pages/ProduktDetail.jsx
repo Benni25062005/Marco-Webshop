@@ -21,7 +21,7 @@ export default function Main() {
 
     const { selectedItem, status } = useSelector(state => state.products);
 
-    console.log(selectedItem);
+    console.log(selectedItem);    Stripe.api_key = '<<secret key>>'
 
     const handleIncrease = (e) => {
         setNumber(number + 1)

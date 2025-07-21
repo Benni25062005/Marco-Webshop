@@ -1,7 +1,28 @@
 import react from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 export default function CartSummary({ cartItems }) {
+
+    const handleCheckout = async () => {
+        try {
+            console.log(cartItems);
+            console.log(cartItems.map(item => ({
+            price: item.stripePriceId,
+            quantity: item.menge
+            })));
+            const response = await axios.post("http://localhost:8800/api/payments/create-checkout-session", {
+                
+                items: cartItems.map(item => ({
+                    price: item.stripePriceId,
+                    quantity: item.menge
+                }))
+            });
+            window.location.href = response.data.url;
+        } catch (error) {
+            console.error("Error creating checkout session:", error);
+        }
+    };
    
 
     return(<>
@@ -32,14 +53,16 @@ export default function CartSummary({ cartItems }) {
                 <div className="shadow-md rounded-xl p-4">
                     <h2 className="border-b pb-2 text-lg font-semibold">Zahlungsmöglichkeiten</h2>
 
+                    
                     <motion.button 
                         className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-md self-center"
                         initial={{ opacity: 0, y: 0}}
                         whileHover={{ scale: 1.02}}
                         animate={{ opacity: 1, y: 0}}
                         transition={{ duration: 0.3}}
+                        onClick={handleCheckout}
                     >
-                        Jetzt Kaufen
+                        Zum Checkout
                     </motion.button>
                 </div>
             </div>
