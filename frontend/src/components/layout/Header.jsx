@@ -21,7 +21,6 @@ export default function Header() {
   const [hovered, setHovered] = useState(false);
   const [isDropdownOpen, setIsDropdownopen] = useState(false);
   const user = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.token);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const menuRef = useRef(null);
@@ -41,7 +40,8 @@ export default function Header() {
     };
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = (e) => {
+    e.stopPropagation();
     dispatch(logout());
     navigate("/login");
   };
@@ -82,21 +82,23 @@ export default function Header() {
           <div className="flex-[1] flex items-center justify-end space-x-6 ">
             <div className="relative" ref={menuRef}>
               <button
-                onClick={() => {
-                  if (token) {
-                    setUserMenuOpen(!userMenuOpen);
-                  } else {
+                onClick={(e) => {
+                  e.stopPropagation(); // verhindert, dass das Klick-Event von außen triggert
+                  if (!user) {
                     navigate("/login");
+                    return;
                   }
+                  setUserMenuOpen((prev) => !prev);
                 }}
               >
                 <UserRound className="h-8 w-8 align-middle cursor-pointer mt-2" />
               </button>
 
-              {userMenuOpen && token && (
+              {userMenuOpen && user && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded-md z-50">
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       navigate("/profile");
                       setUserMenuOpen(false);
                     }}
@@ -105,7 +107,8 @@ export default function Header() {
                     Profil
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       navigate("/bestellungen");
                       setUserMenuOpen(false);
                     }}

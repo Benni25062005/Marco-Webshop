@@ -1,21 +1,13 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router } from 'react-router-dom';
-import './App.css';
+import { BrowserRouter as Router } from "react-router-dom";
+import "./App.css";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import ScrollToTop from "./components/common/ScrollToTop";
 import { Toaster } from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { setAuthFromStorage } from "./features/auth/authSlice";
 import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setAuthFromStorage());
-  }, [dispatch]);
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

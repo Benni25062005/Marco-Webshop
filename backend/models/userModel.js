@@ -1,11 +1,15 @@
-import db from '../config/db.js';
+import db from "../config/db.js";
 
 export const checkIfEmailExists = (email) => {
   return new Promise((resolve, reject) => {
-    db.query("SELECT idUser FROM user WHERE email = ?", [email], (err, result) => {
-      if (err) return reject(err);
-      resolve(result.length > 0);
-    });
+    db.query(
+      "SELECT idUser FROM user WHERE email = ?",
+      [email],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result.length > 0);
+      }
+    );
   });
 };
 
@@ -25,7 +29,7 @@ export const insertNewUser = (user) => {
     user.ort,
     user.land,
     user.emailToken,
-    0
+    0,
   ];
 
   return new Promise((resolve, reject) => {

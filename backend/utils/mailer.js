@@ -1,21 +1,30 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
-export const sendVerificationEmail = (to, name, token) => {
+export const sendVerificationEmail = (to, vorname, token) => {
+  if (!to || !vorname || !token) {
+    console.error("Ungültige Parameter für sendVerificationEmail:", {
+      email,
+      vorname,
+      token,
+    });
+    throw new Error("Ungültige Parameter für sendVerificationEmail");
+  }
+
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
       user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASSWORD
+      pass: process.env.EMAIL_PASSWORD,
     },
   });
 
   const verificationLink = `http://localhost:8800/verify-email?token=${token}`;
 
   const mailOptions = {
-  from: process.env.EMAIL,
-  to,
-  subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
-  html: `
+    from: process.env.EMAIL,
+    to,
+    subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
+    html: `
       <div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
         <div style="text-align:center; margin-bottom:32px;">
           <img src="https://res.cloudinary.com/dv6cae2zi/image/upload/v1752425831/Logo_Marco_rfkt2g.png" alt="Knapp Kaminfeger" style="max-width:120px;" />
@@ -36,9 +45,10 @@ export const sendVerificationEmail = (to, name, token) => {
         <p style="font-size:12px; color:#6b7280; text-align:center;">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
       </div>
     `,
-    text: `Bitte bestätigen Sie Ihre E-Mail-Adresse: ${verificationLink}`
+    text: `Bitte bestätigen Sie Ihre E-Mail-Adresse: ${verificationLink}`,
   };
 
+  console.log("Vor Mailversnad", to, vorname, token);
 
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, (error, info) => {

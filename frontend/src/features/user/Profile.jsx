@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateContact, updateAdress, setUser, fetchUserById } from "../user/userSlice";
+import {
+  updateContact,
+  updateAdress,
+  setUser,
+  fetchUserById,
+} from "../user/userSlice";
 import toast from "react-hot-toast";
-import { Pencil, Check} from "lucide-react"
+import { Pencil, Check } from "lucide-react";
 import NewPasswordModal from "../../components/common/modals/NewPasswordModal";
 import EmailChangeModal from "../../components/common/modals/ChangeEmailModal";
 import ChangeNumberModal from "../../components/common/modals/ChangeNumberModal";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Main() {
-  const { user, token } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const [editMode, setEditMode] = useState(false);
@@ -20,23 +25,36 @@ export default function Main() {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
 
+  const [formData, setFormData] = useState(() => {
+    if (!user)
+      return {
+        vorname: "",
+        nachname: "",
+        email: "",
+        telefonnummer: "",
+        land: "",
+        ort: "",
+        strasse: "",
+        plz: "",
+      };
 
-  const [formData, setFormData] = useState({
-    vorname: user.vorname,
-    nachname: user.nachname,
-    email: user.email,
-    telefonnummer: user.telefonnummer,
-    land: user.land,
-    ort: user.ort,
-    strasse: user.strasse,
-    plz: user.plz,
+    return {
+      vorname: user.vorname,
+      nachname: user.nachname,
+      email: user.email,
+      telefonnummer: user.telefonnummer,
+      land: user.land,
+      ort: user.ort,
+      strasse: user.strasse,
+      plz: user.plz,
+    };
   });
 
   const countryDialCodes = {
     ch: "+41",
     at: "+43",
-    de: "+49"
-  }
+    de: "+49",
+  };
 
   const getCountryCode = (land) => {
     switch (land.toLowerCase()) {
@@ -46,42 +64,35 @@ export default function Main() {
         return "at";
       case "deutschland":
         return "de";
-
     }
-  }
+  };
 
-  const countryCode = getCountryCode(user.land);
+  const countryCode = getCountryCode(user?.land ?? "");
   const dialCode = countryDialCodes[countryCode];
 
-
- useEffect(() => {
-  if (!user) {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      dispatch(setUser(JSON.parse(savedUser)));
+  useEffect(() => {
+    if (!user) {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        dispatch(setUser(JSON.parse(savedUser)));
+      }
     }
-  }
-}, []);
+  }, []);
 
-useEffect(() => {
-  
-
-
-  if (user) {
-    setFormData({
-      vorname: user.vorname,
-      nachname: user.nachname,
-      email: user.email,
-      telefonnummer: user.telefonnummer,
-      land: user.land,
-      ort: user.ort,
-      strasse: user.strasse,
-      plz: user.plz,
-    });
-  }
-}, [user?.isVerifiedEmail]);
-
-
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        vorname: user.vorname,
+        nachname: user.nachname,
+        email: user.email,
+        telefonnummer: user.telefonnummer,
+        land: user.land,
+        ort: user.ort,
+        strasse: user.strasse,
+        plz: user.plz,
+      });
+    }
+  }, [user?.isVerifiedEmail]);
 
   const validateForm = (data, requiredFields) => {
     const invalidFields = [];
@@ -103,7 +114,6 @@ useEffect(() => {
     return invalidFields;
   };
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -113,16 +123,15 @@ useEffect(() => {
     const required = ["vorname", "nachname", "email", "telefonnummer"];
     const invalid = validateForm(formData, required);
 
-
     setInvalidFields(invalid);
 
     if (invalid.length > 0) {
       toast.error("Bitte füllen Sie alle Kontaktfelder korrekt aus.");
       return;
     }
-    
-      setEditMode(false);
-      dispatch(
+
+    setEditMode(false);
+    dispatch(
       updateContact({
         id: user.idUser,
         vorname: formData.vorname,
@@ -130,16 +139,15 @@ useEffect(() => {
         email: formData.email,
         telefonnummer: formData.telefonnummer,
       })
-      )
-        .unwrap()
-        .then((res) => {
-          dispatch(setUser(res.updatedUser)); 
-          localStorage.setItem("user", JSON.stringify(res.updatedUser)); 
-          setFormData(res.updatedUser);
-          toast.success("Erfolgreich gespeichert")
-        })
-        .catch(() => toast.error("Fehler beim Speichern der Daten"));
-    
+    )
+      .unwrap()
+      .then((res) => {
+        dispatch(setUser(res.updatedUser));
+        localStorage.setItem("user", JSON.stringify(res.updatedUser));
+        setFormData(res.updatedUser);
+        toast.success("Erfolgreich gespeichert");
+      })
+      .catch(() => toast.error("Fehler beim Speichern der Daten"));
   };
 
   const handleAddressSave = () => {
@@ -168,11 +176,10 @@ useEffect(() => {
         dispatch(setUser(res.updatedUser));
         localStorage.setItem("user", JSON.stringify(res.updatedUser));
         setFormData(res.updatedUser);
-        toast.success("Erfolgreich gespeichert")
+        toast.success("Erfolgreich gespeichert");
       })
       .catch(() => toast.error("Fehler beim Speichern der Daten"));
   };
-
 
   if (!user) {
     return (
@@ -183,43 +190,44 @@ useEffect(() => {
   }
 
   return (
-  <>
-    {modalOpen && (
-      <NewPasswordModal
-      isOpen={modalOpen}s
-      onClose={() => setModalOpen(false)}
-      idUser={user.idUser}
-    />
-    )}
+    <>
+      {modalOpen && (
+        <NewPasswordModal
+          isOpen={modalOpen}
+          s
+          onClose={() => setModalOpen(false)}
+          idUser={user.idUser}
+        />
+      )}
 
-    {emailModalOpen && (
-      <EmailChangeModal 
-      isOpen={emailModalOpen}
-      onClose={() => setEmailModalOpen(false)}
-      idUser={user.idUser}
-      vorname={user.vorname}
-      />
-    )}
+      {emailModalOpen && (
+        <EmailChangeModal
+          isOpen={emailModalOpen}
+          onClose={() => setEmailModalOpen(false)}
+          idUser={user.idUser}
+          vorname={user.vorname}
+        />
+      )}
 
-    {phoneModalOpen && (
-      <ChangeNumberModal 
-      isOpen={phoneModalOpen}
-      onClose={() => setPhoneModalOpen(false)}
-      
-      />
-    )}
+      {phoneModalOpen && (
+        <ChangeNumberModal
+          isOpen={phoneModalOpen}
+          onClose={() => setPhoneModalOpen(false)}
+        />
+      )}
 
-    
-    <div className="flex flex-col justify-center mt-16 px-4 w-full max-w-5xl mx-auto">
-      <h1 className="text-3xl text-center font-medium mb-4">
-        Willkommen, {user.vorname}!
-      </h1>
+      <div className="flex flex-col justify-center mt-16 px-4 w-full max-w-5xl mx-auto">
+        <h1 className="text-3xl text-center font-medium mb-4">
+          Willkommen, {user.vorname}!
+        </h1>
 
-      <div className="flex flex-col items-center w-full">
-        {/* Kontaktinformationen */}
-        <div className="mt-8 border border-gray-200 rounded-2xl shadow-md px-6 py-6 sm:px-8 w-full max-w-4xl relative bg-white">
+        <div className="flex flex-col items-center w-full">
+          {/* Kontaktinformationen */}
+          <div className="mt-8 border border-gray-200 rounded-2xl shadow-md px-6 py-6 sm:px-8 w-full max-w-4xl relative bg-white">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Kontaktinformationen</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Kontaktinformationen
+              </h2>
 
               {editMode ? (
                 <div className="flex gap-3">
@@ -248,49 +256,55 @@ useEffect(() => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-              {["vorname", "nachname", "email", "telefonnummer"].map((field) => (
-                <div key={field} className="w-full">
-                  <p className="text-sm text-gray-500">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </p>
-
-                  {field === "email" ? (
-                    <div className="flex flex-col gap-1 mt-1">
-                      <p className="text-md font-medium break-words">{formData[field]}</p>
-                      <button
-                        onClick={() => setEmailModalOpen(true)}
-                        className="text-sm text-blue-600 hover:underline w-fit"
-                      >
-                        E-Mail ändern
-                      </button>
-                    </div>
-                  ) : field === "telefonnummer" && dialCode ? (
-                    <div className="flex flex-col gap-1 mt-1">
-                      <p className="text-md font-medium break-words">{dialCode} {formData[field]}</p>
-                      <button
-                        onClick={() => setPhoneModalOpen(true)}
-                        className="text-sm text-blue-600 hover:underline w-fit"
-                      >
-                        Telefonnummer ändern
-                      </button>
-                    </div>
-                  ) : editMode ? (
-                    <input
-                      type="text"
-                      name={field}
-                      className={`ProfileInputyStyle w-full ${
-                        invalidFields.includes(field) ? "border-red-500" : ""
-                      }`}
-                      value={formData[field]}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    <p className="text-md font-medium break-words mt-1">
-                      {formData[field]}
+              {["vorname", "nachname", "email", "telefonnummer"].map(
+                (field) => (
+                  <div key={field} className="w-full">
+                    <p className="text-sm text-gray-500">
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
                     </p>
-                  )}
-                </div>
-              ))}
+
+                    {field === "email" ? (
+                      <div className="flex flex-col gap-1 mt-1">
+                        <p className="text-md font-medium break-words">
+                          {formData[field]}
+                        </p>
+                        <button
+                          onClick={() => setEmailModalOpen(true)}
+                          className="text-sm text-blue-600 hover:underline w-fit"
+                        >
+                          E-Mail ändern
+                        </button>
+                      </div>
+                    ) : field === "telefonnummer" && dialCode ? (
+                      <div className="flex flex-col gap-1 mt-1">
+                        <p className="text-md font-medium break-words">
+                          {dialCode} {formData[field]}
+                        </p>
+                        <button
+                          onClick={() => setPhoneModalOpen(true)}
+                          className="text-sm text-blue-600 hover:underline w-fit"
+                        >
+                          Telefonnummer ändern
+                        </button>
+                      </div>
+                    ) : editMode ? (
+                      <input
+                        type="text"
+                        name={field}
+                        className={`ProfileInputyStyle w-full ${
+                          invalidFields.includes(field) ? "border-red-500" : ""
+                        }`}
+                        value={formData[field]}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      <p className="text-md font-medium break-words mt-1">
+                        {formData[field]}
+                      </p>
+                    )}
+                  </div>
+                )
+              )}
 
               <div className="w-full mt-2">
                 <p className="text-sm text-gray-500">Passwort</p>
@@ -305,66 +319,67 @@ useEffect(() => {
             </div>
           </div>
 
-        {/* Adresse */}
-        <div className="mt-12 border border-gray-200 rounded-2xl shadow-md px-6 py-6 sm:px-8 w-full max-w-4xl relative bg-white">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">Adresse</h2>
+          {/* Adresse */}
+          <div className="mt-12 border border-gray-200 rounded-2xl shadow-md px-6 py-6 sm:px-8 w-full max-w-4xl relative bg-white">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-800">Adresse</h2>
 
-            {editAddressMode ? (
-              <div className="flex gap-3">
+              {editAddressMode ? (
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleAddressSave}
+                    className="text-sm font-medium px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
+                  >
+                    Speichern
+                  </button>
+                  <button
+                    onClick={() => setEditAddressMode(false)}
+                    className="text-sm font-medium px-3 py-1 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition duration-200"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={handleAddressSave}
-                  className="text-sm font-medium px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
+                  onClick={() => setEditAddressMode(true)}
+                  className="flex items-center text-sm px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
                 >
-                  Speichern
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Bearbeiten
                 </button>
-                <button
-                  onClick={() => setEditAddressMode(false)}
-                  className="text-sm font-medium px-3 py-1 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition duration-200"
-                >
-                  Abbrechen
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setEditAddressMode(true)}
-                className="flex items-center text-sm px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
-              >
-                <Pencil className="h-4 w-4 mr-1" />
-                Bearbeiten
-              </button>
-            )}
-          </div>
+              )}
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-            {["land", "ort", "strasse", "plz"].map((field) => (
-              <div key={field} className="w-full">
-                <p className="text-sm text-gray-500">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
-                </p>
-
-                {editAddressMode ? (
-                  <input
-                    type="text"
-                    name={field}
-                    className={`ProfileInputyStyle w-full ${
-                      invalidAddressFields.includes(field) ? "border-red-500" : ""
-                    }`}
-                    value={formData[field]}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  <p className="text-md font-medium break-words mt-1">
-                    {formData[field]}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+              {["land", "ort", "strasse", "plz"].map((field) => (
+                <div key={field} className="w-full">
+                  <p className="text-sm text-gray-500">
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
                   </p>
-                )}
-              </div>
-            ))}
+
+                  {editAddressMode ? (
+                    <input
+                      type="text"
+                      name={field}
+                      className={`ProfileInputyStyle w-full ${
+                        invalidAddressFields.includes(field)
+                          ? "border-red-500"
+                          : ""
+                      }`}
+                      value={formData[field]}
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    <p className="text-md font-medium break-words mt-1">
+                      {formData[field]}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </>
-);
-
+    </>
+  );
 }

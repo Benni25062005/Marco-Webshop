@@ -14,7 +14,7 @@ import PrivateRoute from "./PrivateRoute";
 import VerifyEmail from "../features/auth/VerifyEmail";
 import ProduktListe from "../pages/ProduktListe";
 import ProduktDetail from "../pages/ProduktDetail";
-import CheckoutResult from "../features/checkout/CheckoutResult";
+import CheckoutResult from "../features/order/CheckoutResult";
 import Bestellungen from "../pages/Bestellungen";
 export default function AppRoutes() {
   return (

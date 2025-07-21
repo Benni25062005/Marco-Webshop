@@ -1,7 +1,10 @@
-import { saveCodeToDB, getCodeFromDB, markPhoneAsVerified} from "../models/smsModel.js";
+import {
+  saveCodeToDB,
+  getCodeFromDB,
+  markPhoneAsVerified,
+} from "../models/smsModel.js";
 import dotenv from "dotenv";
 import twilio from "twilio";
-
 
 dotenv.config();
 
@@ -28,12 +31,10 @@ export async function storeCode(idUser, code) {
 }
 
 export async function verifyStoredCode(idUser, code) {
-  const storedCode = await getCodefromDB(idUser);
-  if (storeCode === code){
+  const storedCode = await getCodeFromDB(idUser);
+  if (storeCode === code) {
     await markPhoneAsVerified(idUser);
     return true;
   }
   return false;
 }
-
-

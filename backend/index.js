@@ -7,6 +7,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import db from "./config/db.js";
 import dotenv from "dotenv";
+import { authenticateToken } from "./middleware/auth.js";
 
 import smsRoutes from "./routes/smsRoutes.js";
 
@@ -21,8 +22,13 @@ import { getOrderRoutes } from "./routes/getOrderRoutes.js";
 dotenv.config();
 
 const app = express();
-app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:1234", // oder deine React-App-URL
+    credentials: true, // ← erlaubt Cookies
+  })
+);
 
 app.get("/", (req, res) => {
   res.json("hello this is the backend");
@@ -85,7 +91,7 @@ app.get("/produkte/:id", (req, res) => {
 
 //#region user
 
-app.use("/api/user", userRouter);
+app.use("/api/register", userRouter);
 
 app.get("/verify-email", (req, res) => {
   const token = req.query.token;
@@ -143,8 +149,14 @@ app.post("/api/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // ← wichtig für localhost!
+      sameSite: "lax", // ← erlaubt Cross-Port-Cookies auf localhost
+      maxAge: 60 * 60 * 1000,
+    });
+
     res.status(200).json({
-      token,
       user: {
         idUser: user.idUser,
         email: user.email,
@@ -160,9 +172,13 @@ app.post("/api/login", async (req, res) => {
   });
 });
 
-app.put("/user/:id/contact", (req, res) => {
+app.put("/user/:id/contact", authenticateToken, (req, res) => {
   const { vorname, nachname, email, telefonnummer } = req.body;
   const idUser = req.params.id;
+
+  if (parseInt(idUser) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
 
   const q = `
     UPDATE user 
@@ -201,9 +217,13 @@ app.put("/user/:id/contact", (req, res) => {
   );
 });
 
-app.put("/user/:id/address", (req, res) => {
+app.put("/user/:id/address", authenticateToken, (req, res) => {
   const { strasse, plz, ort, land } = req.body;
   const idUser = req.params.id;
+
+  if (parseInt(idUser) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
 
   const q =
     "UPDATE user SET strasse = ?, plz = ?, ort = ?, land = ? WHERE idUser = ?";
@@ -237,8 +257,13 @@ app.put("/user/:id/address", (req, res) => {
   });
 });
 
-app.get("/user/:id", (req, res) => {
+app.get("/user/:id", authenticateToken, (req, res) => {
   const idUser = req.params.id;
+
+  if (parseInt(idUser) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
+
   db.query("SELECT * FROM user WHERE idUser = ?", [idUser], (err, result) => {
     if (err) return res.status(500).json({ error: err });
     if (result.length === 0)
@@ -247,9 +272,13 @@ app.get("/user/:id", (req, res) => {
   });
 });
 
-app.put("/user/:id/password", async (req, res) => {
+app.put("/user/:id/password", authenticateToken, async (req, res) => {
   const idUser = req.params.id;
   const { oldPassword, newPassword } = req.body;
+
+  if (parseInt(idUser) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
 
   const q = "SELECT password FROM user WHERE idUser = ?";
   db.query(q, [idUser], async (err, result) => {
@@ -282,9 +311,13 @@ app.put("/user/:id/password", async (req, res) => {
   });
 });
 
-app.put("/user/:id/email", async (req, res) => {
+app.put("/user/:id/email", authenticateToken, async (req, res) => {
   const idUser = req.params.id;
   const { email, vorname } = req.body;
+
+  if (parseInt(idUser) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
 
   const emailToken = crypto.randomBytes(64).toString("hex");
   const q =
@@ -389,7 +422,7 @@ app.post("/api/request-reset", (req, res) => {
 
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        post: 465,
+        port: 465,
         secure: true,
         auth: {
           user: process.env.EMAIL,
@@ -479,8 +512,12 @@ app.use("/api/sms", smsRoutes);
 //#endregion user
 
 //#region Warenkorb
-app.get("/api/cartItems", (req, res) => {
+app.get("/api/cartItems", authenticateToken, (req, res) => {
   const user_id = req.query.user_id;
+
+  if (parseInt(user_id) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
 
   const q = `
         SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild, p.stripePriceId
@@ -504,8 +541,12 @@ app.get("/api/cartItems", (req, res) => {
   });
 });
 
-app.post("/api/cart", (req, res) => {
+app.post("/api/cart", authenticateToken, (req, res) => {
   const { user_id, product_id, menge } = req.body;
+
+  if (parseInt(user_id) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
 
   const q = `
         INSERT INTO warenkorb (user_id, product_id, menge)
@@ -528,8 +569,12 @@ app.post("/api/cart", (req, res) => {
   });
 });
 
-app.delete("/api/cart/:user_id/:product_id", (req, res) => {
+app.delete("/api/cart/:user_id/:product_id", authenticateToken, (req, res) => {
   const { user_id, product_id } = req.params;
+
+  if (parseInt(user_id) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
 
   const q = "DELETE FROM warenkorb WHERE user_id = ? AND product_id = ?";
   const values = [user_id, product_id];
@@ -555,9 +600,14 @@ app.delete("/api/cart/:user_id/:product_id", (req, res) => {
   });
 });
 
-app.put("/api/cart/:user_id/:product_id", (req, res) => {
+app.put("/api/cart/:user_id/:product_id", authenticateToken, (req, res) => {
   const { user_id, product_id } = req.params;
   const { menge } = req.body;
+
+  if (parseInt(user_id) !== req.user.idUser) {
+    return res.status(403).json({ message: "Unbefugter Zugriff" });
+  }
+
   const q =
     "UPDATE warenkorb SET menge = ? WHERE user_id = ? AND product_ID = ?";
   const values = [menge, user_id, product_id];
@@ -579,10 +629,13 @@ app.put("/api/cart/:user_id/:product_id", (req, res) => {
   });
 });
 
-app.delete("/api/cart/:userId", async (req, res) => {
+app.delete("/api/cart/:userId", authenticateToken, async (req, res) => {
   const userId = req.params.userId;
   // SQL: DELETE FROM cart WHERE user_id = ?
   try {
+    if (parseInt(userId) !== req.user.idUser) {
+      return res.status(403).json({ message: "Unbefugter Zugriff" });
+    }
     await db.query("DELETE FROM cart WHERE user_id = ?", [userId]);
     res.status(200).json({ message: "Warenkorb geleert" });
   } catch (error) {

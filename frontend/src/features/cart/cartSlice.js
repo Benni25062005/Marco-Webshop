@@ -11,6 +11,7 @@ export const fetchCart = createAsyncThunk(
     try {
       const response = await axios.get(`http://localhost:8800/api/cartItems`, {
         params: { user_id },
+        withCredentials: true, // ⬅️ HIER AUCH!
       });
       return response.data;
     } catch (error) {
@@ -23,11 +24,15 @@ export const addItemToCart = createAsyncThunk(
   "cart/addItemToCartDB",
   async ({ user_id, product, menge }, { dispatch, rejectWithValue }) => {
     try {
-      await axios.post("http://localhost:8800/api/cart", {
-        user_id,
-        product_id: product.idProdukt,
-        menge,
-      });
+      await axios.post(
+        "http://localhost:8800/api/cart",
+        {
+          user_id,
+          product_id: product.idProdukt,
+          menge,
+        },
+        { withCredentials: true } // ⬅️ WICHTIG!
+      );
 
       dispatch(
         addToCart({
@@ -49,7 +54,10 @@ export const removeItemFromCart = createAsyncThunk(
   async ({ user_id, product_id }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8800/api/cart/${user_id}/${product_id}`
+        `http://localhost:8800/api/cart/${user_id}/${product_id}`,
+        {
+          withCredentials: true, // ← wichtig für Cookie-Auth
+        }
       );
       dispatch(removeFromCart({ product_id }));
       return response.data;
@@ -67,7 +75,8 @@ export const updateItemQuantity = createAsyncThunk(
     try {
       const response = await axios.put(
         `http://localhost:8800/api/cart/${user_id}/${product_id}`,
-        { menge }
+        { menge },
+        { withCredentials: true } // ⬅️ NICHT VERGESSEN!
       );
       dispatch(updateQuantity({ product_id, menge }));
       return response.data;
@@ -84,7 +93,9 @@ export const clearCartDB = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     console.log("Rufe API zum Löschen Warenkorb auf, UserId:", userId);
     try {
-      await axios.delete(`http://localhost:8800/api/cart/${userId}`);
+      await axios.delete(`http://localhost:8800/api/cart/${userId}`, {
+        withCredentials: true, // ⬅️ auch hier!
+      });
       return true;
     } catch (error) {
       console.error("API Fehler beim Warenkorb löschen:", error);
