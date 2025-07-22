@@ -4,8 +4,8 @@
   "description": "React components",
   "source": "index.html",
   "scripts": {
-    "dev": "parcel ",
-    "build": "parcel build"
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +17,7 @@
     "eslint": "^9.27.0",
     "events": "^3.3.0",
     "os-browserify": "^0.3.0",
-    "parcel": "^2.15.2",
+    "parcel": "^2.15.4",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.27",
     "process": "^0.11.10",

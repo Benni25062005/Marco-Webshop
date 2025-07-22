@@ -7,6 +7,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import db from "./config/db.js";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import { authenticateToken } from "./middleware/auth.js";
 
 import smsRoutes from "./routes/smsRoutes.js";
@@ -18,10 +19,12 @@ import { userRouter } from "./routes/userRoutes.js";
 import { paymentRoutes } from "./routes/paymentRoutes.js";
 import { orderRoutes } from "./routes/orderRoutes.js";
 import { getOrderRoutes } from "./routes/getOrderRoutes.js";
+import { authRoutes } from "./routes/authRoutes.js";
 
 dotenv.config();
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
@@ -171,6 +174,8 @@ app.post("/api/login", async (req, res) => {
     });
   });
 });
+
+app.use("/api/user", authRoutes);
 
 app.put("/user/:id/contact", authenticateToken, (req, res) => {
   const { vorname, nachname, email, telefonnummer } = req.body;

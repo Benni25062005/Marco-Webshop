@@ -1,9 +1,8 @@
-import react from "react";
+import react, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
 import { Flame, FireExtinguisher, Shield } from "lucide-react";
-import marco from "../../assets/Marco_main.jpg";
 import ServiceCard from "../components/common/cards/ServiceCard";
 import HeroSection from "../components/layout/HeroSection";
 
