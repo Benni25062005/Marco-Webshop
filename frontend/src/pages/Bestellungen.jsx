@@ -8,13 +8,8 @@ export default function Bestellungen() {
   const user = useSelector((state) => state.auth.user);
   const { orders, loading, error } = useSelector((state) => state.order);
 
-  console.log(orders);
-  console.log(user);
-
   useEffect(() => {
     if (user?.idUser) {
-      console.log("→ Dispatching getOrder mit id:", user.idUser);
-
       dispatch(getOrder(user.idUser));
     }
   }, [user, dispatch]);

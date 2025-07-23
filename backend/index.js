@@ -638,10 +638,14 @@ app.delete("/api/cart/:userId", authenticateToken, async (req, res) => {
   const userId = req.params.userId;
   // SQL: DELETE FROM cart WHERE user_id = ?
   try {
-    if (parseInt(userId) !== req.user.idUser) {
+    const dbUserId = parseInt(userId);
+    const tokenUserId = parseInt(req.user.idUser);
+    if (dbUserId !== tokenUserId) {
       return res.status(403).json({ message: "Unbefugter Zugriff" });
     }
-    await db.query("DELETE FROM cart WHERE user_id = ?", [userId]);
+    const rows = await db.query("DELETE FROM warenkorb WHERE user_id = ?", [
+      userId,
+    ]);
     res.status(200).json({ message: "Warenkorb geleert" });
   } catch (error) {
     res.status(500).json({ error: "Fehler beim Leeren des Warenkorbs" });

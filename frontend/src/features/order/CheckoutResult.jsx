@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { createOrder } from "./orderSlice";
-import { clearCart } from "../cart/cartSlice";
+import { createOrder, setOrderCompleted } from "./orderSlice";
+import { clearCart, clearCartDB } from "../cart/cartSlice";
 
 export default function CheckoutResult() {
   const [params] = useSearchParams();
@@ -10,8 +10,6 @@ export default function CheckoutResult() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const { user } = useSelector((state) => state.auth);
-
-  console.log(cartItems[0]);
 
   useEffect(() => {
     if (!user) return;
@@ -35,15 +33,27 @@ export default function CheckoutResult() {
             })
           ).unwrap();
 
-          await dispatch(clearCartDB(user.idUser)).unwrap();
-          await dispatch(clearCart());
+          try {
+            await dispatch(clearCartDB(user.idUser)).unwrap();
+          } catch (err) {
+            console.warn(
+              "Warenkorb konnte nicht gelöscht werden (ignoriert):",
+              err?.response?.data || err.message || err
+            );
+          }
 
-          dispatch(setOrderCompleted(true)); // Setze Flag erst ganz zum Schluss
+          dispatch(clearCart());
+
+          dispatch(setOrderCompleted(true));
 
           navigate("/bestellungen");
         } catch (err) {
-          console.error("Fehler im CheckoutResult:", err);
-          navigate("/warenkorb", {
+          console.error(
+            "Fehler im CheckoutResult:",
+            err?.response?.data || err.message || err
+          );
+
+          navigate("/bestellungen", {
             state: { message: "Fehler bei der Bestellung" },
           });
         }
@@ -51,7 +61,7 @@ export default function CheckoutResult() {
     };
 
     placeOrder();
-  }, [params, navigate, dispatch, user]); // ohne cartItems
+  }, [params, navigate, dispatch, user]);
 
   return <div>Chekcout</div>;
 }

@@ -91,12 +91,16 @@ export const updateItemQuantity = createAsyncThunk(
 export const clearCartDB = createAsyncThunk(
   "cart/clearCartDB",
   async (userId, { rejectWithValue }) => {
-    console.log("Rufe API zum Löschen Warenkorb auf, UserId:", userId);
+    console.log("clearCartDB Thunk gestartet für User:", userId);
+
     try {
-      await axios.delete(`http://localhost:8800/api/cart/${userId}`, {
-        withCredentials: true, // ⬅️ auch hier!
-      });
-      return true;
+      const res = await axios.delete(
+        `http://localhost:8800/api/cart/${userId}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return res.data;
     } catch (error) {
       console.error("API Fehler beim Warenkorb löschen:", error);
       return rejectWithValue(

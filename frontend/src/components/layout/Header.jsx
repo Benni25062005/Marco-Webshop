@@ -27,7 +27,6 @@ export default function Header() {
   const timoutRef = useRef(null);
 
   useEffect(() => {
-    console.log(window.location.href);
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setUserMenuOpen(false);

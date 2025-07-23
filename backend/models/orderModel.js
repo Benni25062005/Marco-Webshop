@@ -8,7 +8,6 @@ export const saveOrder = (orderData) => {
         if (err) return reject(err);
         const orderId = result.insertId;
 
-        console.log("order items", orderData.items);
         const itemsSql =
           "INSERT INTO order_items (order_id, product_id, quantity) VALUES ?";
         const itemsValues = orderData.items.map((item) => [
