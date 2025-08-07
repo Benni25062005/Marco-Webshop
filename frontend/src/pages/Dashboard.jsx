@@ -27,7 +27,7 @@ export default function Main() {
         />
       </Helmet>
 
-      <main className="">
+      <main className=" ">
         <div className="relative w-full">
           <div className="absolute inset-0 bg-homeBG bg-scroll brightness-50 from-[#fff] to-[#f6f6f6] w-full "></div>
 
