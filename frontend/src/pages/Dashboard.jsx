@@ -23,7 +23,7 @@ export default function Main() {
         <title>Kaminfeger & Feuerungskontrollen in Buchs | Marco Knapp</title>
         <meta
           name="description"
-          content="Ihr zuverlässiger Kaminfeger in Buchs. Reinigung, Feuerungskontrollen und Brandschutz - mit über 25 Jahren Erfahrung. Jetzt Kontakt aufnehmen!!"
+          content="Ihr zuverlässiger Kaminfeger in Buchs. Reinigung, Feuerungskontrollen und Brandschutz - mit über 25 Jahren Erfahrung. Jetzt Kontakt aufnehmen!"
         />
       </Helmet>
 
