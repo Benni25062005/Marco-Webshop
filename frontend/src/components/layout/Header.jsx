@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import NavItem from "../common/NavItem";
 
-const logoUrl = new URL("../../../assets/logo_rot.png", import.meta.url).href;
+const logoUrl = new URL("../../../assets/Logo_Marco.png", import.meta.url).href;
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -58,9 +58,9 @@ export default function Header() {
 
   return (
     <header className="w-full border-b border-gray h-20 px-4">
-      <div className="max-w-[95rem] mx-auto flex items-center relative px-4">
+      <div className="max-w-[95rem] mx-auto flex items-center relative  px-4">
         {/* Logo */}
-        <Link to="/home" className="flex-[1] flex items-center pl-6">
+        <Link to="/home" className="flex-[1] flex items-center pl-6 ">
           <img
             src={logoUrl}
             alt="Logo"
@@ -82,7 +82,7 @@ export default function Header() {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // verhindert, dass das Klick-Event von außen triggert
+                  e.stopPropagation();
                   if (!user) {
                     navigate("/login");
                     return;
@@ -144,7 +144,7 @@ export default function Header() {
       {menuOpen && (
         <div className="absolute top-16 left-0 right-0 flex flex-col items-center space-y-4 py-6 bg-white text-lg font-medium">
           <Link
-            to="/main"
+            to="/home"
             onClick={() => setMenuOpen(false)}
             className="nav-item hover:text-orange-500"
           >

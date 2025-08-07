@@ -7,6 +7,7 @@ import ServiceCard from "../components/common/cards/ServiceCard";
 import HeroSection from "../components/layout/HeroSection";
 
 const logoUrl = new URL("../../assets/Marco_main.jpg", import.meta.url).href;
+const bgHome = new URL("../../assets/home-bg.jpeg", import.meta.url).href;
 
 export default function Main() {
   const paragraphs = [
@@ -26,9 +27,11 @@ export default function Main() {
         />
       </Helmet>
 
-      <main>
-        <div className="bg-gradient-to-b from-[#fff] to-[#f6f6f6] w-full">
-          <div className="max-w-screen-xl mx-auto px-4 py-28 text-center">
+      <main className="">
+        <div className="relative w-full">
+          <div className="absolute inset-0 bg-homeBG bg-scroll brightness-50 from-[#fff] to-[#f6f6f6] w-full "></div>
+
+          <div className="relative max-w-screen-xl  mx-auto px-4 py-28 text-center">
             <HeroSection />
           </div>
         </div>
