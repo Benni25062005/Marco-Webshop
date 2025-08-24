@@ -16,7 +16,8 @@ import smsRoutes from "./routes/smsRoutes.js";
 import { productRouter } from "./routes/productRoutes.js";
 import { productDetailRouter } from "./routes/productDetailRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
-import { paymentRoutes } from "./routes/paymentRoutes.js";
+// import { paymentRoutes } from "./routes/paymentRoutes.js"; // Stripe - deaktiviert
+import { twintRoutes } from "./routes/twintRoutes.js";
 import { orderRoutes } from "./routes/orderRoutes.js";
 import { getOrderRoutes } from "./routes/getOrderRoutes.js";
 import { authRoutes } from "./routes/authRoutes.js";
@@ -656,7 +657,8 @@ app.delete("/api/cart/:userId", authenticateToken, async (req, res) => {
 
 //#region Checkout
 
-app.use("/api/payments", paymentRoutes);
+// app.use("/api/payments", paymentRoutes); // Stripe - deaktiviert
+app.use("/api/twint", twintRoutes);
 
 app.use("/api/orders", orderRoutes);
 

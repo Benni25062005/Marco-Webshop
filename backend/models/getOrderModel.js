@@ -3,7 +3,7 @@ import db from "../config/db.js";
 export const getOrder = (idUser) => {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT o.order_id, o.created_at, oi.product_id, oi.quantity, 
+      SELECT o.order_id, o.order_no, o.created_at, oi.product_id, oi.quantity, 
              p.name, p.Preis_brutto, p.Bild
       FROM orders o
       INNER JOIN order_items oi ON o.order_id = oi.order_id

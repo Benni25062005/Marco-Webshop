@@ -16,6 +16,8 @@ import ProduktListe from "../pages/ProduktListe";
 import ProduktDetail from "../pages/ProduktDetail";
 import CheckoutResult from "../features/order/CheckoutResult";
 import Bestellungen from "../pages/Bestellungen";
+import TwintPaymentPage from "../pages/TwintPaymentPage";
+import CheckoutSuccess from "../pages/CheckoutSuccess";
 export default function AppRoutes() {
   return (
     <Routes>
@@ -30,6 +32,8 @@ export default function AppRoutes() {
       <Route path="registrierung" element={<Registrierung />} />
       <Route path="warenkorb" element={<Warenkorb />} />
       <Route path="checkout" element={<CheckoutResult />} />
+      <Route path="twint-payment" element={<TwintPaymentPage />} />
+      <Route path="checkout-success" element={<CheckoutSuccess />} />
       <Route path="bestellungen" element={<Bestellungen />} />
       <Route path="feuerungskontrolle" element={<Feuerungskontrolle />} />
       <Route path="feuerloescher/:id" element={<FeuerloescherDetail />} />

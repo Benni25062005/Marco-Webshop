@@ -8,6 +8,14 @@ export const saveOrder = (orderData) => {
         if (err) return reject(err);
         const orderId = result.insertId;
 
+        const order_no = "9999";
+        const orderNoSql = "UPDATE orders SET order_no = ? WHERE id = ?";
+
+        db.query(orderNoSql, [order_no, orderId], (err1) => {
+          if (err1) return reject(err1);
+        })
+
+
         const itemsSql =
           "INSERT INTO order_items (order_id, product_id, quantity) VALUES ?";
         const itemsValues = orderData.items.map((item) => [

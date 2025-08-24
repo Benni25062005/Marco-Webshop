@@ -1,22 +1,47 @@
 import react from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createOrder } from "../../../features/order/orderSlice";
 
 export default function CartSummary({ cartItems }) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
   const handleCheckout = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:8800/api/payments/create-checkout-session",
-        {
-          items: cartItems.map((item) => ({
-            price: item.stripePriceId,
-            quantity: item.menge,
-          })),
-        }
-      );
-      window.location.href = response.data.url;
+      // 1. Order erstellen
+      const orderData = {
+        idUser: user.idUser,
+        items: cartItems.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.menge,
+        })),
+      };
+
+      const orderResult = await dispatch(createOrder(orderData)).unwrap();
+
+      if (orderResult.success) {
+        // 2. Zur TWINT-Zahlungsseite navigieren
+        navigate("/twint-payment", {
+          state: {
+            orderId: orderResult.orderId,
+            orderNo: orderResult.orderNo,
+            amount: cartItems.reduce(
+              (total, item) => total + item.Preis_brutto * item.menge,
+              0
+            ),
+            cartItems: cartItems,
+          },
+        });
+      }
     } catch (error) {
-      console.error("Error creating checkout session:", error);
+      console.error("Error creating order:", error);
+      alert(
+        "Fehler beim Erstellen der Bestellung. Bitte versuchen Sie es erneut."
+      );
     }
   };
 
