@@ -16,7 +16,7 @@ export default function App() {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/api/user/me", {
+        const res = await axios.get(`${process.env.BACKEND_URL}/api/user/me`, {
           withCredentials: true,
         });
         dispatch(setUser(res.data.user));

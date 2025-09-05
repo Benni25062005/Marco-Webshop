@@ -7,7 +7,7 @@ export const loginUser = createAsyncThunk(
     try {
       console.log("login wurde gesendet", userData);
       const response = await axios.post(
-        "http://localhost:8800/api/login",
+        `${process.env.BACKEND_URL}/api/login`,
         userData,
         { withCredentials: true }
       );
@@ -27,7 +27,7 @@ export const requestReset = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `http://localhost:8800/api/request-reset`,
+        `${process.env.BACKEND_URL}/api/request-reset`,
         userData,
         {
           headers: { "Content-Type": "application/json" },
@@ -46,7 +46,7 @@ export const resetPassword = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `http://localhost:8800/api/reset-password`,
+        `${process.env.BACKEND_URL}/api/reset-password`,
         userData,
         {
           headers: { "Content-Type": "application/json" },

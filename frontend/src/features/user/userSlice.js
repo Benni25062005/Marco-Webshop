@@ -11,7 +11,7 @@ export const registerUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        "http://localhost:8800/api/register/user",
+        `${process.env.BACKEND_URL}/api/register/user`,
         userData,
         {
           headers: {
@@ -35,7 +35,7 @@ export const updateContact = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.put(
-        `http://localhost:8800/user/${userData.id}/contact`,
+        `${process.env.BACKEND_URL}/user/${userData.id}/contact`,
         userData,
         {
           headers: { "Content-Type": "application/json" },
@@ -44,7 +44,7 @@ export const updateContact = createAsyncThunk(
       );
       console.log(
         "Gesendet an:",
-        `http://localhost:8800/user/${userData.id}/contact`
+        `${process.env.BACKEND_URL}/user/${userData.id}/contact`
       );
       return res.data;
     } catch (error) {
@@ -64,7 +64,7 @@ export const updateAdress = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.put(
-        `http://localhost:8800/user/${userData.id}/address`,
+        `${process.env.BACKEND_URL}/user/${userData.id}/address`,
         userData,
         {
           headers: { "Content-Type": "application/json" },
@@ -86,7 +86,7 @@ export const updatePassword = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.put(
-        `http://localhost:8800/user/${userData.id}/password`,
+        `${process.env.BACKEND_URL}/user/${userData.id}/password`,
         userData,
         {
           headers: { "Content-Type": "application/json" },
@@ -108,7 +108,7 @@ export const updateEmail = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.put(
-        `http://localhost:8800/user/${userData.id}/email`,
+        `${process.env.BACKEND_URL}/${userData.id}/email`,
         userData,
         {
           headers: { "Content-Type": "application/json" },
@@ -128,7 +128,7 @@ export const sendSms = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `http://localhost:8800/api/send-sms-code`,
+        `${process.env.BACKEND_URL}/api/send-sms-code`,
         userData,
         {
           headers: { "Content-Type": "application/json" },
@@ -147,7 +147,7 @@ export const verifySms = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        `http://localhost:8800/api/verify-sms-code`,
+        `${process.env.BACKEND_URL}/api/verify-sms-code`,
         userData,
         {
           headers: { "Content-Type": "application/json" },
@@ -165,7 +165,7 @@ export const fetchUserById = createAsyncThunk(
   "user/fetchUserById",
   async (id, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`http://localhost:8800/user/${id}`);
+      const res = await axios.get(`${process.env.BACKEND_URL}/user/${id}`);
       return res.data.user;
     } catch (err) {
       return rejectWithValue(err.response?.data || "Fehler beim Laden");

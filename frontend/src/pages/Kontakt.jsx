@@ -1,10 +1,64 @@
-import React, { useState } from "react";
-import PhoneInput from "react-phone-input-2";
+import React, { useEffect, useState } from "react";
+import Turnstile from "react-turnstile";
 import { motion } from "framer-motion";
-import "react-phone-input-2/lib/style.css";
+import toast from "react-hot-toast";
 
 export default function Main() {
-  const [phone, setPhone] = useState("");
+  const [user, setUser] = useState({
+    vorname: "",
+    nachname: "",
+    email: "",
+    nachricht: "",
+  });
+  const [cfToken, setCfToken] = useState("");
+  const [sending, setSending] = useState(false);
+  const [tsKey, setTsKey] = useState(0);
+
+  function handleInputChange(e) {
+    const { name, value } = e.target;
+    setUser((prev) => ({ ...prev, [name]: value }));
+  }
+
+  const canSend =
+    !!cfToken &&
+    !!user.vorname &&
+    !!user.nachname &&
+    !!user.email &&
+    !!user.nachricht;
+
+  async function handleSubmit(e) {
+    e.preventDefault?.();
+    if (!canSend) return;
+
+    setSending(true);
+    try {
+      const res = await fetch(`${process.env.BACKEND_URL}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...user, cf_token: cfToken }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `HTTP ${res.status}`);
+      }
+
+      setUser({
+        vorname: "",
+        nachname: "",
+        email: "",
+        nachricht: "",
+      });
+      setCfToken("");
+      setTsKey((k) => k + 1);
+      toast.success("Nachricht gesendet");
+    } catch (err) {
+      console.error(err);
+      toast.error("Fehler beim Senden der Nachricht");
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <>
@@ -35,19 +89,28 @@ export default function Main() {
             </div>
 
             {/*Kontaktformular*/}
-            <div className="flex flex-col max-w-lg space-y-4 ml-64">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col max-w-lg space-y-4 ml-64"
+            >
               <h1 className="text-xl sm:text-2xl font-medium mb-4">
                 Schicken Sie uns eine E-mail
               </h1>
 
               <div className="flex flex-col sm:flex-row gap-4 ">
                 <input
+                  onChange={handleInputChange}
+                  name="vorname"
+                  value={user.vorname}
                   className="ProfileInputyStyle"
                   placeholder="Vorname"
                   type="text"
                   id="vn"
                 ></input>
                 <input
+                  onChange={handleInputChange}
+                  name="nachname"
+                  value={user.nachname}
                   className="ProfileInputyStyle"
                   placeholder="Nachname"
                   type="text"
@@ -56,6 +119,9 @@ export default function Main() {
               </div>
 
               <input
+                onChange={handleInputChange}
+                value={user.email}
+                name="email"
                 className="ProfileInputyStyle"
                 placeholder="Email"
                 type="email"
@@ -63,34 +129,39 @@ export default function Main() {
               ></input>
 
               <textarea
+                onChange={handleInputChange}
+                value={user.nachricht}
+                name="nachricht"
                 className="ProfileInputyStyle"
                 id="nachricht"
                 placeholder="Hinterlassen Sie hier Ihre E-mail"
               ></textarea>
 
-              <div className="w-full">
-                <PhoneInput
-                  country={"ch"}
-                  onlyCountries={["ch", "at", "de"]}
-                  preferredCountries={["ch"]}
-                  value={phone} //die gesamte telefonnummer kann ich mit der variable "phone" aufrufen!
-                  onChange={setPhone}
-                  inputClass="!border-0"
-                  dropdownClass="!bg-white !shadow-md !border !border-gray-300"
-                  containerClass="!border-2 !rounded-md !shadow-sm focus:!border-bgorange focus:!ring-bgorange focus:!outline-none w-full"
+              <div className="mt-2">
+                <Turnstile
+                  key={tsKey}
+                  sitekey={process.env.TURNSTILE_SITE_KEY}
+                  onVerify={(token) => setCfToken(token)}
+                  onExpire={() => setCfToken("")}
+                  onError={() => setCfToken("")}
+                  options={{ theme: "light" }}
                 />
               </div>
 
               <motion.button
-                className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-md self-center"
+                type="submit"
+                disabled={!canSend || sending}
+                className={`w-full mt-4 ${
+                  !canSend || sending ? "opacity-50 cursor-not-allowed" : ""
+                } bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-md`}
                 initial={{ opacity: 0, y: 0 }}
                 whileHover={{ scale: 1.02 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                Senden
+                {sending ? "Senden..." : "Senden"}
               </motion.button>
-            </div>
+            </form>
           </div>
 
           {/*Map*/}

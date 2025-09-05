@@ -9,10 +9,13 @@ export const fetchCart = createAsyncThunk(
   "cart/fetchCartDB",
   async (user_id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:8800/api/cartItems`, {
-        params: { user_id },
-        withCredentials: true, // ⬅️ HIER AUCH!
-      });
+      const response = await axios.get(
+        `${process.env.BACKEND_URL}/api/cartItems`,
+        {
+          params: { user_id },
+          withCredentials: true, // ⬅️ HIER AUCH!
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -25,7 +28,7 @@ export const addItemToCart = createAsyncThunk(
   async ({ user_id, product, menge }, { dispatch, rejectWithValue }) => {
     try {
       await axios.post(
-        "http://localhost:8800/api/cart",
+        `${process.env.BACKEND_URL}/api/cart`,
         {
           user_id,
           product_id: product.idProdukt,
@@ -54,7 +57,7 @@ export const removeItemFromCart = createAsyncThunk(
   async ({ user_id, product_id }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8800/api/cart/${user_id}/${product_id}`,
+        `${process.env.BACKEND_URL}/api/cart/${user_id}/${product_id}`,
         {
           withCredentials: true, // ← wichtig für Cookie-Auth
         }
@@ -74,7 +77,7 @@ export const updateItemQuantity = createAsyncThunk(
   async ({ user_id, product_id, menge }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `http://localhost:8800/api/cart/${user_id}/${product_id}`,
+        `${process.env.BACKEND_URL}/api/cart/${user_id}/${product_id}`,
         { menge },
         { withCredentials: true } // ⬅️ NICHT VERGESSEN!
       );
@@ -95,7 +98,7 @@ export const clearCartDB = createAsyncThunk(
 
     try {
       const res = await axios.delete(
-        `http://localhost:8800/api/cart/${userId}`,
+        `${process.env.BACKEND_URL}/api/cart/${userId}`,
         {
           withCredentials: true,
         }

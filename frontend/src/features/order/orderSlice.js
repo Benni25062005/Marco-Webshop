@@ -6,7 +6,7 @@ export const createOrder = createAsyncThunk(
   async (orderData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:8800/api/orders",
+        `${process.env.BACKEND_URL}/api/orders`,
         orderData
       );
       return response.data;
@@ -22,7 +22,7 @@ export const getOrder = createAsyncThunk(
   async (idUser, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:8800/api/orders/${idUser}`
+        `${process.env.BACKEND_URL}/api/orders/${idUser}`
       );
       return response.data;
     } catch (error) {

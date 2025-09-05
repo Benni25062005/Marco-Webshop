@@ -1,6 +1,8 @@
 import express from "express";
 import mysql from "mysql";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -21,15 +23,18 @@ import { twintRoutes } from "./routes/twintRoutes.js";
 import { orderRoutes } from "./routes/orderRoutes.js";
 import { getOrderRoutes } from "./routes/getOrderRoutes.js";
 import { authRoutes } from "./routes/authRoutes.js";
+import { contactRouter } from "./routes/contactRoutes.js";
 
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1);
+app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:1234", // oder deine React-App-URL
+    origin: ["http://localhost:1234", "http://localhost:8800"], // oder deine React-App-URL
     credentials: true, // ← erlaubt Cookies
   })
 );
@@ -37,6 +42,14 @@ app.use(
 app.get("/", (req, res) => {
   res.json("hello this is the backend");
 });
+
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api/contact", contactLimiter, contactRouter);
 
 //#region Produkte
 

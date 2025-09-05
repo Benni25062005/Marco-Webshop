@@ -13,7 +13,7 @@ export const fetchFeuerloescher = createAsyncThunk(
     try {
       console.log(kategorie);
       const res = await axios.get(
-        `http://localhost:8800/produkte?kategorie=${kategorie}`
+        `${process.env.BACKEND_URL}/produkte?kategorie=${kategorie}`
       );
 
       if (!res.data || res.data.length === 0) {
@@ -31,7 +31,7 @@ export const fetchFeuerloescherById = createAsyncThunk(
   async ({ idProdukt, kategorie }) => {
     try {
       const res = await axios.get(
-        `http://localhost:8800/produkte/${idProdukt}`,
+        `${process.env.BACKEND_URL}/produkte/${idProdukt}`,
         {
           params: { kategorie: "feuerloescher" },
         }
@@ -48,7 +48,7 @@ export const fetchAllProducts = createAsyncThunk(
   "products/fetchAll",
   async (__DO_NOT_USE__ActionTypes, { rejectWithValue }) => {
     try {
-      const res = await axios.get("http://localhost:8800/api/products");
+      const res = await axios.get(`${process.env.BACKEND_URL}/api/products`);
       return res.data;
     } catch (err) {
       return rejectWithValue(
@@ -63,7 +63,7 @@ export const fetchProductById = createAsyncThunk(
   async ({ idProdukt }, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        `http://localhost:8800/api/products/${idProdukt}`
+        `${process.env.BACKEND_URL}/api/products/${idProdukt}`
       );
       return res.data;
     } catch (error) {
