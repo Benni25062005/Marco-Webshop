@@ -18,6 +18,9 @@ import CheckoutResult from "../features/order/CheckoutResult";
 import Bestellungen from "../pages/Bestellungen";
 import TwintPaymentPage from "../pages/TwintPaymentPage";
 import CheckoutSuccess from "../pages/CheckoutSuccess";
+import Impressum from "../pages/Impressum";
+import Datenschutz from "../pages/Datenschutz";
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -28,6 +31,8 @@ export default function AppRoutes() {
       <Route path="produkt/:id" element={<ProduktDetail />} />
       <Route path="brandschutz" element={<Brandschutz />} />
       <Route path="kontakt" element={<Kontakt />} />
+      <Route path="impressum" element={<Impressum />} />
+      <Route path="datenschutz" element={<Datenschutz />} />
       <Route path="login" element={<Login />} />
       <Route path="registrierung" element={<Registrierung />} />
       <Route path="warenkorb" element={<Warenkorb />} />

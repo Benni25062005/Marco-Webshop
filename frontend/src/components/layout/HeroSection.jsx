@@ -13,7 +13,7 @@ export default function HeroSection() {
           transition={{ duration: 0.6 }}
           className="text-white text-4xl md:text-6xl font-bold"
         >
-          Kaminfeger Buchs.
+          Kaminfeger Buchs
         </motion.h1>
 
         {/* Subheadline */}
@@ -37,7 +37,7 @@ export default function HeroSection() {
             transition={{ type: "spring", stiffness: 300 }}
             className="bg-red-600 text-white px-6 py-3 font-semibold rounded-full mt-6 hover:bg-red-700 transition"
           >
-            Angebot anfordern
+            Kontaktaufnahme
           </motion.button>
         </Link>
       </section>
