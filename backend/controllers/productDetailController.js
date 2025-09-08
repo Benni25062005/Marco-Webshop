@@ -1,19 +1,24 @@
 import db from "../config/db.js";
 
-
-export const getProductById = (req, res) => {
+export const getProductById = async (req, res) => {
   const id = req.params.id;
   const q = "SELECT * FROM produkte WHERE idProdukt = ?";
 
-  db.query(q, [id], (err, data) => {
-    if (err) return res.status(500).json(err);
-    if (data.length === 0) return res.status(404).json({ message: "Produkt nicht gefunden" });
+  try {
+    const [rows] = await db.execute(q, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Produkt nicht gefunden" });
+    }
 
     const product = {
-      ...data[0],
-      Details: data[0].Details ? JSON.parse(data[0].Details) : null,
+      ...rows[0],
+      Details: rows[0].Details ? JSON.parse(rows[0].Details) : null,
     };
 
-    res.json(product);
-  });
+    return res.json(product);
+  } catch (err) {
+    console.error("Fehler bei getProductById:", err);
+    return res.status(500).json({ error: err.code || String(err) });
+  }
 };

@@ -1,31 +1,39 @@
 import db from "../config/db.js";
 
-export function saveCodeToDB(idUser, code) {
-  return new Promise((resolve, reject) => {
-    const q = "UPDATE user SET phoneCode = ?, phoneCodeCreatedAt = NOW() WHERE idUser = ?";
-    db.query(q, [code, idUser], (err) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
+export async function saveCodeToDB(idUser, code) {
+  const q = `
+    UPDATE user
+    SET phoneCode = ?, phoneCodeCreatedAt = NOW()
+    WHERE idUser = ?
+  `;
+  try {
+    await db.execute(q, [code, idUser]);
+  } catch (err) {
+    console.error("Fehler bei saveCodeToDB:", err);
+    throw err;
+  }
 }
 
-export function getCodeFromDB(idUser) {
-  return new Promise((resolve, reject) => {
-    const q = "SELECT phoneCode FROM user WHERE idUser = ?";
-    db.query(q, [idUser], (err, data) => {
-      if (err || data.length === 0) return reject(err || new Error("Kein Benutzer"));
-      resolve(data[0].phoneCode);
-    });
-  });
+export async function getCodeFromDB(idUser) {
+  const q = "SELECT phoneCode FROM user WHERE idUser = ?";
+  try {
+    const [rows] = await db.execute(q, [idUser]);
+    if (rows.length === 0) {
+      throw new Error("Kein Benutzer gefunden");
+    }
+    return rows[0].phoneCode;
+  } catch (err) {
+    console.error("Fehler bei getCodeFromDB:", err);
+    throw err;
+  }
 }
 
-export function markPhoneAsVerified(idUser) {
-  return new Promise((resolve, reject) => {
-    const q = "UPDATE user SET isVerifiedPhone = 1 WHERE idUser = ?";
-    db.query(q, [idUser], (err) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
+export async function markPhoneAsVerified(idUser) {
+  const q = "UPDATE user SET isVerifiedPhone = 1 WHERE idUser = ?";
+  try {
+    await db.execute(q, [idUser]);
+  } catch (err) {
+    console.error("Fehler bei markPhoneAsVerified:", err);
+    throw err;
+  }
 }

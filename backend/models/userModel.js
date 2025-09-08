@@ -1,22 +1,24 @@
 import db from "../config/db.js";
 
-export const checkIfEmailExists = (email) => {
-  return new Promise((resolve, reject) => {
-    db.query(
-      "SELECT idUser FROM user WHERE email = ?",
-      [email],
-      (err, result) => {
-        if (err) return reject(err);
-        resolve(result.length > 0);
-      }
-    );
-  });
+export const checkIfEmailExists = async (email) => {
+  const sql = "SELECT idUser FROM user WHERE email = ?";
+  try {
+    const [rows] = await db.execute(sql, [email]);
+    return rows.length > 0;
+  } catch (err) {
+    console.error("Fehler bei checkIfEmailExists:", err);
+    throw err;
+  }
 };
 
-export const insertNewUser = (user) => {
-  const q = `
-    INSERT INTO user (email, password, vorname, nachname, telefonnummer, strasse, plz, ort, land, emailToken, isVerifiedEmail)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+export const insertNewUser = async (user) => {
+  const sql = `
+    INSERT INTO user (
+      email, password, vorname, nachname, telefonnummer,
+      strasse, plz, ort, land, emailToken, isVerifiedEmail
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
   const values = [
     user.email,
@@ -32,10 +34,11 @@ export const insertNewUser = (user) => {
     0,
   ];
 
-  return new Promise((resolve, reject) => {
-    db.query(q, values, (err, data) => {
-      if (err) return reject(err);
-      resolve(data);
-    });
-  });
+  try {
+    const [result] = await db.execute(sql, values);
+    return result.insertId; // sinnvoller als einfach data zurückgeben
+  } catch (err) {
+    console.error("Fehler bei insertNewUser:", err);
+    throw err;
+  }
 };

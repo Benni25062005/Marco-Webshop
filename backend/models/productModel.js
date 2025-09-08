@@ -1,10 +1,11 @@
 import db from "../config/db.js";
 
-export const getAllProducts = () => {
-    return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM produkte', (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
-    });
+export const getAllProducts = async () => {
+  try {
+    const [rows] = await db.execute("SELECT * FROM produkte");
+    return rows;
+  } catch (err) {
+    console.error("Fehler bei getAllProducts:", err);
+    throw err;
+  }
 };

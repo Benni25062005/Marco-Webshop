@@ -54,16 +54,20 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.get("/health/db", (_req, res) => {
-  db.query("SELECT 1 AS ok", (err) => {
-    if (err) return res.status(500).json({ error: err.code || String(err) });
+app.get("/health/db", async (_req, res) => {
+  try {
+    await db.execute("SELECT 1 AS ok");
     res.json({ db: "ok" });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.code || String(err) });
+  }
 });
-db.query("SELECT NOW() as now", (err) => {
-  if (err) console.error("DB startup error:", err);
-  else console.log("DB connected.");
-});
+try {
+  const [rows] = await db.execute("SELECT NOW() as now");
+  console.log("DB connected. Current time:", rows[0].now);
+} catch (err) {
+  console.error("DB startup error:", err);
+}
 
 app.get("/", (_req, res) => res.json("hello this is the backend"));
 
@@ -82,70 +86,79 @@ app.use("/api", productRouter);
 
 app.use("/api", productDetailRouter);
 
-app.get("/produkte", (req, res) => {
-  const kategorie = req.query.kategorie;
-  const q = kategorie
-    ? "SELECT * FROM produkte WHERE kategorie = ?"
-    : "SELECT * FROM produkte";
+app.get("/produkte", async (req, res) => {
+  try {
+    const kategorie = req.query.kategorie;
 
-  const values = kategorie ? [kategorie] : [];
+    const q = kategorie
+      ? "SELECT * FROM produkte WHERE kategorie = ?"
+      : "SELECT * FROM produkte";
 
-  db.query(q, values, (err, data) => {
-    if (err) return res.json(err);
+    const values = kategorie ? [kategorie] : [];
 
-    const transformed = data.map((item) => {
-      return {
-        ...item,
-        Details: item.Details ? JSON.parse(item.Details) : null,
-      };
-    });
+    const [rows] = await db.execute(q, values); // <- execute statt query
+
+    const transformed = rows.map((item) => ({
+      ...item,
+      Details: item.Details ? JSON.parse(item.Details) : null,
+    }));
 
     return res.json(transformed);
-  });
+  } catch (err) {
+    console.error("Fehler bei /produkte:", err);
+    return res.status(500).json({ error: err.code || String(err) });
+  }
 });
 
-app.get("/produkte/:id", (req, res) => {
-  const id = req.params.id;
-  const kategorie = req.query.kategorie;
-  const q = kategorie
-    ? "SELECT * FROM produkte WHERE idProdukt = ? AND kategorie = ?"
-    : "SELECT * FROM produkte WHERE idProdukt = ?";
+app.get("/produkte/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const kategorie = req.query.kategorie;
 
-  const values = kategorie ? [id, kategorie] : [id];
+    const q = kategorie
+      ? "SELECT * FROM produkte WHERE idProdukt = ? AND kategorie = ?"
+      : "SELECT * FROM produkte WHERE idProdukt = ?";
 
-  db.query(q, values, (err, data) => {
-    if (err) return res.json(err);
+    const values = kategorie ? [id, kategorie] : [id];
 
-    if (data.length > 0) {
-      const transformed = data.map((item) => {
-        return {
-          ...item,
-          Details: item.Details ? JSON.parse(item.Details) : null,
-        };
-      });
-      return res.json(transformed[0]);
+    const [rows] = await db.execute(q, values); // <- execute statt query
+
+    if (rows.length > 0) {
+      const transformed = rows.map((item) => ({
+        ...item,
+        Details: item.Details ? JSON.parse(item.Details) : null,
+      }));
+      return res.json(transformed[0]); // nur das erste Produkt zurück
     } else {
       return res.json({});
     }
-  });
+  } catch (err) {
+    console.error("Fehler bei /produkte/:id:", err);
+    return res.status(500).json({ error: err.code || String(err) });
+  }
 });
+
 //#endregion Produkte
 
 //#region user
 
 app.use("/api/register", userRouter);
 
-app.get("/verify-email", (req, res) => {
-  const token = req.query.token;
-  if (!token) {
-    return res.status(400).send("Kein Token übergeben");
-  }
+app.get("/verify-email", async (req, res) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.status(400).send("Kein Token übergeben");
+    }
 
-  const q =
-    "UPDATE user SET isVerifiedEmail = 1, emailToken = NULL WHERE emailToken = ?";
+    const q = `
+      UPDATE user
+      SET isVerifiedEmail = 1, emailToken = NULL
+      WHERE emailToken = ?
+    `;
 
-  db.query(q, [token], (err, result) => {
-    if (err) return res.status(500).send("Fehler beim Verifizieren der E-Mail");
+    const [result] = await db.execute(q, [token]); // <- execute statt query
+
     if (result.affectedRows === 0) {
       return res
         .status(400)
@@ -155,34 +168,43 @@ app.get("/verify-email", (req, res) => {
     return res.send(
       "E-Mail erfolgreich verifiziert. Sie können sich jetzt anmelden."
     );
-  });
+  } catch (err) {
+    console.error("Fehler bei /verify-email:", err);
+    return res.status(500).send("Fehler beim Verifizieren der E-Mail");
+  }
 });
 
 app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  const q =
-    "SELECT idUser, email, vorname, nachname, telefonnummer, password, strasse, plz, ort, land, isVerifiedEmail FROM user WHERE email = ?";
-
-  db.query(q, [email], async (err, data) => {
-    if (err) {
-      console.error("SQL Fehler:", err);
-      return res.status(500).json({ message: "Serverfehler", error: err });
-    }
-    if (data.length === 0) {
-      return res.status(404).json({ message: "User nicht gefunden" });
+  try {
+    let { email, password } = req.body;
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email und Passwort erforderlich" });
     }
 
-    const user = data[0];
+    email = String(email).trim().toLowerCase();
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect)
-      return res.status(400).json({ message: "Falsches Passwort" });
+    const q = `
+      SELECT idUser, email, vorname, nachname, telefonnummer,
+             password, strasse, plz, ort, land, isVerifiedEmail
+      FROM user
+      WHERE email = ?
+      LIMIT 1
+    `;
+
+    const [rows] = await db.execute(q, [email]); // <-- execute statt query
+    const user = rows?.[0];
+    if (!user)
+      return res.status(401).json({ message: "Ungültige Anmeldedaten" });
+
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) return res.status(401).json({ message: "Ungültige Anmeldedaten" });
+
     if (!user.isVerifiedEmail) {
-      return res.status(403).json({
-        message:
-          "Bitte bestätigen Sie Ihre E-Mail-Adresse, bevor Sie sich anmelden.",
-      });
+      return res
+        .status(403)
+        .json({ message: "Bitte E-Mail-Adresse zuerst bestätigen." });
     }
 
     const token = jwt.sign(
@@ -193,12 +215,12 @@ app.post("/api/login", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // in Render true
+      secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60 * 1000,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       user: {
         idUser: user.idUser,
         email: user.email,
@@ -211,12 +233,17 @@ app.post("/api/login", async (req, res) => {
         land: user.land,
       },
     });
-  });
+  } catch (err) {
+    console.error("/api/login error:", err);
+    return res
+      .status(500)
+      .json({ message: "Serverfehler", error: err.code || String(err) });
+  }
 });
 
 app.use("/api/user", authRoutes);
 
-app.put("/user/:id/contact", authenticateToken, (req, res) => {
+app.put("/user/:id/contact", authenticateToken, async (req, res) => {
   const { vorname, nachname, email, telefonnummer } = req.body;
   const idUser = req.params.id;
 
@@ -224,44 +251,40 @@ app.put("/user/:id/contact", authenticateToken, (req, res) => {
     return res.status(403).json({ message: "Unbefugter Zugriff" });
   }
 
-  const q = `
-    UPDATE user 
-    SET vorname = ?, nachname = ?, email = ?, telefonnummer = ? 
-    WHERE idUser = ?
-  `;
+  try {
+    const q = `
+      UPDATE user 
+      SET vorname = ?, nachname = ?, email = ?, telefonnummer = ? 
+      WHERE idUser = ?
+    `;
 
-  db.query(
-    q,
-    [vorname, nachname, email, telefonnummer, idUser],
-    (err, result) => {
-      if (err) {
-        console.error("SQL Fehler:", err);
-        return res.status(500).json({ error: err });
-      }
+    const [updateResult] = await db.execute(q, [
+      vorname,
+      nachname,
+      email,
+      telefonnummer,
+      idUser,
+    ]);
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "User nicht gefunden" });
-      }
-
-      const selectQuery = "SELECT * FROM user WHERE idUser = ?";
-      db.query(selectQuery, [idUser], (err, result) => {
-        if (err) {
-          console.error("Fehler beim Abrufen des aktualisierten Users:", err);
-          return res
-            .status(500)
-            .json({ message: "Fehler beim Abrufen", error: err });
-        }
-
-        return res.status(200).json({
-          message: "Kontakt wurde erfolgreich gespeichert",
-          updatedUser: result[0],
-        });
-      });
+    if (updateResult.affectedRows === 0) {
+      return res.status(404).json({ message: "User nicht gefunden" });
     }
-  );
+
+    const [rows] = await db.execute("SELECT * FROM user WHERE idUser = ?", [
+      idUser,
+    ]);
+
+    return res.status(200).json({
+      message: "Kontakt wurde erfolgreich gespeichert",
+      updatedUser: rows[0],
+    });
+  } catch (err) {
+    console.error("SQL Fehler:", err);
+    return res.status(500).json({ error: err });
+  }
 });
 
-app.put("/user/:id/address", authenticateToken, (req, res) => {
+app.put("/user/:id/address", authenticateToken, async (req, res) => {
   const { strasse, plz, ort, land } = req.body;
   const idUser = req.params.id;
 
@@ -269,51 +292,56 @@ app.put("/user/:id/address", authenticateToken, (req, res) => {
     return res.status(403).json({ message: "Unbefugter Zugriff" });
   }
 
-  const q =
-    "UPDATE user SET strasse = ?, plz = ?, ort = ?, land = ? WHERE idUser = ?";
-  const values = [strasse, plz, ort, land, idUser];
+  try {
+    const q =
+      "UPDATE user SET strasse = ?, plz = ?, ort = ?, land = ? WHERE idUser = ?";
+    const values = [strasse, plz, ort, land, idUser];
 
-  db.query(q, values, (err, data) => {
-    if (err) {
-      console.error("Fehler beim Aktualisieren der Adresse:", err);
-      return res
-        .status(500)
-        .json({ message: "Fehler beim Aktualisieren der Adresse", error: err });
-    }
-    if (data.affectedRows === 0) {
+    const [updateResult] = await db.execute(q, values);
+
+    if (updateResult.affectedRows === 0) {
       return res.status(404).json({ message: "User nicht gefunden" });
     }
 
-    const selectQuery = "SELECT * FROM user WHERE idUser = ?";
-    db.query(selectQuery, [idUser], (err, result) => {
-      if (err) {
-        console.error("Fehler beim Abrufen des aktualisierten Users:", err);
-        return res
-          .status(500)
-          .json({ message: "Fehler beim Abrufen", error: err });
-      }
+    const [rows] = await db.execute("SELECT * FROM user WHERE idUser = ?", [
+      idUser,
+    ]);
 
-      return res.status(200).json({
-        message: "Adresse wurde erfolgreich gespeichert",
-        updatedUser: result[0],
-      });
+    return res.status(200).json({
+      message: "Adresse wurde erfolgreich gespeichert",
+      updatedUser: rows[0],
     });
-  });
+  } catch (err) {
+    console.error("Fehler beim Aktualisieren der Adresse:", err);
+    return res
+      .status(500)
+      .json({ message: "Fehler beim Aktualisieren der Adresse", error: err });
+  }
 });
 
-app.get("/user/:id", authenticateToken, (req, res) => {
+app.get("/user/:id", authenticateToken, async (req, res) => {
   const idUser = req.params.id;
 
   if (parseInt(idUser) !== req.user.idUser) {
     return res.status(403).json({ message: "Unbefugter Zugriff" });
   }
 
-  db.query("SELECT * FROM user WHERE idUser = ?", [idUser], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    if (result.length === 0)
+  try {
+    const [rows] = await db.execute("SELECT * FROM user WHERE idUser = ?", [
+      idUser,
+    ]);
+
+    if (rows.length === 0) {
       return res.status(404).json({ message: "User nicht gefunden" });
-    res.status(200).json({ user: result[0] });
-  });
+    }
+
+    return res.status(200).json({ user: rows[0] });
+  } catch (err) {
+    console.error("Fehler beim Abrufen des Users:", err);
+    return res
+      .status(500)
+      .json({ message: "Fehler beim Abrufen des Users", error: err });
+  }
 });
 
 app.put("/user/:id/password", authenticateToken, async (req, res) => {
@@ -324,35 +352,45 @@ app.put("/user/:id/password", authenticateToken, async (req, res) => {
     return res.status(403).json({ message: "Unbefugter Zugriff" });
   }
 
-  const q = "SELECT password FROM user WHERE idUser = ?";
-  db.query(q, [idUser], async (err, result) => {
-    if (err) {
-      console.error("Fehler beim Abrufen des Users:", err);
-      return res
-        .status(500)
-        .json({ message: "Fehler beim Abrufen des Users", error: err });
-    }
-    if (result.length === 0) {
+  try {
+    // Altes Passwort holen
+    const [rows] = await db.execute(
+      "SELECT password FROM user WHERE idUser = ?",
+      [idUser]
+    );
+
+    if (rows.length === 0) {
       return res.status(404).json({ message: "User nicht gefunden" });
     }
-    const valid = await bcrypt.compare(oldPassword, result[0].password);
-    if (!valid)
+
+    const valid = await bcrypt.compare(oldPassword, rows[0].password);
+    if (!valid) {
       return res.status(400).json({ message: "Aktuelles Passwort ist falsch" });
+    }
 
+    // Neues Passwort hashen
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updateQuery = "UPDATE user SET password = ? WHERE idUser = ?";
 
-    db.query(updateQuery, [hashedPassword, idUser], (err, data) => {
-      if (err) {
-        console.error("Fehler beim Aktualisieren des Passworts:", err);
-        return res.status(500).json({
-          message: "Fehler beim Aktualisieren des Passworts",
-          error: err,
-        });
-      }
-      res.status(200).json({ message: "Passwort erfolgreich aktualisiert" });
+    // Update in DB
+    const [updateResult] = await db.execute(
+      "UPDATE user SET password = ? WHERE idUser = ?",
+      [hashedPassword, idUser]
+    );
+
+    if (updateResult.affectedRows === 0) {
+      return res.status(404).json({ message: "User nicht gefunden" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Passwort erfolgreich aktualisiert" });
+  } catch (err) {
+    console.error("Fehler beim Aktualisieren des Passworts:", err);
+    return res.status(500).json({
+      message: "Fehler beim Aktualisieren des Passworts",
+      error: err,
     });
-  });
+  }
 });
 
 app.put("/user/:id/email", authenticateToken, async (req, res) => {
@@ -363,20 +401,24 @@ app.put("/user/:id/email", authenticateToken, async (req, res) => {
     return res.status(403).json({ message: "Unbefugter Zugriff" });
   }
 
-  const emailToken = crypto.randomBytes(64).toString("hex");
-  const q =
-    "UPDATE user SET email = ?, emailToken = ?, isVerifiedEmail = 0 WHERE idUser = ?";
+  try {
+    const emailToken = crypto.randomBytes(64).toString("hex");
 
-  db.query(q, [email, emailToken, idUser], (err, result) => {
-    if (err) {
-      console.error("Fehler beim Aktualisieren der E-Mail:", err);
-      return res
-        .status(500)
-        .json({ message: "Fehler beim Aktualisieren der E-Mail", error: err });
-    }
-    if (result.affectedRows === 0) {
+    // E-Mail + Token setzen, Verifizierung zurücksetzen
+    const [updateResult] = await db.execute(
+      "UPDATE user SET email = ?, emailToken = ?, isVerifiedEmail = 0 WHERE idUser = ?",
+      [email, emailToken, idUser]
+    );
+
+    if (updateResult.affectedRows === 0) {
       return res.status(404).json({ message: "User nicht gefunden" });
     }
+
+    // Verifizierungslink (nutze am besten ENV, nicht hart codieren)
+    const baseUrl = process.env.FRONTEND_URL || "http://localhost:8800";
+    const verificationLink = `${baseUrl}/verify-email?token=${emailToken}`;
+
+    // Mailer
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -385,170 +427,182 @@ app.put("/user/:id/email", authenticateToken, async (req, res) => {
       },
     });
 
-    const verificationLink = `http://localhost:8800/verify-email?token=${emailToken}`;
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
       subject: "Bitte bestätigen Sie Ihre E-Mail-Adresse",
       html: `
-                <div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
-                    <div style="text-align:center; margin-bottom:32px;">
-                    <img src="" alt="FeuerTech Logo" style="max-width:120px;" />
-                    </div>
+        <div style="font-family:Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#ffffff;">
+          <div style="text-align:center; margin-bottom:32px;">
+            <img src="" alt="FeuerTech Logo" style="max-width:120px;" />
+          </div>
 
-                    <h2 style="color:#dc2626;">Hallo ${vorname},</h2>
-                    <p style="font-size:16px; color:#111827;">Vielen Dank für deine Registrierung!.</p>
+          <h2 style="color:#dc2626;">Hallo ${vorname || ""},</h2>
+          <p style="font-size:16px; color:#111827;">bitte bestätige deine neue E-Mail-Adresse.</p>
 
-                    <p style="margin:24px 0;">Um deine Registrierung abzuschließen, bestätige bitte deine E-Mail-Adresse über den folgenden Button:</p>
+          <div style="text-align:center; margin:32px 0;">
+            <a href="${verificationLink}"
+               style="display:inline-block; padding:14px 28px; background-color:#dc2626; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">
+               Jetzt bestätigen
+            </a>
+          </div>
 
-                    <div style="text-align:center; margin:32px 0;">
-                    <a href="${verificationLink}"
-                        style="display:inline-block; padding:14px 28px; background-color:#dc2626; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">
-                        Jetzt bestätigen
-                    </a>
-                    </div>
-
-                    <p style="font-size:12px; color:#6b7280; text-align:center;">Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
-                </div>
-                `,
-      text: `Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den folgenden Link klicken: ${verificationLink}`,
+          <p style="font-size:12px; color:#6b7280; text-align:center;">Falls du diese Änderung nicht durchgeführt hast, ignoriere diese E-Mail oder kontaktiere den Support.</p>
+        </div>
+      `,
+      text: `Bitte bestätige deine neue E-Mail-Adresse über diesen Link: ${verificationLink}`,
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Fehler beim Senden der E-Mail:", error);
-        return res
-          .status(500)
-          .json({ message: "Fehler beim Senden der E-Mail", error });
-      }
 
-      console.log("Verifizierungs-E-Mail gesendet:", info.messageId);
+    await transporter.sendMail(mailOptions);
 
-      const selectQuery = "SELECT * FROM user WHERE idUser = ?";
-      db.query(selectQuery, [idUser], (err, result) => {
-        if (err) {
-          console.error("Fehler beim Abrufen des aktualisierten Users:", err);
-          return res
-            .status(500)
-            .json({ message: "Fehler beim Abrufen", error: err });
-        }
+    const [rows] = await db.execute("SELECT * FROM user WHERE idUser = ?", [
+      idUser,
+    ]);
 
-        return res.status(200).json({
-          message:
-            "E-Mail erfolgreich aktualisiert. Bitte überprüfen Sie Ihre E-Mail, um Ihre Adresse zu bestätigen.",
-          updatedUser: result[0],
-        });
-      });
+    return res.status(200).json({
+      message:
+        "E-Mail erfolgreich aktualisiert. Bitte überprüfe deine E-Mails zur Bestätigung.",
+      updatedUser: rows[0],
     });
-  });
+  } catch (err) {
+    console.error("Fehler beim Aktualisieren/Senden:", err);
+
+    // Kollision auf UNIQUE(email)
+    if (err?.code === "ER_DUP_ENTRY") {
+      return res
+        .status(409)
+        .json({ message: "Diese E-Mail ist bereits vergeben." });
+    }
+
+    return res.status(500).json({
+      message: "Fehler beim Aktualisieren der E-Mail",
+      error: err,
+    });
+  }
 });
 
-app.post("/api/request-reset", (req, res) => {
+app.post("/api/request-reset", async (req, res) => {
   const { email } = req.body;
+
+  // 4-stelliger Code
   const code = Math.floor(1000 + Math.random() * 9000).toString();
 
-  const selectQuery = "SELECT vorname FROM user WHERE email = ?";
-  db.query(selectQuery, [email], (err, userResult) => {
-    if (err || userResult.length === 0) {
+  try {
+    // User holen
+    const [userRows] = await db.execute(
+      "SELECT vorname FROM user WHERE email = ?",
+      [email]
+    );
+
+    if (userRows.length === 0) {
       return res.status(404).json({ message: "E-Mail wurde nicht gefunden" });
     }
 
-    const vorname = userResult[0].vorname;
+    const { vorname } = userRows[0];
 
-    const updateQuery =
-      "UPDATE user SET resetCode = ?, resetCodeCreatedAt = NOW() WHERE email = ?";
-    db.query(updateQuery, [code, email], (err, result) => {
-      if (err) {
-        console.error("Fehler beim Setzen des Codes", err);
-        return res
-          .status(500)
-          .json({ message: "Fehler beim Setzen des Codes", err });
-      }
+    // Code + Timestamp setzen
+    const [updateResult] = await db.execute(
+      "UPDATE user SET resetCode = ?, resetCodeCreatedAt = NOW() WHERE email = ?",
+      [code, email]
+    );
 
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: process.env.EMAIL,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      });
+    if (updateResult.affectedRows === 0) {
+      return res.status(404).json({ message: "E-Mail wurde nicht gefunden" });
+    }
 
-      const mailOptions = {
-        from: process.env.EMAIL,
-        to: email,
-        subject: "Passwort zurücksetzen",
-        html: `
-                    <div style="font-family:sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#f9fafb;">
-                        <div style="text-align:center; margin-bottom:32px;">
-                            <h1 style="color:#dc2626;">Knapp Kaminkehrer</h1>
-                        </div>
-
-                        <h2 style="color:#111827;">Hallo ${vorname},</h2>
-
-                        <p style="margin:20px 0; font-size:16px">du hast angefordert, dein Passwort zurückzusetzen. Gib den folgenden Bestätigungscode in der App ein:</p>
-
-                        <div style="text-align:center; margin:30px 0;">
-                            <span style="font-size:32px; font-weight:bold; letter-spacing:4px; color:#dc2626;">${code}</span>
-                        </div>
-
-                        <p style="color:#6b7280;">Wenn du das nicht warst, kannst du diese E-Mail ignorieren.</p>
-
-                        <p style="margin-top:40px; font-size:12px; color:#9ca3af; text-align:center;">© 2025 Knapp Kaminkehrer</p>
-                    </div>
-                `,
-      };
-
-      transporter.sendMail(mailOptions, (error) => {
-        if (error) {
-          console.error("E-Mail konnte nicht gesendet werden", error);
-          return res
-            .status(500)
-            .json({ message: "E-Mail konnte nicht gesendet werden", error });
-        }
-
-        res.status(200).json({ message: "Code wurde gesendet!" });
-      });
+    // Mailer (Gmail SMTP – nutze App-Passwort!)
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD,
+      },
     });
-  });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Passwort zurücksetzen",
+      html: `
+        <div style="font-family:sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #e5e7eb; border-radius:12px; background:#f9fafb;">
+          <div style="text-align:center; margin-bottom:32px;">
+            <h1 style="color:#dc2626;">Knapp Kaminkehrer</h1>
+          </div>
+
+          <h2 style="color:#111827;">Hallo ${vorname},</h2>
+
+          <p style="margin:20px 0; font-size:16px">
+            Du hast angefordert, dein Passwort zurückzusetzen. Gib den folgenden Bestätigungscode in der App ein:
+          </p>
+
+          <div style="text-align:center; margin:30px 0;">
+            <span style="font-size:32px; font-weight:bold; letter-spacing:4px; color:#dc2626;">${code}</span>
+          </div>
+
+          <p style="color:#6b7280;">Wenn du das nicht warst, kannst du diese E-Mail ignorieren.</p>
+
+          <p style="margin-top:40px; font-size:12px; color:#9ca3af; text-align:center;">© 2025 Knapp Kaminkehrer</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: "Code wurde gesendet!" });
+  } catch (err) {
+    console.error("Fehler beim Setzen/Versenden des Reset-Codes:", err);
+    return res.status(500).json({
+      message: "Fehler beim Setzen oder Versenden des Codes",
+      error: err,
+    });
+  }
 });
 
 app.post("/api/reset-password", async (req, res) => {
   const { email, code, newPassword } = req.body;
 
-  const q = "SELECT resetCode, resetCodeCreatedAt FROM user WHERE email = ?";
-  db.query(q, [email], async (err, result) => {
-    if (err) {
-      console.error("Fehler beim Abrufen", err);
-      return res.status(500).json({ message: "Fehler beim Abrufen", err });
-    }
-    if (result.length === 0) {
-      return res.status(404).json({ message: "User nicht gefunden" });
-    }
+  try {
+    // Neues Passwort hashen
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    const user = result[0];
-    const now = new Date();
-    const created = new Date(user.resetCodeCreatedAt);
-    if ((now - created) / 1000 > 600) {
+    const [updateResult] = await db.execute(
+      `
+        UPDATE user
+        SET password = ?, resetCode = NULL, resetCodeCreatedAt = NULL
+        WHERE email = ?
+          AND resetCode = ?
+          AND TIMESTAMPDIFF(SECOND, resetCodeCreatedAt, NOW()) <= 600
+      `,
+      [hashedPassword, email, code]
+    );
+
+    if (updateResult.affectedRows === 0) {
+      // Herausfinden, ob User existiert (für gezieltere Fehlermeldung)
+      const [rows] = await db.execute(
+        "SELECT resetCode, resetCodeCreatedAt FROM user WHERE email = ?",
+        [email]
+      );
+      if (rows.length === 0) {
+        return res.status(404).json({ message: "User nicht gefunden" });
+      }
+
+      const u = rows[0];
+      if (u.resetCode !== code) {
+        return res.status(400).json({ message: "Falscher Code" });
+      }
+      // Wenn Code stimmt, dann ist er abgelaufen
       return res.status(400).json({ message: "Code abgelaufen" });
     }
 
-    if (user.resetCode !== code) {
-      return res.status(400).json({ message: "Falscher Code" });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updateQ =
-      "UPDATE user SET password = ?, resetCode = NULL, resetCodeCreatedAt = NULL WHERE email = ?";
-
-    db.query(updateQ, [hashedPassword, email], (err) => {
-      if (err) {
-        console.error("Fehler beim Ändern des Passworts", err);
-        return res.status(500).json({ message: "Fehler beim Speichern", err });
-      }
-      res.json({ message: "Passwort erfolgreich geändert" });
-    });
-  });
+    return res.json({ message: "Passwort erfolgreich geändert" });
+  } catch (err) {
+    console.error("Fehler beim Zurücksetzen des Passworts:", err);
+    return res
+      .status(500)
+      .json({ message: "Fehler beim Zurücksetzen des Passworts", error: err });
+  }
 });
 
 app.use("/api/sms", smsRoutes);
@@ -556,7 +610,7 @@ app.use("/api/sms", smsRoutes);
 //#endregion user
 
 //#region Warenkorb
-app.get("/api/cartItems", authenticateToken, (req, res) => {
+app.get("/api/cartItems", authenticateToken, async (req, res) => {
   const user_id = req.query.user_id;
 
   if (parseInt(user_id) !== req.user.idUser) {
@@ -564,28 +618,30 @@ app.get("/api/cartItems", authenticateToken, (req, res) => {
   }
 
   const q = `
-        SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild, p.stripePriceId
-        FROM warenkorb w
-        JOIN produkte p ON w.product_id = p.idProdukt
-        WHERE w.user_id = ?
-    `;
+    SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild, p.stripePriceId
+    FROM warenkorb w
+    JOIN produkte p ON w.product_id = p.idProdukt
+    WHERE w.user_id = ?
+  `;
 
-  db.query(q, [user_id], (err, data) => {
-    if (err) {
-      console.error("Fehler beim Abrufen des Warenkorbs:", err);
-      return res
-        .status(500)
-        .json({ message: "Fehler beim Abrufen des Warenkorbs", error: err });
-    }
+  try {
+    const [rows] = await db.execute(q, [user_id]);
 
-    const transformed = data.map((item) => ({
+    const transformed = rows.map((item) => ({
       ...item,
     }));
+
     return res.status(200).json(transformed);
-  });
+  } catch (err) {
+    console.error("Fehler beim Abrufen des Warenkorbs:", err);
+    return res.status(500).json({
+      message: "Fehler beim Abrufen des Warenkorbs",
+      error: err,
+    });
+  }
 });
 
-app.post("/api/cart", authenticateToken, (req, res) => {
+app.post("/api/cart", authenticateToken, async (req, res) => {
   const { user_id, product_id, menge } = req.body;
 
   if (parseInt(user_id) !== req.user.idUser) {
@@ -593,101 +649,125 @@ app.post("/api/cart", authenticateToken, (req, res) => {
   }
 
   const q = `
-        INSERT INTO warenkorb (user_id, product_id, menge)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE menge = menge + VALUES(menge)
-    `;
+    INSERT INTO warenkorb (user_id, product_id, menge)
+    VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE menge = menge + VALUES(menge)
+  `;
   const values = [user_id, product_id, menge];
 
-  db.query(q, values, (err, data) => {
-    if (err) {
-      console.error("Fehler beim Hinzufügen zum Warenkorb:", err);
-      return res
-        .status(500)
-        .json({ message: "Fehler beim Hinzufügen zum Warenkorb", error: err });
-    }
+  try {
+    await db.execute(q, values);
 
-    return res
-      .status(201)
-      .json({ message: "Produkt wurde erfolgreich zum Warenkorb hinzugefügt" });
-  });
+    return res.status(201).json({
+      message: "Produkt wurde erfolgreich zum Warenkorb hinzugefügt",
+    });
+  } catch (err) {
+    console.error("Fehler beim Hinzufügen zum Warenkorb:", err);
+    return res.status(500).json({
+      message: "Fehler beim Hinzufügen zum Warenkorb",
+      error: err,
+    });
+  }
 });
 
-app.delete("/api/cart/:user_id/:product_id", authenticateToken, (req, res) => {
-  const { user_id, product_id } = req.params;
+app.delete(
+  "/api/cart/:user_id/:product_id",
+  authenticateToken,
+  async (req, res) => {
+    const { user_id, product_id } = req.params;
 
-  if (parseInt(user_id) !== req.user.idUser) {
-    return res.status(403).json({ message: "Unbefugter Zugriff" });
-  }
+    if (parseInt(user_id) !== req.user.idUser) {
+      return res.status(403).json({ message: "Unbefugter Zugriff" });
+    }
 
-  const q = "DELETE FROM warenkorb WHERE user_id = ? AND product_id = ?";
-  const values = [user_id, product_id];
+    const q = "DELETE FROM warenkorb WHERE user_id = ? AND product_id = ?";
+    const values = [user_id, product_id];
 
-  db.query(q, values, (err, data) => {
-    if (err) {
+    try {
+      const [result] = await db.execute(q, values);
+
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ message: "Produkt nicht im Warenkorb gefunden" });
+      }
+
+      return res.status(200).json({
+        message: "Produkt wurde erfolgreich aus dem Warenkorb entfernt",
+      });
+    } catch (err) {
       console.error("Fehler beim Entfernen aus dem Warenkorb:", err);
       return res.status(500).json({
         message: "Fehler beim Entfernen aus dem Warenkorb",
         error: err,
       });
     }
-
-    if (data.affectedRows === 0) {
-      return res
-        .status(404)
-        .json({ message: "Produkt nicht im Warenkorb gefunden" });
-    }
-
-    return res.status(200).json({
-      message: "Produkt wurde erfolgreich aus dem Warenkorb entfernt",
-    });
-  });
-});
-
-app.put("/api/cart/:user_id/:product_id", authenticateToken, (req, res) => {
-  const { user_id, product_id } = req.params;
-  const { menge } = req.body;
-
-  if (parseInt(user_id) !== req.user.idUser) {
-    return res.status(403).json({ message: "Unbefugter Zugriff" });
   }
+);
 
-  const q =
-    "UPDATE warenkorb SET menge = ? WHERE user_id = ? AND product_ID = ?";
-  const values = [menge, user_id, product_id];
+app.put(
+  "/api/cart/:user_id/:product_id",
+  authenticateToken,
+  async (req, res) => {
+    const { user_id, product_id } = req.params;
+    const { menge } = req.body;
 
-  db.query(q, values, (err, data) => {
-    if (err) {
+    if (parseInt(user_id) !== req.user.idUser) {
+      return res.status(403).json({ message: "Unbefugter Zugriff" });
+    }
+
+    const q =
+      "UPDATE warenkorb SET menge = ? WHERE user_id = ? AND product_id = ?";
+    const values = [menge, user_id, product_id];
+
+    try {
+      const [result] = await db.execute(q, values);
+
+      if (result.affectedRows === 0) {
+        return res
+          .status(400)
+          .json({ message: "Produkt nicht im Warenkorb gefunden" });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Menge erfolgreich aktualisiert" });
+    } catch (err) {
       console.error("Fehler beim Aktualisieren der Menge:", err);
-      return res
-        .status(500)
-        .json({ message: "Fehler beim Aktualisieren den Menge", error: err });
+      return res.status(500).json({
+        message: "Fehler beim Aktualisieren der Menge",
+        error: err,
+      });
     }
-    if (data.affectedRows === 0) {
-      return res
-        .status(400)
-        .json({ message: "Produkt nicht im Warenkorb gefunden" });
-    }
-
-    return res.status(200).json({ message: "Menge erfolgreich aktualisiert" });
-  });
-});
+  }
+);
 
 app.delete("/api/cart/:userId", authenticateToken, async (req, res) => {
   const userId = req.params.userId;
-  // SQL: DELETE FROM cart WHERE user_id = ?
+
   try {
     const dbUserId = parseInt(userId);
     const tokenUserId = parseInt(req.user.idUser);
+
     if (dbUserId !== tokenUserId) {
       return res.status(403).json({ message: "Unbefugter Zugriff" });
     }
-    const rows = await db.query("DELETE FROM warenkorb WHERE user_id = ?", [
-      userId,
-    ]);
-    res.status(200).json({ message: "Warenkorb geleert" });
+
+    const [result] = await db.execute(
+      "DELETE FROM warenkorb WHERE user_id = ?",
+      [userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(200).json({ message: "Warenkorb war bereits leer" });
+    }
+
+    return res.status(200).json({ message: "Warenkorb erfolgreich geleert" });
   } catch (error) {
-    res.status(500).json({ error: "Fehler beim Leeren des Warenkorbs" });
+    console.error("Fehler beim Leeren des Warenkorbs:", error);
+    return res
+      .status(500)
+      .json({ error: "Fehler beim Leeren des Warenkorbs", details: error });
   }
 });
 
