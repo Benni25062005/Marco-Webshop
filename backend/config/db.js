@@ -1,8 +1,7 @@
+// config/db.js
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 dotenv.config();
-
-const useSsl = process.env.MYSQL_SSL === "true";
 
 const pool = mysql.createPool({
   host: process.env.MYSQL_HOST,
@@ -14,7 +13,12 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   connectTimeout: 20_000,
-  ...(useSsl ? { ssl: { minVersion: "TLSv1.2" } } : {}), // i. d. R. reicht das bei Railway
+  ssl: {
+    minVersion: "TLSv1.2",
+    rejectUnauthorized: false, // <-- PRAGMATISCH: akzeptiere self-signed (Railway)
+    // Wenn du später ein CA-Zertifikat hast:
+    // ca: process.env.MYSQL_CA?.replace(/\\n/g, "\n"),
+  },
 });
 
 export default pool;
