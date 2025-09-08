@@ -32,16 +32,40 @@ app.set("trust proxy", 1);
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
-app.use(
-  cors({
-    origin: ["http://localhost:1234", "http://localhost:8800"], // oder deine React-App-URL
-    credentials: true, // ← erlaubt Cookies
-  })
-);
 
-app.get("/", (req, res) => {
-  res.json("hello this is the backend");
+const allowlist = [
+  "http://localhost:1234",
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://marco-webshop-qu3m.vercel.app",
+];
+const vercelPreviewRegex = /\.vercel\.app$/;
+
+const corsOptions = {
+  origin(origin, cb) {
+    if (!origin) return cb(null, true); // Postman/cURL
+    const ok = allowlist.includes(origin) || vercelPreviewRegex.test(origin);
+    return ok ? cb(null, true) : cb(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
+app.get("/health/db", (_req, res) => {
+  db.query("SELECT 1 AS ok", (err) => {
+    if (err) return res.status(500).json({ error: err.code || String(err) });
+    res.json({ db: "ok" });
+  });
 });
+db.query("SELECT NOW() as now", (err) => {
+  if (err) console.error("DB startup error:", err);
+  else console.log("DB connected.");
+});
+
+app.get("/", (_req, res) => res.json("hello this is the backend"));
 
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -49,6 +73,7 @@ const contactLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
 app.use("/api/contact", contactLimiter, contactRouter);
 
 //#region Produkte
@@ -168,8 +193,8 @@ app.post("/api/login", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // ← wichtig für localhost!
-      sameSite: "lax", // ← erlaubt Cross-Port-Cookies auf localhost
+      secure: process.env.NODE_ENV === "production", // in Render true
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60 * 1000,
     });
 
@@ -682,5 +707,5 @@ app.use("/api/orders", getOrderRoutes);
 const port = process.env.PORT || 8800;
 
 app.listen(port, () => {
-  console.log("Connected to backend!");
+  console.log("Connected to backend!", port);
 });
