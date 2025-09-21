@@ -159,8 +159,18 @@ export default function Main() {
                       key={key}
                       className="flex justify-between border-b py-1 text-sm"
                     >
-                      <span className="font-medium">{key}</span>
-                      <span>{value}</span>
+                      {key === "Text" ? (
+                        <>
+                          <span className="text-center text-red-600 font-medium my-4">
+                            {value}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-medium">{key}</span>
+                          <span>{value}</span>
+                        </>
+                      )}
                     </div>
                   ))}
                 </motion.div>

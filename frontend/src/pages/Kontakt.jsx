@@ -70,9 +70,9 @@ export default function Main() {
             </h1>
           </div>
 
-          <div className="flex flex-col lg:flex-row justify-center items-start mt-16 gap-16">
+          <div className="flex flex-col p-4 justify-center lg:flex-row items-center lg:justify-center lg:items-start mt-16 gap-16">
             {/*Kontaktinformationen*/}
-            <div className="max-w-md ">
+            <div className="max-w-md w-full">
               <p className="text-xl sm:text-2xl font-medium">
                 Kaminfegermeister Marco Knapp
               </p>
@@ -91,7 +91,7 @@ export default function Main() {
             {/*Kontaktformular*/}
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col max-w-lg space-y-4 ml-64"
+              className="flex flex-col w-full max-w-lg space-y-4 ml-0 lg:ml-16"
             >
               <h1 className="text-xl sm:text-2xl font-medium mb-4">
                 Schicken Sie uns eine E-mail

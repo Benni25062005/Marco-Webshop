@@ -7,7 +7,6 @@ import ServiceCard from "../components/common/cards/ServiceCard";
 import HeroSection from "../components/layout/HeroSection";
 
 const logoUrl = new URL("../../assets/Marco_main.jpg", import.meta.url).href;
-const bgHome = new URL("../../assets/home-bg.jpeg", import.meta.url).href;
 
 export default function Main() {
   const paragraphs = [
@@ -28,13 +27,13 @@ export default function Main() {
       </Helmet>
 
       <main className=" ">
-        <div className="relative w-full">
-          <div className="absolute inset-0 bg-homeBG bg-scroll brightness-50 from-[#fff] to-[#f6f6f6] w-full "></div>
-
-          <div className="relative max-w-screen-xl  mx-auto px-4 py-28 text-center">
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-homeBG bg-no-repeat bg-center bg-cover" />
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative z-10 max-w-screen-xl mx-auto px-4 py-28 text-center">
             <HeroSection />
           </div>
-        </div>
+        </section>
 
         <div className="flex justify-center mt-24 ">
           <div className="flex flex-col md:flex-row lg:space-x-24 md:space-x-16">
@@ -44,7 +43,7 @@ export default function Main() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="w-auto max-w-full lg:h-[38em] md:h-[32em] sm:h-[26em] h-[16em] p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md"
+              className="w-full max-w-sm sm:max-w-sm md:max-w-md lg:max-w-lg h-auto p-4 sm:p-6 md:p-8 lg:p-0 rounded-md shadow-md object-contain"
             />
 
             <div className="flex flex-col max-w-2xl md:max-w-2xl mx-auto space-y-2 md:space-y-4 p-4 sm:p-6 md:p-8 ">

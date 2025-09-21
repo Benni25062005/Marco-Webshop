@@ -13,7 +13,7 @@ module.exports = {
       },
       backgroundImage: {
         homeBG:
-          "url('https://res.cloudinary.com/dv6cae2zi/image/upload/v1754334673/home-bg_x0yliu.jpg')",
+          "url('https://res.cloudinary.com/dv6cae2zi/image/upload/v1758465000/dashboard-bg_c9yogp.jpg')",
       },
     },
   },

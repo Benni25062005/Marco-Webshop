@@ -30,16 +30,20 @@ export default function ProduktListe() {
   };
 
   const handleAddToCart = (item) => {
-    console.log("Füge hnzu:", item);
-    dispatch(
-      addItemToCart({
-        user_id: user.idUser,
-        product: item,
-        menge: 1,
-      })
-    );
+    if (!user) {
+      toast.error("Sie müssen angemeldet sein!");
+      navigate("/login");
+    } else {
+      dispatch(
+        addItemToCart({
+          user_id: user.idUser,
+          product: item,
+          menge: 1,
+        })
+      );
 
-    toast.success("Add to cart");
+      toast.success("Add to cart");
+    }
   };
 
   return (

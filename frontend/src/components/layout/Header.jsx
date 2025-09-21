@@ -1,43 +1,48 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, UserRound, ShoppingCart } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
-import {
-  User,
-  ShoppingCart,
-  UserRound,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
 import NavItem from "../common/NavItem";
 
 const logoUrl = new URL("../../../assets/Logo_Marco.png", import.meta.url).href;
 
 export default function Header() {
-  const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [isDropdownOpen, setIsDropdownopen] = useState(false);
+
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const menuRef = useRef(null);
-  const timoutRef = useRef(null);
+  const userRef = useRef(null);
 
+  // Outside-Click für User-Menü + ESC für beide Menüs
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    const onClickOutside = (event) => {
+      if (userRef.current && !userRef.current.contains(event.target)) {
         setUserMenuOpen(false);
       }
     };
-
-    document.addEventListener("mousedown", handleClickOutside);
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, []);
+
+  // Body-Scroll sperren, wenn Mobile-Menü offen
+  useEffect(() => {
+    if (menuOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => (document.body.style.overflow = "");
+  }, [menuOpen]);
 
   const handleLogout = (e) => {
     e.stopPropagation();
@@ -45,42 +50,33 @@ export default function Header() {
     navigate("/login");
   };
 
-  const handleMouseEnter = () => {
-    clearTimeout(timoutRef.current);
-    setIsDropdownopen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timoutRef.current = setTimeout(() => {
-      setIsDropdownopen(false);
-    }, 150);
-  };
-
   return (
-    <header className="w-full border-b border-gray h-20 px-4">
-      <div className="max-w-[95rem] mx-auto flex items-center relative  px-4">
-        {/* Logo */}
-        <Link to="/home" className="flex-[1] flex items-center pl-6 ">
-          <img
-            src={logoUrl}
-            alt="Logo"
-            className="h-16 md:h-18 lg:h-20 cursor-pointer "
-          />
-        </Link>
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+      <div className="max-w-[95rem] mx-auto h-20 px-4">
+        <div className="h-full flex items-center justify-between relative">
+          {/* Logo */}
+          <Link to="/home" className="flex items-center pl-6">
+            <img
+              src={logoUrl}
+              alt="Logo"
+              className="max-w-xs h-16 md:h-18 lg:h-20 object-contain cursor-pointer"
+            />
+          </Link>
 
-        <div className="flex items-center justify-end space-x-16 h-full">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex flex-[2] items-center justify-center space-x-6 lg:space-x-8 text-lg md:text-xl lg:text-2xl font-medium h-full">
+          <nav className="hidden md:flex flex-1 items-center justify-center space-x-6 lg:space-x-8 text-lg md:text-xl lg:text-2xl font-medium h-full">
             <NavItem to="/home" label="Home" />
             <NavItem to="/produkte" label="Produkte" />
             <NavItem to="/brandschutz" label="Brandschutz" />
             <NavItem to="/feuerungskontrolle" label="Feuerungskontrollen" />
           </nav>
 
-          {/* Icons + Mobile Menu Button */}
-          <div className="flex-[1] flex items-center justify-end space-x-6 ">
-            <div className="relative" ref={menuRef}>
+          {/* Icons + Mobile Toggle */}
+          <div className="flex items-center justify-end space-x-6 pr-4">
+            {/* User Menu */}
+            <div className="relative" ref={userRef}>
               <button
+                aria-label="Benutzermenü"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!user) {
@@ -94,10 +90,9 @@ export default function Header() {
               </button>
 
               {userMenuOpen && user && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded-md z-50">
+                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded-md z-[60]">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       navigate("/profile");
                       setUserMenuOpen(false);
                     }}
@@ -106,8 +101,7 @@ export default function Header() {
                     Profil
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       navigate("/bestellungen");
                       setUserMenuOpen(false);
                     }}
@@ -125,14 +119,16 @@ export default function Header() {
               )}
             </div>
 
-            <Link to="/warenkorb">
-              <ShoppingCart className="h-8 w-8 align-middle cursor-pointer"></ShoppingCart>
+            {/* Cart */}
+            <Link to="/warenkorb" aria-label="Warenkorb">
+              <ShoppingCart className="h-8 w-8 align-middle cursor-pointer" />
             </Link>
 
             {/* Mobile Menu Toggle */}
             <button
               className="md:hidden p-2"
-              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Menü umschalten"
+              onClick={() => setMenuOpen((v) => !v)}
             >
               {menuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -140,38 +136,50 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation (Overlay + Panel, unterhalb Headerhöhe 80px) */}
       {menuOpen && (
-        <div className="absolute top-16 left-0 right-0 flex flex-col items-center space-y-4 py-6 bg-white text-lg font-medium">
-          <Link
-            to="/home"
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/30 z-40 md:hidden"
             onClick={() => setMenuOpen(false)}
-            className="nav-item hover:text-orange-500"
-          >
-            Home
-          </Link>
-          <Link
-            to="/feuerloescher"
-            onClick={() => setMenuOpen(false)}
-            className="nav-item hover:text-orange-500"
-          >
-            Feuerlöscher
-          </Link>
-          <Link
-            to="/brandschutz"
-            onClick={() => setMenuOpen(false)}
-            className="nav-item hover:text-orange-500"
-          >
-            Brandschutz
-          </Link>
-          <Link
-            to="/feuerungskontrollen"
-            onClick={() => setMenuOpen(false)}
-            className="nav-item hover:text-orange-500"
-          >
-            Feuerungskontrollen
-          </Link>
-        </div>
+          />
+          {/* Panel */}
+          <div className="fixed top-20 left-0 right-0 z-50 md:hidden">
+            <div className="mx-4 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+              <nav className="flex flex-col items-stretch divide-y divide-gray-100 text-lg font-medium">
+                <Link
+                  to="/home"
+                  onClick={() => setMenuOpen(false)}
+                  className="px-5 py-3 hover:bg-gray-50"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/produkte"
+                  onClick={() => setMenuOpen(false)}
+                  className="px-5 py-3 hover:bg-gray-50"
+                >
+                  Produkte
+                </Link>
+                <Link
+                  to="/brandschutz"
+                  onClick={() => setMenuOpen(false)}
+                  className="px-5 py-3 hover:bg-gray-50"
+                >
+                  Brandschutz
+                </Link>
+                <Link
+                  to="/feuerungskontrolle"
+                  onClick={() => setMenuOpen(false)}
+                  className="px-5 py-3 hover:bg-gray-50"
+                >
+                  Feuerungskontrollen
+                </Link>
+              </nav>
+            </div>
+          </div>
+        </>
       )}
     </header>
   );
