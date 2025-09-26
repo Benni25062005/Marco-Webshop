@@ -20,6 +20,9 @@ import TwintPaymentPage from "../pages/TwintPaymentPage";
 import CheckoutSuccess from "../pages/CheckoutSuccess";
 import Impressum from "../pages/Impressum";
 import Datenschutz from "../pages/Datenschutz";
+import RequireAdmin from "../features/admin/RequireAdmin";
+import AdminDashboard from "../features/admin/AdminDashboard";
+import UsersPage from "../features/admin/pages/UsersPage";
 
 export default function AppRoutes() {
   return (
@@ -52,6 +55,16 @@ export default function AppRoutes() {
       />
       <Route path="not-found" element={<NotFound />} />
       <Route path="verify-email" element={<VerifyEmail />} />
+
+      <Route element={<RequireAdmin />}>
+        <Route path="admin" element={<AdminDashboard />}>
+          <Route index element={<UsersPage />} />
+          <Route path="users" element={<UsersPage />} />
+          {/* später: <Route path="orders" element={<OrdersPage />} /> */}
+          {/* später: <Route path="products" element={<ProductsPage />} /> */}
+        </Route>
+      </Route>
+
       <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   );

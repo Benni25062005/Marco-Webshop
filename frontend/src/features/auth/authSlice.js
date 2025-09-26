@@ -5,7 +5,6 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async (userData, { rejectWithValue }) => {
     try {
-      console.log("login wurde gesendet", userData);
       const response = await axios.post(
         `${process.env.BACKEND_URL}/api/login`,
         userData,
@@ -88,9 +87,40 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log("Login erfolgreich:", action.payload);
         state.loading = false;
-        state.user = action.payload.user;
+
+        let user = action.payload?.user;
+
+        if (!user && action.payload) {
+          const {
+            idUser,
+            email,
+            vorname,
+            nachname,
+            role,
+            telefonnummer,
+            strasse,
+            plz,
+            ort,
+            land,
+          } = action.payload;
+          user = {
+            idUser,
+            email,
+            vorname,
+            nachname,
+            role: role ?? "user",
+            telefonnummer,
+            strasse,
+            plz,
+            ort,
+            land,
+          };
+        }
+        console.log(user);
+        state.user = user || null;
+        state.error = null;
+        state.message = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -113,6 +143,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.error = null;

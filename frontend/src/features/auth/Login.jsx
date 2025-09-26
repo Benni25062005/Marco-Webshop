@@ -37,7 +37,10 @@ export default function Main() {
     dispatch(loginUser(userData)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         toast.success("Login erfolgreich");
-        navigate("/profile");
+        const payload = res.payload;
+        const role = payload?.user?.role ?? payload?.role ?? "user";
+
+        navigate(role === "admin" ? "/admin" : "/home", { replace: true });
       } else {
         const message =
           typeof res.payload === "string"

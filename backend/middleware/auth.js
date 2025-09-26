@@ -1,36 +1,49 @@
 import jwt from "jsonwebtoken";
 
+
+function getTokenFromReq(req) {
+  const auth = req.headers.authorization;
+  if (auth && auth.startsWith("Bearer ")) return auth.slice(7).trim();
+
+
+  if (req.headers.cookie) {
+    const cookie = req.headers.cookie
+      .split(";")
+      .map((c) => c.trim())
+      .find((c) => c.startsWith("token="));
+    if (cookie) return decodeURIComponent(cookie.slice(6));
+  }
+
+  return null;
+}
+
 export const authenticateToken = (req, res, next) => {
-  let token;
-
-  // Token aus Authorization-Header holen
-  const authHeader = req.headers["authorization"];
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    token = authHeader.split(" ")[1];
-  }
-
-  // Oder aus Cookies holen
-  if (!token && req.headers.cookie) {
-    const cookies = req.headers.cookie.split(";").map((c) => c.trim());
-    for (const c of cookies) {
-      if (c.startsWith("token=")) {
-        token = decodeURIComponent(c.slice("token=".length));
-        break;
-      }
-    }
-  }
-
-  // Kein Token gefunden
-  if (!token) {
+  const token = getTokenFromReq(req);
+  if (!token)
     return res.status(401).json({ message: "Kein Token übermittelt" });
-  }
 
-  // Token validieren
-  jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
-    if (err) {
-      return res.status(403).json({ message: "Ungültiger Token" });
+  jwt.verify(
+    token,
+    process.env.JWT_SECRET,
+    { algorithms: ["HS256"] }, 
+    (err, payload) => {
+      if (err) {
+        
+        if (err.name === "TokenExpiredError") {
+          return res.status(401).json({ message: "Token abgelaufen" });
+        }
+        return res.status(403).json({ message: "Ungültiger Token" });
+      }
+      req.user = payload
+      next();
     }
-    req.user = payload;
-    next();
-  });
+  );
+};
+
+// Für Admin-Routen
+export const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({ message: "Nur für Admins erlaubt" });
+  }
+  next();
 };

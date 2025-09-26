@@ -10,7 +10,7 @@ import nodemailer from "nodemailer";
 import db from "./config/db.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import { authenticateToken } from "./middleware/auth.js";
+import { authenticateToken, requireAdmin } from "./middleware/auth.js";
 
 import smsRoutes from "./routes/smsRoutes.js";
 
@@ -24,6 +24,7 @@ import { orderRoutes } from "./routes/orderRoutes.js";
 import { getOrderRoutes } from "./routes/getOrderRoutes.js";
 import { authRoutes } from "./routes/authRoutes.js";
 import { contactRouter } from "./routes/contactRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -187,7 +188,7 @@ app.post("/api/login", async (req, res) => {
 
     const q = `
       SELECT idUser, email, vorname, nachname, telefonnummer,
-             password, strasse, plz, ort, land, isVerifiedEmail
+             password, strasse, plz, ort, land, isVerifiedEmail, role
       FROM user
       WHERE email = ?
       LIMIT 1
@@ -208,7 +209,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      { idUser: user.idUser, email: user.email },
+      { idUser: user.idUser, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -231,6 +232,7 @@ app.post("/api/login", async (req, res) => {
         plz: user.plz,
         ort: user.ort,
         land: user.land,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -783,6 +785,12 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/orders", getOrderRoutes);
 
 //#endregion Checkout
+
+//#region Admin
+
+app.use("/api/admin", adminRoutes);
+
+//#endregion Admin
 
 const port = process.env.PORT || 8800;
 
