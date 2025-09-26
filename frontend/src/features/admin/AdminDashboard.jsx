@@ -10,7 +10,9 @@ export default function AdminDashboard() {
             Nutzer
           </NavLink>
           {/* <NavLink to="orders" className="underline">Bestellungen</NavLink> */}
-          {/* <NavLink to="products" className="underline">Produkte</NavLink> */}
+          <NavLink to="products" className="underline">
+            Produkte
+          </NavLink>
         </nav>
       </aside>
       <main className="p-4 md:p-8">

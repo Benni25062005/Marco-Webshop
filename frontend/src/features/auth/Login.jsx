@@ -33,7 +33,6 @@ export default function Main() {
       password: password,
     };
 
-    console.log("Login wurde gesendet");
     dispatch(loginUser(userData)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         toast.success("Login erfolgreich");

@@ -117,7 +117,6 @@ const authSlice = createSlice({
             land,
           };
         }
-        console.log(user);
         state.user = user || null;
         state.error = null;
         state.message = null;

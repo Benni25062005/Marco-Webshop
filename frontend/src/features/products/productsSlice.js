@@ -11,7 +11,6 @@ export const fetchFeuerloescher = createAsyncThunk(
   "products/productsFetch",
   async (kategorie) => {
     try {
-      console.log(kategorie);
       const res = await axios.get(
         `${process.env.BACKEND_URL}/produkte?kategorie=${kategorie}`
       );
