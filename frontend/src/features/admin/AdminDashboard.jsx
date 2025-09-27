@@ -6,6 +6,9 @@ export default function AdminDashboard() {
       <aside className="border-r p-4 space-y-3">
         <h1 className="font-semibold text-lg">Admin</h1>
         <nav className="flex md:flex-col gap-2">
+          <NavLink to="dashboard" className="underline">
+            Dashboard
+          </NavLink>
           <NavLink to="users" className="underline">
             Nutzer
           </NavLink>

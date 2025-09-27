@@ -22,8 +22,10 @@ import Impressum from "../pages/Impressum";
 import Datenschutz from "../pages/Datenschutz";
 import RequireAdmin from "../features/admin/RequireAdmin";
 import AdminDashboard from "../features/admin/AdminDashboard";
-import UsersPage from "../features/admin/pages/UsersPage";
-import ProductsPage from "../features/admin/pages/ProductsPage";
+import AdminUsersPage from "../features/admin/pages/User/Admin.UsersPage";
+import AdminProductsPage from "../features/admin/pages/Product/Admin.ProductsPage";
+import AdminProductDetail from "../features/admin/pages/Product/Admin.ProductDetails";
+import AdminOverview from "../features/admin/AdminOverview";
 
 export default function AppRoutes() {
   return (
@@ -59,9 +61,11 @@ export default function AppRoutes() {
 
       <Route element={<RequireAdmin />}>
         <Route path="admin" element={<AdminDashboard />}>
-          <Route index element={<UsersPage />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="products" element={<ProductsPage />} />
+          <Route index element={<AdminOverview />} />
+          <Route path="dashboard" element={<AdminOverview />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="products" element={<AdminProductsPage />} />
+          <Route path="products/:id" element={<AdminProductDetail />} />
         </Route>
       </Route>
 

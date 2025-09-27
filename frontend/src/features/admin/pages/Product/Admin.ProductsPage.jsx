@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductsPage() {
   const [q, setQ] = useState("");
@@ -6,6 +7,7 @@ export default function ProductsPage() {
   const [data, setData] = useState({ data: [], page: 1, limit: 20, total: 0 });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const ac = new AbortController();
@@ -35,6 +37,10 @@ export default function ProductsPage() {
     load();
     return () => ac.abort();
   }, [q, page]);
+
+  const handleEdit = (id) => {
+    navigate(`${id}`);
+  };
 
   return (
     <div className="space-y-4">
@@ -76,6 +82,11 @@ export default function ProductsPage() {
                     <td className="p-2">{p.Kategorie}</td>
                     <td className="p-2">{p.Preis_netto}</td>
                     <td className="p-2">{p.Preis_brutto}</td>
+                    <td className="">
+                      <button onClick={() => handleEdit(p.idProdukt)}>
+                        Bearbeiten
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {data.data.length === 0 && (
