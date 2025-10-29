@@ -1,17 +1,26 @@
-import react from "react";
+import react, { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createOrder } from "../../../features/order/orderSlice";
+import toast from "react-hot-toast";
 
 export default function CartSummary({ cartItems }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const [agbAccepted, setAgbAccepted] = useState(false);
+  const [showAgbError, setShowAgbError] = useState(false);
 
   const handleCheckout = async () => {
     try {
+      if (!agbAccepted) {
+        setShowAgbError(true);
+        return;
+      }
+      setShowAgbError(false);
+
       // 1. Order erstellen
       const orderData = {
         idUser: user.idUser,
@@ -22,21 +31,6 @@ export default function CartSummary({ cartItems }) {
       };
 
       const orderResult = await dispatch(createOrder(orderData)).unwrap();
-
-      if (orderResult.success) {
-        // 2. Zur TWINT-Zahlungsseite navigieren
-        navigate("/twint-payment", {
-          state: {
-            orderId: orderResult.orderId,
-            orderNo: orderResult.orderNo,
-            amount: cartItems.reduce(
-              (total, item) => total + item.Preis_brutto * item.menge,
-              0
-            ),
-            cartItems: cartItems,
-          },
-        });
-      }
     } catch (error) {
       console.error("Error creating order:", error);
       alert(
@@ -83,6 +77,32 @@ export default function CartSummary({ cartItems }) {
             <h2 className="border-b pb-2 text-lg font-semibold">
               Zahlungsmöglichkeiten
             </h2>
+
+            <div className="mt-4 flex items-center gap-3">
+              <input
+                id="agb"
+                type="checkbox"
+                className="h-4 w-4 shrink-0 rounded border-gray-300"
+                checked={agbAccepted}
+                onChange={(e) => setAgbAccepted(e.target.checked)}
+              />
+              <label
+                htmlFor="agb"
+                className="text-sm text-gray-700 leading-none"
+              >
+                Ich habe die{" "}
+                <a href="/agb" className="underline hover:no-underline">
+                  AGB
+                </a>{" "}
+                gelesen und akzeptiere sie.
+              </label>
+            </div>
+
+            {showAgbError && !agbAccepted && (
+              <p className="mt-2 text-sm text-red-600">
+                Bitte bestätige die AGB, um fortzufahren.
+              </p>
+            )}
 
             <motion.button
               className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-md self-center"

@@ -19,12 +19,14 @@ import Bestellungen from "../pages/Bestellungen";
 import TwintPaymentPage from "../pages/TwintPaymentPage";
 import CheckoutSuccess from "../pages/CheckoutSuccess";
 import Impressum from "../pages/Impressum";
+import AgbPage from "../pages/AgbPage";
 import Datenschutz from "../pages/Datenschutz";
 import RequireAdmin from "../features/admin/RequireAdmin";
 import AdminDashboard from "../features/admin/AdminDashboard";
 import AdminUsersPage from "../features/admin/pages/User/Admin.UsersPage";
 import AdminProductsPage from "../features/admin/pages/Product/Admin.ProductsPage";
 import AdminProductDetail from "../features/admin/pages/Product/Admin.ProductDetails";
+import AdminProductAdd from "../features/admin/pages/Product/Admin.ProductAdd";
 import AdminOverview from "../features/admin/AdminOverview";
 
 export default function AppRoutes() {
@@ -38,6 +40,7 @@ export default function AppRoutes() {
       <Route path="brandschutz" element={<Brandschutz />} />
       <Route path="kontakt" element={<Kontakt />} />
       <Route path="impressum" element={<Impressum />} />
+      <Route path="agb" element={<AgbPage />} />
       <Route path="datenschutz" element={<Datenschutz />} />
       <Route path="login" element={<Login />} />
       <Route path="registrierung" element={<Registrierung />} />
@@ -65,6 +68,7 @@ export default function AppRoutes() {
           <Route path="dashboard" element={<AdminOverview />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="products" element={<AdminProductsPage />} />
+          <Route path="products/add" element={<AdminProductAdd />} />
           <Route path="products/:id" element={<AdminProductDetail />} />
         </Route>
       </Route>

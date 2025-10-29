@@ -5,15 +5,7 @@ const navigate = useNavigate();
 
 const Checkout = () => {
   const handleCheckout = async () => {
-    try {
-      const response = await axios.post("/create-checkout-session", {
-        price: "price_1Rn5B7H5LyhPAXseZCZR7mjf",
-        quantity: 1,
-      });
-      navigate(response.data.url);
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-    }
+    
   };
 
   return (

@@ -620,7 +620,7 @@ app.get("/api/cartItems", authenticateToken, async (req, res) => {
   }
 
   const q = `
-    SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild, p.stripePriceId
+    SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild
     FROM warenkorb w
     JOIN produkte p ON w.product_id = p.idProdukt
     WHERE w.user_id = ?

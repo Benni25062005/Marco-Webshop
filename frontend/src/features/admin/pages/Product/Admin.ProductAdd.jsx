@@ -4,61 +4,60 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-export default function ProduktDetail() {
-  const { id } = useParams();
+export default function ProductAdd() {
   const [data, setData] = useState({
     Name: "",
     Kategorie: "",
     Beschreibung: "",
+    Bild: "",
     Preis_netto: "",
     Preis_brutto: "",
-    Bild: "",
     Details: "",
   });
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!id) {
-      console.log("Keine Id gefundenn");
-    }
+    const ac = new AbortController();
 
-    async function loadProduct() {
+    async function loadCategories() {
       setLoading(true);
       setErr("");
-
       try {
         const res = await fetch(
-          `${process.env.BACKEND_URL}/api/admin/products/${id}`,
-          { credentials: "include" }
+          `${process.env.BACKEND_URL}/api/admin/products/categories`,
+          {
+            credentials: "include",
+            signal: ac.signal,
+          }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const json = await res.json();
-        setData(json.data);
+        setCategories(json.data ?? []);
       } catch (e) {
-        if (e.name !== "AbortError") setErr("Konnte Produkte nicht laden");
+        if (e.name !== "AbortError")
+          setErr("Kategorien konnten nicht geladen werden");
       } finally {
         setLoading(false);
       }
     }
 
-    loadProduct();
-  }, [id]);
+    loadCategories();
+    return () => ac.abort();
+  }, []);
 
   const handleSave = async () => {
-    if (!id) {
-      console.log("Keine id gefunden");
-    }
-
     const payload = {
-      Name: data.Name?.trim(),
-      Kategorie: data.Kategorie?.trim(),
-      Beschreibung: data.Beschreibung?.trim(),
-      Preis_netto: Number(data.Preis_netto) || 0,
-      Preis_brutto: Number(data.Preis_brutto) || 0,
-      Bild: data.Bild,
-      Details: data.Details,
+      Name: (data.Name || "").trim(),
+      Kategorie: (data.Kategorie || "").trim(),
+      Beschreibung: (data.Beschreibung || "").trim(),
+      Preis_netto: data.Preis_netto ? Number(data.Preis_netto) : null,
+      Preis_brutto: data.Preis_brutto ? Number(data.Preis_brutto) : null,
+      Bild: data.Bild || null,
+      Details: data.Details ?? null,
     };
 
     setLoading(true);
@@ -66,9 +65,9 @@ export default function ProduktDetail() {
 
     try {
       const res = await fetch(
-        `${process.env.BACKEND_URL}/api/admin/products/edit/${id}`,
+        `${process.env.BACKEND_URL}/api/admin/products/save`,
         {
-          method: "PUT",
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
@@ -77,16 +76,20 @@ export default function ProduktDetail() {
         }
       );
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      if (res.ok) {
-        const data = await res.json();
-        toast.success("Produkt wurde erfolgreich gespeichert");
-        navigate("/admin");
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try {
+          const j = await res.json();
+          if (j?.message) msg = j.message;
+        } catch {}
+        throw new Error(msg);
       }
+
+      toast.success("Neues Produkt wurde erfolgreich erstellt");
+      navigate("/admin/products");
     } catch (error) {
       console.error(error);
-      setErr("Produkt konnte nicht gespeichert werden");
+      setErr("Produkt konnte nicht erstellt werden");
     } finally {
       setLoading(false);
     }
@@ -109,15 +112,6 @@ export default function ProduktDetail() {
               <h2 className="font-semibold text-lg">Allgemein</h2>
 
               <label className="flex flex-col">
-                <span className="font-medium">ID</span>
-                <input
-                  className="border rounded px-3 py-2 bg-gray-100"
-                  value={data.idProdukt}
-                  disabled
-                />
-              </label>
-
-              <label className="flex flex-col">
                 <span className="font-medium">Name</span>
                 <input
                   className="border rounded px-3 py-2"
@@ -128,14 +122,22 @@ export default function ProduktDetail() {
 
               <label className="flex flex-col">
                 <span className="font-medium">Kategorie</span>
-                <input
-                  className="border rounded px-3 py-2"
-                  value={data.Kategorie}
+                <select
+                  className="border rounded px-3 py-2 bg-white"
+                  value={data.Kategorie ?? ""}
                   onChange={(e) =>
                     setData({ ...data, Kategorie: e.target.value })
                   }
-                  disabled
-                />
+                >
+                  <option value="" disabled>
+                    Bitte Kategorie wählen
+                  </option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               <label className="flex flex-col">
@@ -209,7 +211,7 @@ export default function ProduktDetail() {
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                 onClick={handleSave}
               >
-                Speichern
+                Produkt erstellen
               </button>
               <button
                 className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
