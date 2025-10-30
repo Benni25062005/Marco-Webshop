@@ -18,7 +18,6 @@ import smsRoutes from "./routes/smsRoutes.js";
 import { productRouter } from "./routes/productRoutes.js";
 import { productDetailRouter } from "./routes/productDetailRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
-// import { paymentRoutes } from "./routes/paymentRoutes.js"; // Stripe - deaktiviert
 import { twintRoutes } from "./routes/twintRoutes.js";
 import { orderRoutes } from "./routes/orderRoutes.js";
 import { getOrderRoutes } from "./routes/getOrderRoutes.js";
@@ -38,20 +37,33 @@ const allowlist = [
   "http://localhost:1234",
   "http://localhost:3000",
   "http://localhost:5173",
+  "https://marco-webshop.vercel.app",
   "https://marco-webshop-qu3m.vercel.app",
+  "https://kaminfeger-knapp.ch",
 ];
-const vercelPreviewRegex = /\.vercel\.app$/;
+const vercelPreviewRegex = /^https:\/\/[^/]+\.vercel\.app$/;
+const renderPreviewRegex = /^https:\/\/[^/]+\.onrender\.com$/;
 
 const corsOptions = {
   origin(origin, cb) {
-    if (!origin) return cb(null, true); // Postman/cURL
-    const ok = allowlist.includes(origin) || vercelPreviewRegex.test(origin);
-    return ok ? cb(null, true) : cb(new Error("Not allowed by CORS"));
+    if (!origin) return cb(null, true);
+    const ok =
+      allowlist.includes(origin) ||
+      vercelPreviewRegex.test(origin) ||
+      renderPreviewRegex.test(origin);
+    return ok
+      ? cb(null, true)
+      : cb(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
+
+app.use((req, _res, next) => {
+  console.log("Origin seen:", req.headers.origin || "(none)");
+  next();
+});
 
 app.use(cors(corsOptions));
 
@@ -417,7 +429,7 @@ app.put("/user/:id/email", authenticateToken, async (req, res) => {
     }
 
     // Verifizierungslink (nutze am besten ENV, nicht hart codieren)
-    const baseUrl = process.env.FRONTEND_URL || "http://localhost:8800";
+    const baseUrl = process.env.FRONTEND_URL;
     const verificationLink = `${baseUrl}/verify-email?token=${emailToken}`;
 
     // Mailer
@@ -469,7 +481,6 @@ app.put("/user/:id/email", authenticateToken, async (req, res) => {
   } catch (err) {
     console.error("Fehler beim Aktualisieren/Senden:", err);
 
-    // Kollision auf UNIQUE(email)
     if (err?.code === "ER_DUP_ENTRY") {
       return res
         .status(409)

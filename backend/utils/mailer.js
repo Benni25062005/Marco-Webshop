@@ -18,7 +18,7 @@ export const sendVerificationEmail = (to, vorname, token) => {
     },
   });
 
-  const verificationLink = `http://localhost:8800/verify-email?token=${token}`;
+  const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
   const mailOptions = {
     from: process.env.EMAIL,
