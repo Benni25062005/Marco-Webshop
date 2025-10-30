@@ -226,10 +226,12 @@ app.post("/api/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // Render liefert HTTPS
-      sameSite: "none", // Cross-Site (Vercel <-> Render)
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 60 * 60 * 1000,
     });
 
