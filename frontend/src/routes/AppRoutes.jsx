@@ -5,6 +5,7 @@ import Brandschutz from "../pages/Brandschutz";
 import Kontakt from "../pages/Kontakt";
 import Feuerungskontrolle from "../pages/Feuerungskontrolle";
 import FeuerloescherDetail from "../features/feuerloescher/FeuerloescherDetail";
+import Service from "../pages/Service";
 import NotFound from "../pages/NotFound";
 import Login from "../features/auth/Login";
 import Registrierung from "../features/auth/Registrierung";
@@ -28,6 +29,8 @@ import AdminProductsPage from "../features/admin/pages/Product/Admin.ProductsPag
 import AdminProductDetail from "../features/admin/pages/Product/Admin.ProductDetails";
 import AdminProductAdd from "../features/admin/pages/Product/Admin.ProductAdd";
 import AdminOverview from "../features/admin/AdminOverview";
+import AdminOrder from "../features/admin/pages/Orders/Admin.Order";
+import AdminOrderDetail from "../features/admin/pages/Orders/Admin.OrderDetail";
 
 export default function AppRoutes() {
   return (
@@ -50,6 +53,7 @@ export default function AppRoutes() {
       <Route path="checkout-success" element={<CheckoutSuccess />} />
       <Route path="bestellungen" element={<Bestellungen />} />
       <Route path="feuerungskontrolle" element={<Feuerungskontrolle />} />
+      <Route path="service" element={<Service />} />
       <Route path="feuerloescher/:id" element={<FeuerloescherDetail />} />
       <Route
         path="profile"
@@ -70,6 +74,8 @@ export default function AppRoutes() {
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="products/add" element={<AdminProductAdd />} />
           <Route path="products/:id" element={<AdminProductDetail />} />
+          <Route path="orders" element={<AdminOrder />} />
+          <Route path="orders/:id" element={<AdminOrderDetail />} />
         </Route>
       </Route>
 

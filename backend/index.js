@@ -60,10 +60,10 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use((req, _res, next) => {
-  console.log("Origin seen:", req.headers.origin || "(none)");
-  next();
-});
+// app.use((req, _res, next) => {
+//   console.log("Origin seen:", req.headers.origin || "(none)");
+//   next();
+// });
 
 app.use(cors(corsOptions));
 
@@ -159,25 +159,17 @@ app.use("/api/register", userRouter);
 
 app.get("/verify-email", async (req, res) => {
   try {
-    const token = req.query.token;
-    if (!token) {
-      return res.status(400).send("Kein Token übergeben");
-    }
+    const token = String(req.query.token || "");
+    if (!token) return res.status(400).send("Kein Token übergeben");
 
-    const q = `
-      UPDATE user
-      SET isVerifiedEmail = 1, emailToken = NULL
-      WHERE emailToken = ?
-    `;
-
-    const [result] = await db.execute(q, [token]); // <- execute statt query
+    const [result] = await db.execute(
+      "UPDATE `user` SET isVerifiedEmail = 1, emailToken = NULL WHERE emailToken = ? LIMIT 1",
+      [token]
+    );
 
     if (result.affectedRows === 0) {
-      return res
-        .status(400)
-        .send("Ungültiger Token oder E-Mail bereits verifiziert");
+      return res.status(400).send("Ungültiger Token oder bereits verifiziert");
     }
-
     return res.send(
       "E-Mail erfolgreich verifiziert. Sie können sich jetzt anmelden."
     );
@@ -431,7 +423,7 @@ app.put("/user/:id/email", authenticateToken, async (req, res) => {
     }
 
     // Verifizierungslink (nutze am besten ENV, nicht hart codieren)
-    const baseUrl = process.env.FRONTEND_URL;
+    const baseUrl = process.env.BACKEND_URL;
     const verificationLink = `${baseUrl}/verify-email?token=${emailToken}`;
 
     // Mailer

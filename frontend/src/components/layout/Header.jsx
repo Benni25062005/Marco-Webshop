@@ -70,6 +70,7 @@ export default function Header() {
               <NavItem to="/produkte" label="Produkte" />
               <NavItem to="/brandschutz" label="Brandschutz" />
               <NavItem to="/feuerungskontrolle" label="Feuerungskontrollen" />
+              <NavItem to="/service" label="Service" />
               {user?.role === "admin" && <NavItem to="/admin" label="Admin" />}
             </nav>
 
@@ -177,6 +178,13 @@ export default function Header() {
                     className="px-5 py-3 hover:bg-gray-50"
                   >
                     Feuerungskontrollen
+                  </Link>
+                  <Link
+                    to="/service"
+                    onClick={() => setMenuOpen(false)}
+                    className="px-5 py-3 hover:bg-gray-50"
+                  >
+                    Service
                   </Link>
                 </nav>
               </div>

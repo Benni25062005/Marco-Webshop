@@ -16,6 +16,9 @@ export default function AdminDashboard() {
           <NavLink to="products" className="underline">
             Produkte
           </NavLink>
+          <NavLink to="orders" className="underline">
+            Bestellungen
+          </NavLink>
         </nav>
       </aside>
       <main className="p-4 md:p-8">

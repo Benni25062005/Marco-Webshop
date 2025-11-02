@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function ProductsPage() {
   const [q, setQ] = useState("");
@@ -42,6 +43,49 @@ export default function ProductsPage() {
     navigate(`${id}`);
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Produkt wirklich löschen?")) return;
+
+    setLoading(true);
+    setErr("");
+
+    try {
+      const res = await fetch(
+        `${process.env.BACKEND_URL}/api/admin/products/delete/${id}`,
+        { method: "DELETE", credentials: "include" }
+      );
+
+      if (res.status === 204 || res.ok) {
+        setData((d) => {
+          const newItems = d.data.filter((p) => p.idProdukt !== id);
+          const newTotal = Math.max(0, d.total - 1);
+
+          if (newItems.length === 0 && page > 1) {
+            setPage(page - 1);
+            return d;
+          }
+          toast.success("Produkt wurde erfolgreich gelöscht");
+          return { ...d, data: newItems, total: newTotal };
+        });
+
+        return;
+      }
+
+      if (res.status === 409)
+        throw new Error(
+          "Produkt kann nicht gelöscht werden (verknüpfte Datensätze vorhanden)."
+        );
+
+      const msg = await res.text();
+      throw new Error(msg || `HTTP ${res.status}`);
+    } catch (e) {
+      if (e.name !== "AbortError")
+        setErr(e.message || "Löschen fehlgeschlagen");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -80,6 +124,8 @@ export default function ProductsPage() {
                   <th className="text-left p-2">Kategorie</th>
                   <th className="text-left p-2">Preis netto</th>
                   <th className="text-left p-2">Preis brutto</th>
+                  <th className="text-left p-2">Bearbeiten</th>
+                  <th className="text-left p-2">Löschen</th>
                 </tr>
               </thead>
               <tbody>
@@ -93,6 +139,11 @@ export default function ProductsPage() {
                     <td className="">
                       <button onClick={() => handleEdit(p.idProdukt)}>
                         Bearbeiten
+                      </button>
+                    </td>
+                    <td className="">
+                      <button onClick={() => handleDelete(p.idProdukt)}>
+                        Löschen
                       </button>
                     </td>
                   </tr>

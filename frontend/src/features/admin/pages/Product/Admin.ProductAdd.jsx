@@ -63,6 +63,20 @@ export default function ProductAdd() {
     setLoading(true);
     setErr("");
 
+    if (
+      !payload.Beschreibung ||
+      !payload.Bild ||
+      !payload.Details ||
+      !payload.Kategorie ||
+      !payload.Name ||
+      !payload.Preis_brutto ||
+      !payload.Preis_netto
+    ) {
+      toast.error("Bitte alle Felder ausfüllen");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch(
         `${process.env.BACKEND_URL}/api/admin/products/save`,
