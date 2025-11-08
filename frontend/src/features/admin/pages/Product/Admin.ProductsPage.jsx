@@ -112,7 +112,9 @@ export default function ProductsPage() {
       {err && <div className="text-red-600">{err}</div>}
 
       {loading ? (
-        <div>Lade…</div>
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />
+        </div>
       ) : (
         <>
           <div className="overflow-x-auto border rounded-md">

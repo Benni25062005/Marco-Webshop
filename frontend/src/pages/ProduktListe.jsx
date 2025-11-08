@@ -11,18 +11,19 @@ import toast from "react-hot-toast";
 export default function ProduktListe() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { user } = useSelector((state) => state.auth);
   const { items, status } = useSelector((state) => state.products);
-
+  const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [selected, setSelected] = useState("");
   const [tempSelected, setTempSelected] = useState("");
 
   useEffect(() => {
+    setLoading(true);
     if (items.length === 0) {
       dispatch(fetchAllProducts());
     }
+    setLoading(false);
   }, [dispatch, items.length]);
 
   const handleClick = (id, kategorie) => {
@@ -30,6 +31,7 @@ export default function ProduktListe() {
   };
 
   const handleAddToCart = (item) => {
+    setLoading(true);
     if (!user) {
       toast.error("Sie müssen angemeldet sein!");
       navigate("/login");
@@ -43,11 +45,18 @@ export default function ProduktListe() {
       );
 
       toast.success("Add to cart");
+      setLoading(false);
     }
   };
 
   return (
     <>
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />
+        </div>
+      )}
+
       {showFilter && (
         <motion.div
           initial={{ x: "100%", opacity: 0 }}

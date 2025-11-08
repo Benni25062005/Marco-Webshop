@@ -19,6 +19,7 @@ export default function Main() {
   const [number, setNumber] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const kategorie = searchParams.get("kategorie");
@@ -39,6 +40,7 @@ export default function Main() {
   };
 
   const HandleAddToCart = (e) => {
+    setLoading(true);
     if (!user) {
       toast.error(
         "Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen."
@@ -55,12 +57,15 @@ export default function Main() {
       })
     );
     toast.success(`Wurde zum Warenkorb hinzugefügt!`);
+    setLoading(false);
   };
 
   useEffect(() => {
+    setLoading(true);
     if (id) {
       dispatch(fetchProductById({ idProdukt: id }));
     }
+    setLoading(false);
   }, [id, dispatch]);
 
   if (status === "loading") {
@@ -84,6 +89,12 @@ export default function Main() {
 
   return (
     <>
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />
+        </div>
+      )}
+
       <div className="flex justify-center mt-14 gap-x-16 sm:pl-4">
         <img
           className="h-[28rem] md:h-[36rem] lg:h-[40rem] border-2 border-red-600 rounded-xl p-16 "

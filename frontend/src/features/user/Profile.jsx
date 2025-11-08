@@ -9,6 +9,7 @@ import ChangeNumberModal from "../../components/common/modals/ChangeNumberModal"
 
 export default function Main() {
   const { user } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   const [editMode, setEditMode] = useState(false);
@@ -36,6 +37,7 @@ export default function Main() {
   });
 
   useEffect(() => {
+    setLoading(true);
     if (user) {
       setFormData({
         vorname: user.vorname ?? "",
@@ -53,6 +55,7 @@ export default function Main() {
         dispatch(setUser(JSON.parse(saved)));
       }
     }
+    setLoading(false);
   }, [user, dispatch]);
 
   const countryDialCodes = { ch: "+41", at: "+43", de: "+49" };
@@ -118,6 +121,7 @@ export default function Main() {
     }
 
     setEditMode(false);
+    setLoading(true);
     setOriginalContactData(null);
 
     dispatch(
@@ -140,6 +144,8 @@ export default function Main() {
           email: res.updatedUser.email ?? "",
           telefonnummer: res.updatedUser.telefonnummer ?? "",
         }));
+        setLoading(false);
+        window.location.reload();
         toast.success("Erfolgreich gespeichert");
       })
       .catch(() => toast.error("Fehler beim Speichern der Daten"));
@@ -177,6 +183,7 @@ export default function Main() {
     }
 
     setEditAddressMode(false);
+    setLoading(true);
     setOriginalAddressData(null);
 
     dispatch(
@@ -199,6 +206,8 @@ export default function Main() {
           strasse: res.updatedUser.strasse ?? "",
           plz: res.updatedUser.plz ?? "",
         }));
+        setLoading(false);
+        window.location.reload();
         toast.success("Erfolgreich gespeichert");
       })
       .catch(() => toast.error("Fehler beim Speichern der Daten"));
@@ -214,6 +223,12 @@ export default function Main() {
 
   return (
     <>
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />
+        </div>
+      )}
+
       {modalOpen && (
         <NewPasswordModal
           isOpen={modalOpen}
@@ -230,13 +245,6 @@ export default function Main() {
           vorname={user.vorname}
         />
       )}
-
-      {/* {phoneModalOpen && (
-        <ChangeNumberModal
-          isOpen={phoneModalOpen}
-          onClose={() => setPhoneModalOpen(false)}
-        />
-      )} */}
 
       <div className="flex flex-col justify-center mt-16 px-4 w-full max-w-5xl mx-auto">
         <h1 className="text-3xl text-center font-medium mb-4">

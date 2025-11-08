@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCart, removeFromCart, updateItemQuantity } from "./cartSlice";
@@ -13,6 +13,7 @@ export default function Main() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
   const cartItems = useSelector((state) => state.cart.items);
   const orderCompleted = useSelector((state) => state.order.orderCompleted);
 
@@ -21,6 +22,7 @@ export default function Main() {
   }, [cartItems]);
 
   const handleRemoveFromCart = (item) => {
+    setLoading(true);
     if (!user) {
       navigate("/login");
       return;
@@ -28,6 +30,7 @@ export default function Main() {
     dispatch(
       removeItemFromCart({ user_id: user.idUser, product_id: item.product_id })
     );
+    setLoading(false);
   };
 
   const handleUpdateQuantity = (product_id, newMenge) => {
@@ -44,9 +47,11 @@ export default function Main() {
   };
 
   useEffect(() => {
+    setLoading(true);
     if (user && !orderCompleted) {
       dispatch(fetchCart(user.idUser));
     }
+    setLoading(false);
   }, [dispatch, user, orderCompleted]);
 
   if (!user) {
@@ -75,6 +80,12 @@ export default function Main() {
 
   return (
     <>
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row gap-6 px-6 mt-10 max-w-6xl mx-auto">
         <div className="w-full md:w-2/3">
           <CartItems

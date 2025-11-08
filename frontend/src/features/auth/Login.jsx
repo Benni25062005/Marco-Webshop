@@ -1,9 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "./authSlice";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import ResetPasswortModal from "../../components/common/modals/ResetPasswortModal";
 
@@ -15,7 +13,8 @@ export default function Main() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
-  const { loading } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
+
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,31 +27,43 @@ export default function Main() {
       return;
     }
 
+    setLoading(true);
+
     const userData = {
-      email: email,
-      password: password,
+      email,
+      password,
     };
 
-    dispatch(loginUser(userData)).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        toast.success("Login erfolgreich");
-        const payload = res.payload;
-        const role = payload?.user?.role ?? payload?.role ?? "user";
+    dispatch(loginUser(userData))
+      .then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          toast.success("Login erfolgreich");
+          const payload = res.payload;
+          const role = payload?.user?.role ?? payload?.role ?? "user";
 
-        navigate(role === "admin" ? "/admin" : "/home", { replace: true });
-      } else {
-        const message =
-          typeof res.payload === "string"
-            ? res.payload
-            : res.payload?.message || "Login fehlgeschlagen";
+          navigate(role === "admin" ? "/admin" : "/home", { replace: true });
+        } else {
+          const message =
+            typeof res.payload === "string"
+              ? res.payload
+              : res.payload?.message || "Login fehlgeschlagen";
 
-        toast.error(message);
-      }
-    });
+          toast.error(message);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
     <>
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />
+        </div>
+      )}
+
       {resetPassword && (
         <div className="flex items-center justify-center gap-2">
           <ResetPasswortModal
@@ -71,11 +82,11 @@ export default function Main() {
         >
           <input
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-gray-100 rounded-xl p-1 shadow-sm focus:shadow-md focus:border  focus:border-red-600 p-2 focus:ring-bgorange focus:outline-none transition duration-300 "
+            className="bg-gray-100 rounded-xl p-1 shadow-sm focus:shadow-md focus:border focus:border-red-600 p-2 focus:ring-bgorange focus:outline-none transition duration-300"
             placeholder="Email"
             type="email"
             id="email"
-          ></input>
+          />
 
           <div className="relative">
             <input
@@ -84,7 +95,7 @@ export default function Main() {
               placeholder="Passwort"
               type={showPassword ? "text" : "password"}
               id="password"
-            ></input>
+            />
             <button
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2"
@@ -98,19 +109,26 @@ export default function Main() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-y-4  lg:w-full ">
-            <button className="bg-red-600 text-white text-md font-bold py-2 px-6 rounded-xl shadow-md hover:scale-[1.02] hover:shadow-lg transition duration-300">
-              Login
+          <div className="grid grid-cols-1 gap-y-4 lg:w-full">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-red-600 text-white text-md font-bold py-2 px-6 rounded-xl shadow-md hover:scale-[1.02] hover:shadow-lg transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? "Login..." : "Login"}
             </button>
           </div>
+
           <div className="flex items-center justify-center gap-2">
             <p>Noch kein Konto?</p>
             <Link to="/registrierung" className="text-red-600 font-medium">
               Jetzt registrieren
             </Link>
           </div>
+
           <div className="flex items-center justify-center gap-2 -mt-4">
             <button
+              type="button"
               onClick={() => setResetPassword(true)}
               className="text-red-600 font-medium"
             >

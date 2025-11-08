@@ -109,7 +109,9 @@ export default function ProduktDetail() {
   return (
     <>
       {loading ? (
-        <div>Lade…</div>
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[3px] bg-gray-400 rounded-full animate-pulse" />
+        </div>
       ) : (
         <>
           <ArrowLeft

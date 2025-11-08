@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getOrder } from "../features/order/orderSlice";
@@ -6,12 +6,15 @@ import { getOrder } from "../features/order/orderSlice";
 export default function Bestellungen() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const { orders, loading, error } = useSelector((state) => state.order);
+  const { orders, error } = useSelector((state) => state.order);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     if (user?.idUser) {
       dispatch(getOrder(user.idUser));
     }
+    setLoading(false);
   }, [user, dispatch]);
 
   const groupedOrders = orders.reduce((acc, item) => {
@@ -28,6 +31,12 @@ export default function Bestellungen() {
 
   return (
     <>
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />
+        </div>
+      )}
+
       {orders.length === 0 ? (
         <p className=" text-red-600 font-medium text-center text-lg ">
           Noch keine Bestellungen vorhanden.
