@@ -17,10 +17,6 @@ export default function Main() {
   const cartItems = useSelector((state) => state.cart.items);
   const orderCompleted = useSelector((state) => state.order.orderCompleted);
 
-  useEffect(() => {
-    console.log("Warenkorb nach Update:", cartItems);
-  }, [cartItems]);
-
   const handleRemoveFromCart = (item) => {
     setLoading(true);
     if (!user) {

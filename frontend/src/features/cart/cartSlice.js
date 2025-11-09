@@ -13,7 +13,7 @@ export const fetchCart = createAsyncThunk(
         `${process.env.BACKEND_URL}/api/cartItems`,
         {
           params: { user_id },
-          withCredentials: true, // ⬅️ HIER AUCH!
+          withCredentials: true, 
         }
       );
       return response.data;

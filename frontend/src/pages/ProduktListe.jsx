@@ -44,7 +44,7 @@ export default function ProduktListe() {
         })
       );
 
-      toast.success("Add to cart");
+      toast.success("Zum Warenkorb hinzugefügt");
       setLoading(false);
     }
   };
@@ -155,9 +155,9 @@ export default function ProduktListe() {
             .filter((item) => item && item.Bild && item.Name)
             .filter((item) => !selected || item.Kategorie === selected)
             .sort((a, b) => {
-              if (a.Kategorie === "feuerloescher") return -1;
-              if (b.Kategorie === "feuerloescher") return 1;
-              return a.Kategorie.localeCompare(b.Kategorie);
+              const sa = a.sort_order ?? 9999;
+              const sb = b.sort_order ?? 9999;
+              return sa - sb;
             })
 
             .map((item, i) => (

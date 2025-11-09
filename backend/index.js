@@ -109,7 +109,7 @@ app.get("/produkte", async (req, res) => {
 
     const values = kategorie ? [kategorie] : [];
 
-    const [rows] = await db.execute(q, values); // <- execute statt query
+    const [rows] = await db.execute(q, values); 
 
     const transformed = rows.map((item) => ({
       ...item,
@@ -625,7 +625,7 @@ app.get("/api/cartItems", authenticateToken, async (req, res) => {
   }
 
   const q = `
-    SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild
+    SELECT w.product_id, w.menge, p.Name, p.Preis_brutto, p.Bild, p.Details
     FROM warenkorb w
     JOIN produkte p ON w.product_id = p.idProdukt
     WHERE w.user_id = ?

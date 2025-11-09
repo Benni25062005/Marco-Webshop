@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import "./App.css";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
@@ -12,6 +12,7 @@ import { setUser } from "./features/auth/authSlice";
 
 export default function App() {
   const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -26,7 +27,7 @@ export default function App() {
     };
 
     checkLogin();
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="flex flex-col min-h-screen">

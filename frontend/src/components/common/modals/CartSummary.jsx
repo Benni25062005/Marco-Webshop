@@ -1,4 +1,4 @@
-import react, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,72 @@ export default function CartSummary({ cartItems }) {
   const [agbAccepted, setAgbAccepted] = useState(false);
   const [showAgbError, setShowAgbError] = useState(false);
 
+  const [totalWeight, setTotalWeight] = useState(0);
+
+  useEffect(() => {
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      setTotalWeight(0);
+      return;
+    }
+
+    const weightSum = cartItems.reduce((sum, item) => {
+      try {
+        const rawDetails = item.Details ?? item.details;
+        if (!rawDetails) return sum;
+
+        const detailsObj =
+          typeof rawDetails === "string" ? JSON.parse(rawDetails) : rawDetails;
+
+        const gewichtStr =
+          detailsObj?.Gewicht ??
+          detailsObj?.gewicht ??
+          detailsObj?.gewicht_kg ??
+          null;
+
+        if (!gewichtStr) return sum;
+
+        const numeric = parseFloat(
+          String(gewichtStr)
+            .replace("kg", "")
+            .replace("KG", "")
+            .replace(/\s/g, "")
+            .replace(",", ".")
+        );
+
+        if (Number.isNaN(numeric)) return sum;
+
+        const qty = item.menge ?? item.quantity ?? 1;
+        return sum + numeric * qty;
+      } catch (err) {
+        console.error("Fehler beim Parsen von Details für Item:", item, err);
+        return sum;
+      }
+    }, 0);
+
+    setTotalWeight(weightSum);
+    console.log("Gesamtgewicht im Warenkorb:", weightSum, "kg");
+  }, [cartItems]);
+  const shippingCost = useMemo(() => {
+    if (totalWeight === 0) return 0;
+
+    if (totalWeight <= 2) return 8.5;
+    if (totalWeight <= 10) return 11.5;
+    if (totalWeight <= 30) return 20.5;
+
+    return 20.5;
+  }, [totalWeight]);
+
+  const itemsTotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (total, item) => total + item.Preis_brutto * item.menge,
+        0
+      ),
+    [cartItems]
+  );
+
+  const grandTotal = (itemsTotal + shippingCost).toFixed(2);
+
   const handleCheckout = async () => {
     try {
       if (!agbAccepted) {
@@ -21,7 +87,6 @@ export default function CartSummary({ cartItems }) {
       }
       setShowAgbError(false);
 
-      // 1. Order erstellen
       const orderData = {
         idUser: user.idUser,
         items: cartItems.map((item) => ({
@@ -39,6 +104,8 @@ export default function CartSummary({ cartItems }) {
     }
   };
 
+  console.log(cartItems);
+
   return (
     <>
       <div className="flex flex-col gap-12 bg-white">
@@ -47,27 +114,16 @@ export default function CartSummary({ cartItems }) {
             Zahlungsübersicht
           </h2>
           <div className="flex flex-col justify-between space-y-2 mt-2">
-            <div className="flex justify-between itemns-center">
+            <div className="flex justify-between items-center">
               <p className="text-sm text-gray-500">Lieferkosten</p>
-              <p className="text-sm font-semibold">CHF 30.00</p>
-            </div>
-
-            <div className="flex justify-between itemns-center">
-              <p className="text-sm text-gray-500">Mehrwehrtsteuer</p>
-              <p className="text-sm font-semibold">CHF 30.00</p>
+              <p className="text-sm font-semibold">
+                CHF {shippingCost.toFixed(2)}
+              </p>
             </div>
 
             <div className="flex justify-between items-center mt-2">
               <p className="text-sm text-gray-500">Gesamtsumme</p>
-              <p className="text-xl font-semibold">
-                CHF{" "}
-                {cartItems
-                  .reduce(
-                    (total, item) => total + item.Preis_brutto * item.menge,
-                    0
-                  )
-                  .toFixed(2)}
-              </p>
+              <p className="text-xl font-semibold">CHF {grandTotal}</p>
             </div>
           </div>
         </div>
