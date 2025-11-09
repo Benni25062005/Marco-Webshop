@@ -56,7 +56,7 @@ export default function Main() {
         menge: number,
       })
     );
-    toast.success(`Wurde zum Warenkorb hinzugefügt!`);
+    toast.success(`Wurde zum Warenkorb hinzugefügt`);
     setLoading(false);
   };
 

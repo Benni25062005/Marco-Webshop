@@ -44,7 +44,7 @@ export default function ProduktListe() {
         })
       );
 
-      toast.success("Zum Warenkorb hinzugefügt");
+      toast.success("Wurde zum Warenkorb hinzugefügt");
       setLoading(false);
     }
   };
