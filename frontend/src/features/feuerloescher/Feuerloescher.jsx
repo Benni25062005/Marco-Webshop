@@ -42,7 +42,7 @@ export default function Main() {
         menge: 1,
       })
     );
-    toast.success(`Wurde zum Warenkorb hinzugefügt!`);
+    toast.success(`Wurde zum Warenkorb hinzugefügt`);
   };
 
   if (status === "loading") {
