@@ -22,21 +22,21 @@ export default function Main() {
               Feuerungskontrolle – Verantwortung für Umwelt und Technik
             </h2>
 
-            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left ">
-              Als Feuerungskontrolleur prüfen wir Heizungsanlagen – darunter
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-left sm:text-left ">
+              Als Feuerungskontrolleur prüfe ich Heizungsanlagen – darunter
               Holz-, Öl- und Gasfeuerungen – auf deren Abgaswerte,
               Energieeffizienz und technischen Zustand. Die Kontrollen erfolgen
               mit moderner Messtechnik.
             </p>
 
-            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify">
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-left">
               Gemessen werden unter anderem Sauerstoffgehalt, CO₂-Emissionen,
-              Rauchgastemperatur und Stickoxidwerte. Die Resultate vergleichen
-              wir mit den gesetzlich definierten Grenzwerten der
+              Rauchgastemperatur und Stickoxidwerte. Die Resultate vergleiche
+              ich mit den gesetzlich definierten Grenzwerten der
               Luftreinhalteverordnung (LRV).
             </p>
 
-            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify">
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-left">
               Ziel ist eine saubere, effiziente und gesetzeskonforme
               Heizungsanlage – gut für Umwelt, Geldbeutel und Nachbarschaft.
             </p>
@@ -52,7 +52,7 @@ export default function Main() {
       {/* Leistungen */}
       <section className="max-w-6xl mx-auto px-4 py-20 mt-20">
         <h2 className="text-4xl font-bold text-center mb-12">
-          Was wir konkret für Sie tun
+          Was ich konkret für Sie tue
         </h2>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

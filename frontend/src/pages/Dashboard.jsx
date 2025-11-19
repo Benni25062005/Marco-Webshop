@@ -10,10 +10,10 @@ const logoUrl = new URL("../../assets/Marco_main.jpg", import.meta.url).href;
 
 export default function Main() {
   const paragraphs = [
-    "Mit über 25 Jahren Erfahrung reinigen wir zuverlässig alle Feuerungen: Holz, Pellets, Hackschnitzel, Öl- und Gasheizungen – ob Zentral- oder Einzelraumfeuerungen.",
-    "Durch eine fachgerechte Reinigung sorgen wir für den optimalen Unterhalt Ihrer Anlage. Ein sauberes System verbessert den Brandschutz, verhindert Kaminbrände und sichert die Abgasführung. Zudem reduziert eine regelmäßige Wartung Störungen und senkt den Verbrauch durch bessere Wärmeübertragung.",
-    "Auch kleinere Reparaturen wie der Austausch von Schamottsteinen oder Dichtungen übernehmen wir gerne. Zudem bieten wir Ofenscheibenreiniger und verschiedene Ofenventilatoren an – wir beraten Sie gerne!",
-    "Mit unserer Arbeit gewährleisten wir Brandschutz, Sicherheit und Umweltschutz – und helfen Ihnen dabei, Kosten zu sparen.",
+    "Mit über 25 Jahren Erfahrung reinige ich zuverlässig alle Feuerungen: Holz-, Pellets-, Hackschnitzel-, Öl- und Gasheizungen – egal ob Zentral- oder Einzelraumfeuerungen.",
+    "Durch eine fachgerechte Reinigung sorge ich für den optimalen Unterhalt Ihrer Anlage. Ein sauberes System verbessert den Brandschutz, verhindert Kaminbrände und stellt eine sichere Abgasführung sicher. Zudem reduziert eine regelmäßige Wartung Störungen und senkt den Verbrauch durch eine bessere Wärmeübertragung.",
+    "Auch kleinere Reparaturen wie der Austausch von Schamottsteinen oder Dichtungen übernehme ich zuverlässig. Zusätzlich biete ich Ofenscheibenreiniger und verschiedene Ofenventilatoren an – und berate Sie gerne persönlich.",
+    "Mit meiner Arbeit gewährleiste ich Brandschutz, Sicherheit und Umweltschutz – und helfe Ihnen gleichzeitig, langfristig Kosten zu sparen.",
   ];
 
   return (
@@ -77,7 +77,7 @@ export default function Main() {
 
         <section className="max-w-6xl mx-auto px-4 py-16 mt-24">
           <h2 className="text-4xl font-bold text-center mb-12">
-            Unsere Dienstleistungen
+            Meine Dienstleistungen
           </h2>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 ">

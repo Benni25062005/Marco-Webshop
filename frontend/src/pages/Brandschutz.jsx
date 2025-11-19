@@ -23,28 +23,28 @@ export default function Main() {
               </h2>
 
               <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left ">
-                Als Kaminfeger ist Brandschutz seit jeher Teil unserer Arbeit.
-                Ab sofort bieten wir zusätzlich professionelle Beratung, Verkauf
-                und Wartung von Feuerlöschern, Löschdecken und Rauchmeldern an –
-                alles aus einer Hand.
+                Als Kaminfeger ist Brandschutz seit jeher Teil meiner täglichen
+                Arbeit. Ab sofort biete ich zusätzlich professionelle Beratung,
+                Verkauf und Wartung von Feuerlöschern, Löschdecken und
+                Rauchmeldern an – alles aus einer Hand.
               </p>
 
               <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left">
-                Wir setzen auf fluorfreie Feuerlöscher ohne PFAS –
+                Ich setze auf fluorfreie Feuerlöscher ohne PFAS –
                 umweltfreundlich und zukunftssicher, denn in der EU sind diese
                 Stoffe bereits verboten.
               </p>
 
               <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left">
-                Gerne besichtigen wir Ihre Liegenschaft in der Region Buchs SG
-                und beraten Sie zu geeigneten Löschmitteln und deren optimaler
-                Platzierung. Auch die Wartung Ihrer Feuerlöscher übernehmen wir
-                – empfohlen alle drei Jahre.
+                Gerne besichtige ich Ihre Liegenschaft in der Region Buchs SG
+                und berate Sie zu geeigneten Löschmitteln und deren optimaler
+                Platzierung. Auch die Wartung Ihrer Feuerlöscher übernehme ich –
+                empfohlen alle drei Jahre.
               </p>
 
               <p className="text-base font-semibold sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left">
-                Brandschutz, der schützt - für Sicherheit, Umwelt und klare
-                Vorschriften.
+                Brandschutz, der schützt – für Ihre Sicherheit, die Umwelt und
+                klare Vorschriften.
               </p>
             </div>
           </div>
@@ -52,7 +52,7 @@ export default function Main() {
 
         <section className="max-w-6xl mx-auto px-4 py-16 mt-24">
           <h2 className="text-4xl font-bold text-center mb-12">
-            Unsere Leistungen im Überblick
+            Meine Leistungen im Überblick
           </h2>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -100,24 +100,24 @@ export default function Main() {
           </h2>
 
           <p className="text-lg text-gray-800 leading-relaxed mb-6">
-            Als Kaminfeger ist Brandschutz ein fester Bestandteil unserer
-            Arbeit. Ab sofort bieten wir umfassende Dienstleistungen in diesem
-            Bereich an: individuelle Beratung, Verkauf von Feuerlöschern,
-            Löschdecken und Rauchmeldern – sowie deren Wartung.
+            Als Kaminfeger ist Brandschutz ein fester Bestandteil meiner Arbeit.
+            Ab sofort biete ich umfassende Dienstleistungen in diesem Bereich
+            an: individuelle Beratung, Verkauf von Feuerlöschern, Löschdecken
+            und Rauchmeldern – sowie deren Wartung.
           </p>
 
           <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md mb-6">
             <p className="text-sm text-red-800">
-              Unsere fluorfreien Feuerlöscher enthalten kein PFAS. Diese „ewigen
-              Chemikalien“ sind in der EU seit 2024 verboten – auch in der
-              Schweiz steht ein Verbot bevor.
+              Die von mir angebotenen fluorfreien Feuerlöscher enthalten kein
+              PFAS. Diese sogenannten „ewigen Chemikalien“ sind in der EU seit
+              2024 verboten – auch in der Schweiz ist ein Verbot absehbar.
             </p>
           </div>
 
           <p className="text-base text-gray-700 mb-6">
-            Gerne besichtigen wir Ihre Liegenschaft in der Region Buchs SG und
-            beraten Sie zur optimalen Auswahl und Platzierung der Löschmittel.
-            Auch die empfohlene Wartung alle drei Jahre übernehmen wir
+            Gerne besichtige ich Ihre Liegenschaft in der Region Buchs SG und
+            berate Sie zur optimalen Auswahl und Platzierung der Löschmittel.
+            Auch die empfohlene Wartung alle drei Jahre übernehme ich
             zuverlässig.
           </p>
 

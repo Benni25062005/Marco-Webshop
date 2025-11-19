@@ -49,11 +49,11 @@ export default function Main() {
             <Link to="/datenschutz" className="underline mt-1">
               Datenschutz
             </Link>
-            <Link to="/kontakt" className="underline mt-1">
-              Kontakt
-            </Link>
             <Link to="/agb" className="underline mt-1">
               AGB
+            </Link>
+            <Link to="/kontakt" className="underline mt-1">
+              Kontakt
             </Link>
           </nav>
         </div>

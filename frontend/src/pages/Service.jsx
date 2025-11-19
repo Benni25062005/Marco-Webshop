@@ -21,7 +21,7 @@ export default function Service() {
 
       {/* Leistungen */}
       <section className="mb-12">
-        <h2 className="text-xl font-semibold">Unsere Leistungen</h2>
+        <h2 className="text-xl font-semibold">Meine Leistungen</h2>
         <ul className="mt-4 space-y-3">
           {[
             "Bereitstellung und Installation passender Feuerlöscher (Typ & Größe nach Bedarf)",
@@ -44,12 +44,13 @@ export default function Service() {
         </h2>
         <div className="mt-4 space-y-4 text-gray-700">
           <p>
-            Um Anfahrtskosten zu reduzieren, kombinieren wir Termine für den
+            Um Anfahrtskosten zu reduzieren, kombiniere ich Termine für den
             <span className="font-medium"> Feuerlöscher-Service</span> wenn
-            möglich mit unseren
+            möglich mit meinen
             <span className="font-medium"> Kaminfeger-Arbeiten</span> in Ihrer
             Liegenschaft.
           </p>
+
           <p>
             Nach einer <span className="font-medium">Erstbesichtigung</span>{" "}
             erhalten Sie ein maßgeschneidertes Angebot mit transparenten
@@ -139,7 +140,7 @@ export default function Service() {
               wird.
             </p>
             <p className="mt-3 text-sm text-gray-700">
-              Wir verkaufen{" "}
+              Ich verkaufe{" "}
               <span className="font-medium">nur Schaumlöscher</span>, die ohne
               umweltschädliche PFAS-Fluorverbindungen auskommen – wichtig im
               Hinblick auf das bevorstehende EU-weite Fluorverbot.
