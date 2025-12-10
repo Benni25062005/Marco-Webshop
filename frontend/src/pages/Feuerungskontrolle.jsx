@@ -2,6 +2,7 @@ import React from "react";
 import { Thermometer, Leaf, FileText, Flame } from "lucide-react";
 import BrandschutzCard from "../components/common/cards/BrandschutzCard";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const imageUrl = new URL("../../assets/Marco_Bild.jpeg", import.meta.url).href;
 

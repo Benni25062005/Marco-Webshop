@@ -7,6 +7,7 @@ import { addItemToCart } from "../features/cart/cartSlice.js";
 import GeneralProductCard from "../components/common/cards/GeneralProductCard.jsx";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { Helmet } from "react-helmet";
 
 export default function ProduktListe() {
   const dispatch = useDispatch();

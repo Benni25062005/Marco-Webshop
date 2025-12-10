@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Turnstile from "react-turnstile";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { Helmet } from "react-helmet";
 
 export default function Main() {
   const [user, setUser] = useState({

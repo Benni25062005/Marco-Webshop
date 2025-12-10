@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
+
 const loeschposten = new URL("../../assets/Loeschposten.jpg", import.meta.url)
   .href;
 const feuerloescher = new URL("../../assets/feuerloescher.jpg", import.meta.url)

@@ -2,6 +2,7 @@ import React from "react";
 import { MapPin, PackageCheck, Wrench } from "lucide-react";
 import BrandschutzCard from "../components/common/cards/BrandschutzCard";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const logoUrl = new URL("../../assets/Bild_Brandschutz.jpg", import.meta.url)
   .href;
