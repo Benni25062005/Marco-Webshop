@@ -62,6 +62,14 @@ export default function Main() {
 
   return (
     <>
+      <Helmet>
+        <title>Kontakt | Kaminfeger Knapp in Buchs | Termin anfragen</title>
+        <meta
+          name="description"
+          content="Kontakt zu Kaminfeger Knapp in Buchs: Telefon, E-Mail und Kontaktformular für Terminvereinbarungen, Offerten und Fragen rund um Brandschutz und Feuerung."
+        />
+      </Helmet>
+
       <main>
         <div className="mt-8">
           <div className="flex justify-center">

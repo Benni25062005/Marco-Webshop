@@ -51,6 +51,14 @@ export default function ProduktListe() {
 
   return (
     <>
+      <Helmet>
+        <title>Brandschutzprodukte & Zubehör | Kaminfeger Knapp Buchs</title>
+        <meta
+          name="description"
+          content="Feuerlöscher, Rauchmelder, CO-Melder und weiteres Brandschutz-Zubehör von Kaminfeger Knapp in Buchs. Passende Produkte für Ihr Objekt – kompetent beraten."
+        />
+      </Helmet>
+
       {loading && (
         <div className="fixed top-0 left-0 right-0 z-50">
           <div className="mx-2 mt-1 h-[2px] bg-gray-300 opacity-80 rounded-full animate-pulse" />

@@ -8,6 +8,16 @@ const feuerloescher = new URL("../../assets/feuerloescher.jpg", import.meta.url)
 export default function Service() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
+      <Helmet>
+        <title>
+          Kamin- & Heizungsservice | Reinigung & Wartung | Marco Knapp
+        </title>
+        <meta
+          name="description"
+          content="Gründliche Kaminreinigung, Heizungsservice und regelmäßige Wartung durch Kaminfeger Knapp. Mehr Sicherheit, weniger Störungen und optimale Energieausnutzung."
+        />
+      </Helmet>
+
       <section className="mb-12">
         <h1 className="mt-3 text-3xl font-bold tracking-tight">
           Service & Wartung – Feuerlöscher

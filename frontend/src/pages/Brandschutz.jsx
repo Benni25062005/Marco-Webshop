@@ -9,6 +9,16 @@ const logoUrl = new URL("../../assets/Bild_Brandschutz.jpg", import.meta.url)
 export default function Main() {
   return (
     <>
+      <Helmet>
+        <title>
+          Professioneller Brandschutz für Ihr Gebäude | Kaminfeger Knapp
+        </title>
+        <meta
+          name="description"
+          content="Individuelle Brandschutzlösungen: Beratung, Planung und Umsetzung von Schutzkonzepten, Löschgeräten und Wartung. Sicherheit für Wohn- und Geschäftsbauten."
+        />
+      </Helmet>
+
       <main>
         <div className="flex justify-center mt-24">
           <div className="flex flex-col md:flex-row lg:space-x-24 md:space-x-16">

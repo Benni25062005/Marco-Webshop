@@ -5,7 +5,8 @@
   "source": "index.html",
   "scripts": {
     "dev": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "postbuild": "copyfiles robots.txt sitemap.xml dist"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +14,7 @@
   "devDependencies": {
     "@parcel/transformer-react-refresh-wrap": "^2.15.2",
     "buffer": "^5.7.1",
+    "copyfiles": "^2.4.1",
     "crypto-browserify": "^3.12.1",
     "eslint": "^9.27.0",
     "events": "^3.3.0",

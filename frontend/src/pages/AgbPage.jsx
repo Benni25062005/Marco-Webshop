@@ -1,5 +1,15 @@
 import React from "react";
 
 export default function Agb() {
-  return <></>;
+  return (
+    <>
+      <Helmet>
+        <title>Allgemeine Geschäftsbedingungen (AGB) | Kaminfeger Knapp</title>
+        <meta
+          name="description"
+          content="Allgemeine Geschäftsbedingungen von Kaminfeger Knapp: Regelungen zu Leistungen, Preisen, Terminen, Haftung und Zahlungsmodalitäten für unsere Kunden."
+        />
+      </Helmet>
+    </>
+  );
 }
