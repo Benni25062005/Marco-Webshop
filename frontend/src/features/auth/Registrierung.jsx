@@ -5,11 +5,6 @@ import { registerUser } from "../user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import {
-  GeoapifyGeocoderAutocomplete,
-  GeoapifyContext,
-} from "@geoapify/react-geocoder-autocomplete";
-import "@geoapify/geocoder-autocomplete/styles/minimal.css";
 
 const open = new URL("../../../assets/eye_open.png", import.meta.url).href;
 const closed = new URL("../../../assets/eye_close.png", import.meta.url).href;

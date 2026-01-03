@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@parcel/transformer-react-refresh-wrap": "^2.15.2",
+    "@tailwindcss/typography": "^0.5.19",
     "buffer": "^5.7.1",
     "copyfiles": "^2.4.1",
     "crypto-browserify": "^3.12.1",
@@ -30,7 +31,6 @@
   },
   "dependencies": {
     "@alloc/quick-lru": "^5.2.0",
-    "@geoapify/react-geocoder-autocomplete": "^2.0.1",
     "@react-oauth/google": "^0.11.1",
     "@reduxjs/toolkit": "^2.7.0",
     "@vercel/speed-insights": "^1.2.0",

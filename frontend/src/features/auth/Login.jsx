@@ -74,7 +74,7 @@ export default function Main() {
       )}
 
       <div className="flex flex-col justify-center items-center mt-36 w-full">
-        <h1 className="text-2xl font-medium">Sign In to Marcos Webshop</h1>
+        <h1 className="text-2xl font-medium">Wilkommen zurück</h1>
 
         <form
           onSubmit={handleLogin}

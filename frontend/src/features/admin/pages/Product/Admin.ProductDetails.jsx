@@ -207,7 +207,11 @@ export default function ProduktDetail() {
               </label>
 
               <label className="flex flex-col">
-                <span className="font-medium">Details</span>
+                <span className="font-medium">
+                  Details format:
+                  <br />
+                  {"{"}"Überschrift":"Wert","Überschrift 2":"Wert 2"{"}"}
+                </span>
                 <textarea
                   className="border rounded px-3 py-2"
                   rows={3}
