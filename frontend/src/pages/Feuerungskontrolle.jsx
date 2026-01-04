@@ -61,9 +61,52 @@ export default function Main() {
           </div>
         </div>
 
+        {/* Holzfeuerungskontrolle */}
+        <section className="max-w-4xl mx-auto px-4 py-28">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Flame className="w-6 h-6 text-red-600" />
+              <h2 className="text-2xl font-bold text-gray-800">
+                Holzfeuerungskontrolle – natürlich, aber nicht harmlos
+              </h2>
+            </div>
+
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Auch Holzfeuerungen unterliegen der Luftreinhalteverordnung. Bei
+              Anlagen bis 70 kW erfolgt eine Sichtkontrolle der Anlage, Asche
+              und des Brennstofflagers. Wichtig: Nur naturbelassenes, gut
+              getrocknetes Holz darf verbrannt werden.
+            </p>
+
+            <p className="text-sm text-red-800 mb-4">
+              Abfallverbrennung (z. B. lackiertes oder behandeltes Holz) ist
+              gesetzlich verboten und wird bei Verdacht überprüft.
+            </p>
+
+            <div className="flex flex-wrap gap-4 pt-2">
+              <a
+                href="https://www.fairfeuern.ch/index.php?id=9"
+                target="_blank"
+                rel="noreferrer"
+                className="text-red-600 underline hover:text-red-800"
+              >
+                🔗 Fair feuern Schweiz
+              </a>
+              <a
+                href="https://www.fedlex.admin.ch/eli/cc/1986/208_208_208/de"
+                target="_blank"
+                rel="noreferrer"
+                className="text-red-600 underline hover:text-red-800"
+              >
+                🔗 Luftreinhalteverordnung (LRV)
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Leistungen */}
-        <section className="max-w-6xl mx-auto px-4 py-20 mt-20">
-          <h2 className="text-4xl font-bold text-center mb-12">
+        <section className="max-w-6xl mx-auto px-4 pb-20 mt-2">
+          <h2 className="text-4xl font-bold text-center mb-10">
             Was ich konkret für Sie tue
           </h2>
 
@@ -113,51 +156,8 @@ export default function Main() {
           </div>
         </section>
 
-        {/* Holzfeuerungskontrolle */}
-        <section className="max-w-4xl mx-auto px-4 py-16">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Flame className="w-6 h-6 text-red-600" />
-              <h2 className="text-2xl font-bold text-gray-800">
-                Holzfeuerungskontrolle – natürlich, aber nicht harmlos
-              </h2>
-            </div>
-
-            <p className="text-gray-700 leading-relaxed mb-4">
-              Auch Holzfeuerungen unterliegen der Luftreinhalteverordnung. Bei
-              Anlagen bis 70 kW erfolgt eine Sichtkontrolle der Anlage, Asche
-              und des Brennstofflagers. Wichtig: Nur naturbelassenes, gut
-              getrocknetes Holz darf verbrannt werden.
-            </p>
-
-            <p className="text-sm text-red-800 mb-4">
-              Abfallverbrennung (z. B. lackiertes oder behandeltes Holz) ist
-              gesetzlich verboten und wird bei Verdacht überprüft.
-            </p>
-
-            <div className="flex flex-wrap gap-4 pt-2">
-              <a
-                href="https://www.fairfeuern.ch/index.php?id=9"
-                target="_blank"
-                rel="noreferrer"
-                className="text-red-600 underline hover:text-red-800"
-              >
-                🔗 Fair feuern Schweiz
-              </a>
-              <a
-                href="https://www.fedlex.admin.ch/eli/cc/1986/208_208_208/de"
-                target="_blank"
-                rel="noreferrer"
-                className="text-red-600 underline hover:text-red-800"
-              >
-                🔗 Luftreinhalteverordnung (LRV)
-              </a>
-            </div>
-          </div>
-        </section>
-
         {/* CTA */}
-        <section className="text-center py-16">
+        <section className="text-center py-12">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
             Jetzt Kontrolle vereinbaren und Emissionen reduzieren.
           </h3>

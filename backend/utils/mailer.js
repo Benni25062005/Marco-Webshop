@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 export const sendVerificationEmail = (to, vorname, token) => {
   if (!to || !vorname || !token) {
     console.error("Ungültige Parameter für sendVerificationEmail:", {
-      email,
+      to,
       vorname,
       token,
     });

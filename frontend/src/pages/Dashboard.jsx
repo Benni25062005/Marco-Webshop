@@ -2,7 +2,7 @@ import react, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
-import { Flame, FireExtinguisher, Shield } from "lucide-react";
+import { Flame, FireExtinguisher, Shield, Leaf } from "lucide-react";
 import ServiceCard from "../components/common/cards/ServiceCard";
 import HeroSection from "../components/layout/HeroSection";
 
@@ -94,7 +94,7 @@ export default function Main() {
               },
               {
                 title: "Feuerungskontrollen",
-                icon: FireExtinguisher,
+                icon: Leaf,
                 points: [
                   "Kontrolle von Öl-, Gas- & Holzfeuerungen",
                   "Emissionsmessung zur Umwelt- & Kostenreduktion",
@@ -102,7 +102,7 @@ export default function Main() {
               },
               {
                 title: "Brandschutz",
-                icon: Shield,
+                icon: FireExtinguisher,
                 points: [
                   "Verkauf von Feuerlöschern, Löschdecken & Rauchmeldern",
                   "Hilfe bei Auswahl & Platzierung des Löschmittels",
@@ -151,15 +151,15 @@ export default function Main() {
               },
               {
                 title: "Feuerungskontrollen",
-                icon: Flame,
-                id: "feuerungskontrollen",
+                icon: Leaf,
+                id: "feuerungskontrolle",
               },
             ].map((service, i) => (
               <Link to={`/${service.id}`} key={service.title}>
                 <ServiceCard delay={i * 0.2}>
                   <div className="flex items-center justify-center gap-3 cursor-pointer">
                     <h3 className="text-lg">{service.title}</h3>
-                    <service.icon className="w-12 h-12 text-red-600" />
+                    <service.icon className="w-10 h-10 text-red-600" />
                   </div>
                 </ServiceCard>
               </Link>

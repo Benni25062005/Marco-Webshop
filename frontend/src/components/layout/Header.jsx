@@ -70,7 +70,7 @@ export default function Header() {
               <NavItem to="/produkte" label="Produkte" />
               <NavItem to="/brandschutz" label="Brandschutz" />
               <NavItem to="/feuerungskontrolle" label="Feuerungskontrollen" />
-              <NavItem to="/service" label="Service" />
+              <NavItem to="/service" label="Service Löschgeräte" />
               {user?.role === "admin" && <NavItem to="/admin" label="Admin" />}
             </nav>
 

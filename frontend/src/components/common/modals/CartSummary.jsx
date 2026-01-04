@@ -128,6 +128,40 @@ export default function CartSummary({ cartItems }) {
           </div>
         </div>
 
+        <div className="shadow-md rounded-xl p-6">
+          <h2 className="border-b pb-2 text-2xl font-semibold">
+            Lieferadresse
+          </h2>
+
+          <div className="mt-4 grid gap-4">
+            <div className="grid gap-1">
+              <label className="text-xs font-medium text-gray-600">
+                Straße & Hausnummer
+              </label>
+              <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid gap-1">
+                <label className="text-xs font-medium text-gray-600">
+                  Postleitzahl
+                </label>
+                <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+              </div>
+
+              <div className="grid gap-1">
+                <label className="text-xs font-medium text-gray-600">Ort</label>
+                <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+              </div>
+            </div>
+
+            <div className="grid gap-1">
+              <label className="text-xs font-medium text-gray-600">Land</label>
+              <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-col gap-12 bg-white">
           <div className="shadow-md rounded-xl p-4">
             <h2 className="border-b pb-2 text-lg font-semibold">
