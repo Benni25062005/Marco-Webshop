@@ -35,15 +35,15 @@ export default function Main() {
 
               <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left ">
                 Als Kaminfeger ist Brandschutz seit jeher Teil meiner täglichen
-                Arbeit. Ab sofort biete ich zusätzlich professionelle Beratung,
-                Verkauf und Wartung von Feuerlöschern, Löschdecken und
-                Rauchmeldern an – alles aus einer Hand.
+                Arbeit. Durch die Durchführung regelmäßiger Kontrollen und
+                Reinigungen wird der sichere Betrieb Ihrer Feuerungsanlage
+                gewährleistet und Brände werden verhindert.
               </p>
 
               <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left ">
-                Durch die Durchführung regelmäßiger Kontrollen und Reinigungen
-                wird der sichere Betrieb Ihrer Feuerungsanlage gewährleistet und
-                Brände werden verhindert.
+                Ab sofort biete ich zusätzlich professionelle Beratung, Verkauf
+                und Wartung von Feuerlöschern, Löschdecken und Rauchmeldern an –
+                alles aus einer Hand.
               </p>
 
               <p className="text-base sm:text-lg md:text-xl leading-relaxed text-justify sm:text-left">
