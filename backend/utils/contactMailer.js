@@ -11,7 +11,9 @@ export const sendContactEmail = ({ vorname, nachname, email, nachricht }) => {
   }
 
   const transporter = nodemailer.createTransport({
-    service: "Gmail",
+    host: "smtp.gmx.net",
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL,
       pass: process.env.EMAIL_PASSWORD,

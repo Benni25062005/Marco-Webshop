@@ -109,7 +109,7 @@ app.get("/produkte", async (req, res) => {
 
     const values = kategorie ? [kategorie] : [];
 
-    const [rows] = await db.execute(q, values); 
+    const [rows] = await db.execute(q, values);
 
     const transformed = rows.map((item) => ({
       ...item,
@@ -428,7 +428,9 @@ app.put("/user/:id/email", authenticateToken, async (req, res) => {
 
     // Mailer
     const transporter = nodemailer.createTransport({
-      service: "Gmail",
+      host: "smtp.gmx.net",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASSWORD,
@@ -519,7 +521,7 @@ app.post("/api/request-reset", async (req, res) => {
 
     // Mailer (Gmail SMTP – nutze App-Passwort!)
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
+      host: "smtp.gmx.net",
       port: 465,
       secure: true,
       auth: {
