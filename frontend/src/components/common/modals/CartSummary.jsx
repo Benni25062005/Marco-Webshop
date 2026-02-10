@@ -42,7 +42,7 @@ export default function CartSummary({ cartItems }) {
             .replace("kg", "")
             .replace("KG", "")
             .replace(/\s/g, "")
-            .replace(",", ".")
+            .replace(",", "."),
         );
 
         if (Number.isNaN(numeric)) return sum;
@@ -72,9 +72,9 @@ export default function CartSummary({ cartItems }) {
     () =>
       cartItems.reduce(
         (total, item) => total + item.Preis_brutto * item.menge,
-        0
+        0,
       ),
-    [cartItems]
+    [cartItems],
   );
 
   const grandTotal = (itemsTotal + shippingCost).toFixed(2);
@@ -87,6 +87,12 @@ export default function CartSummary({ cartItems }) {
       }
       setShowAgbError(false);
 
+      if (!user?.idUser) {
+        toast.error("Bitte einloggen, um zu bestellen.");
+        navigate("/login");
+        return;
+      }
+
       const orderData = {
         idUser: user.idUser,
         items: cartItems.map((item) => ({
@@ -96,11 +102,42 @@ export default function CartSummary({ cartItems }) {
       };
 
       const orderResult = await dispatch(createOrder(orderData)).unwrap();
-    } catch (error) {
-      console.error("Error creating order:", error);
-      alert(
-        "Fehler beim Erstellen der Bestellung. Bitte versuchen Sie es erneut."
+
+      const orderId = orderResult?.order_id ?? orderResult?.order?.order_id;
+
+      if (!orderId) {
+        console.error("orderResult:", orderResult);
+        toast.error("Order-ID fehlt – Backend Response prüfen");
+        return;
+      }
+
+      const amount = Number(grandTotal); 
+      if (Number.isNaN(amount) || amount <= 0) {
+        toast.error("Ungültiger Betrag.");
+        return;
+      }
+
+      const initResp = await axios.post(
+        `${process.env.BACKEND_URL}/api/payment/saferpay/initialize`,
+        {
+          orderId,
+          amount,
+          currency: "CHF",
+        },
+        { headers: { "Content-Type": "application/json" } },
       );
+
+      const { redirectUrl } = initResp.data || {};
+      if (!redirectUrl) {
+        console.error("Saferpay init response:", initResp.data);
+        toast.error("Saferpay konnte nicht gestartet werden.");
+        return;
+      }
+
+      window.location.href = redirectUrl;
+    } catch (error) {
+      console.error("Checkout Error:", error?.response?.data || error);
+      toast.error("Checkout fehlgeschlagen. Bitte erneut versuchen.");
     }
   };
 

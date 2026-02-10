@@ -17,8 +17,8 @@ import ProduktListe from "../pages/ProduktListe";
 import ProduktDetail from "../pages/ProduktDetail";
 import CheckoutResult from "../features/order/CheckoutResult";
 import Bestellungen from "../pages/Bestellungen";
-import TwintPaymentPage from "../pages/TwintPaymentPage";
 import CheckoutSuccess from "../pages/CheckoutSuccess";
+import CheckoutFail from "../pages/CheckoutFail";
 import Impressum from "../pages/Impressum";
 import AgbPage from "../pages/AgbPage";
 import Datenschutz from "../pages/Datenschutz";
@@ -49,8 +49,8 @@ export default function AppRoutes() {
       <Route path="registrierung" element={<Registrierung />} />
       <Route path="warenkorb" element={<Warenkorb />} />
       <Route path="checkout" element={<CheckoutResult />} />
-      <Route path="twint-payment" element={<TwintPaymentPage />} />
-      <Route path="checkout-success" element={<CheckoutSuccess />} />
+      <Route path="/payment/success" element={<CheckoutSuccess />} />
+      <Route path="/payment/fail" element={<CheckoutFail />} />
       <Route path="bestellungen" element={<Bestellungen />} />
       <Route path="feuerungskontrolle" element={<Feuerungskontrolle />} />
       <Route path="service" element={<Service />} />

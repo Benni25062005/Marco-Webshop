@@ -1,8 +1,12 @@
-import express from 'express'
-import { createCheckoutSession } from '../controllers/paymentController.js'
+import express from "express";
+import {
+  saferpayInitialize,
+  saferpayConfirm,
+} from "../controllers/paymentController.js";
 
 const router = express.Router();
 
-router.post('/create-checkout-session', createCheckoutSession);
+router.post("/saferpay/initialize", saferpayInitialize);
+router.post("/saferpay/confirm", saferpayConfirm);
 
-export const paymentRoutes = router;
+export default router;

@@ -1,12 +1,106 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
+import axios from "axios";
+import { CheckCircle, XCircle } from "lucide-react";
 
-const CheckoutSuccess = () => {
+const API_BASE = "https://marco-webshop.onrender.com";
+
+export default function CheckoutSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { orderId, orderNo, amount, paymentData } = location.state || {};
+  const token = useMemo(() => {
+    const qs = new URLSearchParams(location.search);
+    return qs.get("token");
+  }, [location.search]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [paymentData, setPaymentData] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!token) {
+        setError(
+          "Kein Payment-Token gefunden. Bitte prüfen ob die Rückleitung korrekt ist.",
+        );
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+
+        const resp = await axios.post(
+          `${API_BASE}/api/payment/saferpay/confirm`,
+          { token },
+          { headers: { "Content-Type": "application/json" } },
+        );
+
+        if (cancelled) return;
+
+        // resp.data enthält ok + assert/capture (aus meinem Backend-Snippet)
+        setPaymentData(resp.data);
+      } catch (e) {
+        if (cancelled) return;
+        console.error("confirm error:", e?.response?.data || e);
+        setError(
+          "Zahlung konnte nicht bestätigt werden. Bitte kontaktieren Sie den Support.",
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <p className="text-gray-700 font-semibold">Zahlung wird bestätigt…</p>
+          <p className="text-sm text-gray-500 mt-2">Bitte nicht schließen.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <XCircle className="h-16 w-16 text-red-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">
+              Bestätigung fehlgeschlagen
+            </h1>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={() => navigate("/warenkorb")}
+              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+            >
+              Zurück zum Warenkorb
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const transactionId =
+    paymentData?.capture?.Transaction?.Id ??
+    paymentData?.capture?.Capture?.Id ??
+    paymentData?.assert?.Transaction?.Id ??
+    null;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8">
@@ -21,30 +115,17 @@ const CheckoutSuccess = () => {
           </h1>
 
           <p className="text-gray-600 mb-6">
-            Vielen Dank für Ihre Bestellung. Ihre Zahlung wurde erfolgreich
-            verarbeitet.
+            Vielen Dank. Ihre Zahlung wurde bestätigt.
           </p>
 
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Bestellnummer:</span>
-                <span className="font-semibold">{orderNo}</span>
+          {transactionId && (
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Transaktions-ID:</span>
+                <span className="font-mono text-xs">{transactionId}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Betrag:</span>
-                <span className="font-semibold">CHF {amount?.toFixed(2)}</span>
-              </div>
-              {paymentData?.transactionId && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Transaktions-ID:</span>
-                  <span className="font-mono text-xs">
-                    {paymentData.transactionId}
-                  </span>
-                </div>
-              )}
             </div>
-          </div>
+          )}
 
           <div className="space-y-3">
             <button
@@ -53,7 +134,6 @@ const CheckoutSuccess = () => {
             >
               Meine Bestellungen anzeigen
             </button>
-
             <button
               onClick={() => navigate("/")}
               className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
@@ -61,15 +141,8 @@ const CheckoutSuccess = () => {
               Zurück zum Shop
             </button>
           </div>
-
-          <div className="mt-6 text-xs text-gray-500">
-            <p>Sie erhalten eine Bestätigungs-E-Mail mit allen Details.</p>
-            <p>Bei Fragen kontaktieren Sie uns gerne.</p>
-          </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default CheckoutSuccess;
+}

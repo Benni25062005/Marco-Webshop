@@ -18,12 +18,12 @@ import smsRoutes from "./routes/smsRoutes.js";
 import { productRouter } from "./routes/productRoutes.js";
 import { productDetailRouter } from "./routes/productDetailRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
-import { twintRoutes } from "./routes/twintRoutes.js";
 import { orderRoutes } from "./routes/orderRoutes.js";
 import { getOrderRoutes } from "./routes/getOrderRoutes.js";
 import { authRoutes } from "./routes/authRoutes.js";
 import { contactRouter } from "./routes/contactRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 dotenv.config();
 
@@ -59,11 +59,6 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
-
-// app.use((req, _res, next) => {
-//   console.log("Origin seen:", req.headers.origin || "(none)");
-//   next();
-// });
 
 app.use(cors(corsOptions));
 
@@ -164,14 +159,14 @@ app.get("/verify-email", async (req, res) => {
 
     const [result] = await db.execute(
       "UPDATE `user` SET isVerifiedEmail = 1, emailToken = NULL WHERE emailToken = ? LIMIT 1",
-      [token]
+      [token],
     );
 
     if (result.affectedRows === 0) {
       return res.status(400).send("Ungültiger Token oder bereits verifiziert");
     }
     return res.send(
-      "E-Mail erfolgreich verifiziert. Sie können sich jetzt anmelden."
+      "E-Mail erfolgreich verifiziert. Sie können sich jetzt anmelden.",
     );
   } catch (err) {
     console.error("Fehler bei /verify-email:", err);
@@ -215,7 +210,7 @@ app.post("/api/login", async (req, res) => {
     const token = jwt.sign(
       { idUser: user.idUser, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     const isProd = process.env.NODE_ENV === "production";
@@ -364,7 +359,7 @@ app.put("/user/:id/password", authenticateToken, async (req, res) => {
     // Altes Passwort holen
     const [rows] = await db.execute(
       "SELECT password FROM user WHERE idUser = ?",
-      [idUser]
+      [idUser],
     );
 
     if (rows.length === 0) {
@@ -382,7 +377,7 @@ app.put("/user/:id/password", authenticateToken, async (req, res) => {
     // Update in DB
     const [updateResult] = await db.execute(
       "UPDATE user SET password = ? WHERE idUser = ?",
-      [hashedPassword, idUser]
+      [hashedPassword, idUser],
     );
 
     if (updateResult.affectedRows === 0) {
@@ -415,7 +410,7 @@ app.put("/user/:id/email", authenticateToken, async (req, res) => {
     // E-Mail + Token setzen, Verifizierung zurücksetzen
     const [updateResult] = await db.execute(
       "UPDATE user SET email = ?, emailToken = ?, isVerifiedEmail = 0 WHERE idUser = ?",
-      [email, emailToken, idUser]
+      [email, emailToken, idUser],
     );
 
     if (updateResult.affectedRows === 0) {
@@ -500,7 +495,7 @@ app.post("/api/request-reset", async (req, res) => {
     // User holen
     const [userRows] = await db.execute(
       "SELECT vorname FROM user WHERE email = ?",
-      [email]
+      [email],
     );
 
     if (userRows.length === 0) {
@@ -512,7 +507,7 @@ app.post("/api/request-reset", async (req, res) => {
     // Code + Timestamp setzen
     const [updateResult] = await db.execute(
       "UPDATE user SET resetCode = ?, resetCodeCreatedAt = NOW() WHERE email = ?",
-      [code, email]
+      [code, email],
     );
 
     if (updateResult.affectedRows === 0) {
@@ -584,14 +579,14 @@ app.post("/api/reset-password", async (req, res) => {
           AND resetCode = ?
           AND TIMESTAMPDIFF(SECOND, resetCodeCreatedAt, NOW()) <= 600
       `,
-      [hashedPassword, email, code]
+      [hashedPassword, email, code],
     );
 
     if (updateResult.affectedRows === 0) {
       // Herausfinden, ob User existiert (für gezieltere Fehlermeldung)
       const [rows] = await db.execute(
         "SELECT resetCode, resetCodeCreatedAt FROM user WHERE email = ?",
-        [email]
+        [email],
       );
       if (rows.length === 0) {
         return res.status(404).json({ message: "User nicht gefunden" });
@@ -711,7 +706,7 @@ app.delete(
         error: err,
       });
     }
-  }
+  },
 );
 
 app.put(
@@ -748,7 +743,7 @@ app.put(
         error: err,
       });
     }
-  }
+  },
 );
 
 app.delete("/api/cart/:userId", authenticateToken, async (req, res) => {
@@ -764,7 +759,7 @@ app.delete("/api/cart/:userId", authenticateToken, async (req, res) => {
 
     const [result] = await db.execute(
       "DELETE FROM warenkorb WHERE user_id = ?",
-      [userId]
+      [userId],
     );
 
     if (result.affectedRows === 0) {
@@ -784,12 +779,11 @@ app.delete("/api/cart/:userId", authenticateToken, async (req, res) => {
 
 //#region Checkout
 
-// app.use("/api/payments", paymentRoutes); // Stripe - deaktiviert
-app.use("/api/twint", twintRoutes);
-
 app.use("/api/orders", orderRoutes);
 
 app.use("/api/orders", getOrderRoutes);
+
+app.use("/api/payment", paymentRoutes);
 
 //#endregion Checkout
 
