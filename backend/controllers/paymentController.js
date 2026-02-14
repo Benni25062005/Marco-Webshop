@@ -59,8 +59,8 @@ export const saferpayInitialize = async (req, res) => {
         Description: `Order ${orderId}`,
       },
       ReturnUrls: {
-        Success: `${frontend}/payment/success`,
-        Fail: `${frontend}/payment/fail`,
+        Success: `${frontend}/payment/success?token={Token}`,
+        Fail: `${frontend}/payment/fail?token={Token}`,
       },
     };
 
