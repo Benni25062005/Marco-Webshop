@@ -3,10 +3,16 @@ import crypto from "crypto";
 import db from "../config/db.js";
 
 function basicAuthHeader() {
+  // Priorität: fertiger Header aus Backoffice
+  const h = process.env.SAFERPAY_AUTH_HEADER;
+  if (h && h.startsWith("Basic ")) return h;
+
+  // Fallback: user/pass
   const user = process.env.SAFERPAY_API_USERNAME;
   const pass = process.env.SAFERPAY_API_PASSWORD;
-  if (!user || !pass)
-    throw new Error("Missing SAFERPAY_API_USERNAME/SAFERPAY_API_PASSWORD");
+  if (!user || !pass) {
+    throw new Error("Missing SAFERPAY credentials (AUTH_HEADER or USER/PASS)");
+  }
   return "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
 }
 
@@ -74,12 +80,10 @@ export const saferpayInitialize = async (req, res) => {
     const redirectUrl = resp.data?.RedirectUrl;
 
     if (!token || !redirectUrl) {
-      return res
-        .status(500)
-        .json({
-          error: "Saferpay initialize returned no token/redirectUrl",
-          raw: resp.data,
-        });
+      return res.status(500).json({
+        error: "Saferpay initialize returned no token/redirectUrl",
+        raw: resp.data,
+      });
     }
 
     // ✅ DB: Token speichern + Status setzen
