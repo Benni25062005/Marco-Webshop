@@ -3,16 +3,10 @@ import crypto from "crypto";
 import db from "../config/db.js";
 
 function basicAuthHeader() {
-  // Priorität: fertiger Header aus Backoffice
-  const h = process.env.SAFERPAY_AUTH_HEADER;
-  if (h && h.startsWith("Basic ")) return h;
-
-  // Fallback: user/pass
   const user = process.env.SAFERPAY_API_USERNAME;
   const pass = process.env.SAFERPAY_API_PASSWORD;
-  if (!user || !pass) {
-    throw new Error("Missing SAFERPAY credentials (AUTH_HEADER or USER/PASS)");
-  }
+  if (!user || !pass)
+    throw new Error("Missing SAFERPAY_API_USERNAME/SAFERPAY_API_PASSWORD");
   return "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
 }
 
@@ -27,10 +21,12 @@ function requestHeader() {
   };
 }
 
-export const saferpayInitialize = async (req, res) => {
-  try {
-    const { orderId, amount, currency } = req.body;
+const ts = () => new Date().toISOString();
 
+export const saferpayInitialize = async (req, res) => {
+  const { orderId, amount, currency } = req.body;
+
+  try {
     if (!orderId || amount == null || !currency) {
       return res
         .status(400)
@@ -59,8 +55,9 @@ export const saferpayInitialize = async (req, res) => {
         Description: `Order ${orderId}`,
       },
       ReturnUrls: {
-        Success: `${frontend}/payment/success?token={Token}`,
-        Fail: `${frontend}/payment/fail?token={Token}`,
+        // wichtig: orderId mitschicken, NICHT token erwarten
+        Success: `${frontend}/payment/success?orderId=${encodeURIComponent(orderId)}`,
+        Fail: `${frontend}/payment/fail?orderId=${encodeURIComponent(orderId)}`,
       },
     };
 
@@ -76,17 +73,19 @@ export const saferpayInitialize = async (req, res) => {
       },
     );
 
-    const token = resp.data?.Token;
     const redirectUrl = resp.data?.RedirectUrl;
+    const token = resp.data?.Token;
 
-    if (!token || !redirectUrl) {
-      return res.status(500).json({
-        error: "Saferpay initialize returned no token/redirectUrl",
-        raw: resp.data,
-      });
+    if (!redirectUrl || !token) {
+      return res
+        .status(502)
+        .json({
+          error: "Saferpay initialize returned no redirectUrl/token",
+          raw: resp.data,
+        });
     }
 
-    // ✅ DB: Token speichern + Status setzen
+    // Token in DB speichern (sonst kannst du später nicht confirm/capture)
     await db.execute(
       `UPDATE orders
        SET saferpay_token = ?, payment_provider = 'saferpay', payment_status = 'initialized'
@@ -94,14 +93,14 @@ export const saferpayInitialize = async (req, res) => {
       [token, orderId],
     );
 
-    return res.json({ redirectUrl, token });
+    return res.json({ redirectUrl });
   } catch (err) {
     console.error(
       "Saferpay Initialize Error:",
       err?.response?.data || err.message,
     );
     return res.status(500).json({
-      error: "saferpay initialize failed",
+      error: "Saferpay initialize failed",
       details: err?.response?.data || err.message,
     });
   }
@@ -109,16 +108,33 @@ export const saferpayInitialize = async (req, res) => {
 
 export const saferpayConfirm = async (req, res) => {
   try {
-    const { token } = req.body;
-    if (!token) return res.status(400).json({ error: "token is required" });
+    const { orderId, token } = req.body;
+
+    let usedToken = token;
+
+    // bevorzugt: Token aus DB via orderId
+    if (!usedToken) {
+      if (!orderId)
+        return res.status(400).json({ error: "orderId or token is required" });
+
+      const [rows] = await db.execute(
+        "SELECT saferpay_token FROM orders WHERE order_id = ? LIMIT 1",
+        [orderId],
+      );
+
+      usedToken = rows?.[0]?.saferpay_token;
+      if (!usedToken)
+        return res
+          .status(400)
+          .json({ error: "No saferpay_token stored for this orderId" });
+    }
 
     const baseUrl =
       process.env.SAFERPAY_BASE_URL || "https://test.saferpay.com/api";
 
-    // 1) Assert
     const assertResp = await axios.post(
       `${baseUrl}/Payment/v1/PaymentPage/Assert`,
-      { RequestHeader: requestHeader(), Token: token },
+      { RequestHeader: requestHeader(), Token: usedToken },
       {
         headers: {
           Authorization: basicAuthHeader(),
@@ -130,60 +146,44 @@ export const saferpayConfirm = async (req, res) => {
 
     const transactionId = assertResp.data?.Transaction?.Id;
     if (!transactionId) {
-      // ✅ DB: markieren als failed (optional)
-      await db.execute(
-        `UPDATE orders SET status='failed', payment_status='assert_failed' WHERE saferpay_token = ?`,
-        [token],
-      );
       return res
         .status(400)
         .json({ error: "No transaction id", raw: assertResp.data });
     }
 
-    // 2) Capture (kann je nach Setup nötig sein)
-    let captureResp = null;
-    try {
-      captureResp = await axios.post(
-        `${baseUrl}/Payment/v1/Transaction/Capture`,
-        {
-          RequestHeader: requestHeader(),
-          TransactionReference: { TransactionId: transactionId },
+    const captureResp = await axios.post(
+      `${baseUrl}/Payment/v1/Transaction/Capture`,
+      {
+        RequestHeader: requestHeader(),
+        TransactionReference: { TransactionId: transactionId },
+      },
+      {
+        headers: {
+          Authorization: basicAuthHeader(),
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: basicAuthHeader(),
-            "Content-Type": "application/json",
-          },
-          timeout: 15000,
-        },
-      );
-    } catch (e) {
-      // Falls Capture nicht erlaubt ist (Sale-Flow), speichern wir trotzdem Assert-Daten.
-      console.error(
-        "Capture failed (maybe Sale flow):",
-        e?.response?.data || e.message,
+        timeout: 15000,
+      },
+    );
+
+    // Order auf paid setzen
+    if (orderId) {
+      await db.execute(
+        `UPDATE orders
+         SET payment_status = 'paid',
+             status = 'paid',
+             payment_transaction_id = ?,
+             paid_at = NOW()
+         WHERE order_id = ?`,
+        [transactionId, orderId],
       );
     }
 
-    // ✅ DB: Order als bezahlt setzen (wenn Capture vorhanden -> captured, sonst authorized)
-    const paymentStatus = captureResp ? "captured" : "authorized";
-
-    await db.execute(
-      `UPDATE orders
-       SET status = 'paid',
-           payment_status = ?,
-           payment_transaction_id = ?,
-           paid_at = NOW()
-       WHERE saferpay_token = ?`,
-      [paymentStatus, transactionId, token],
-    );
-
     return res.json({
       ok: true,
-      paymentStatus,
       transactionId,
       assert: assertResp.data,
-      capture: captureResp?.data ?? null,
+      capture: captureResp.data,
     });
   } catch (err) {
     console.error(
@@ -191,7 +191,7 @@ export const saferpayConfirm = async (req, res) => {
       err?.response?.data || err.message,
     );
     return res.status(500).json({
-      error: "saferpay confirm failed",
+      error: "Saferpay confirm failed",
       details: err?.response?.data || err.message,
     });
   }

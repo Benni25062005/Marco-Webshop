@@ -2,6 +2,74 @@ import React, { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getOrder } from "../features/order/orderSlice";
 
+function mapOrderStatus(status) {
+  switch ((status || "").toLowerCase()) {
+    case "pending":
+      return "Offen";
+    case "processing":
+      return "In Bearbeitung";
+    case "paid":
+      return "Bezahlt";
+    case "shipped":
+      return "Versendet";
+    case "completed":
+      return "Abgeschlossen";
+    case "cancelled":
+    case "canceled":
+      return "Storniert";
+    case "failed":
+      return "Fehlgeschlagen";
+    default:
+      return status || "—";
+  }
+}
+
+function mapPaymentStatus(ps) {
+  switch ((ps || "").toLowerCase()) {
+    case "created":
+      return "Erstellt";
+    case "initialized":
+      return "Initialisiert";
+    case "authorized":
+      return "Autorisiert";
+    case "captured":
+    case "paid":
+      return "Bezahlt";
+    case "failed":
+      return "Fehlgeschlagen";
+    case "cancelled":
+    case "canceled":
+      return "Abgebrochen";
+    default:
+      return ps || "—";
+  }
+}
+
+function badgeClass(kind, value) {
+  const v = (value || "").toLowerCase();
+  const base =
+    "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold border";
+
+  // Payment
+  if (kind === "payment") {
+    if (v === "paid" || v === "captured")
+      return `${base} bg-green-50 text-green-700 border-green-200`;
+    if (v === "failed") return `${base} bg-red-50 text-red-700 border-red-200`;
+    if (v === "cancelled" || v === "canceled")
+      return `${base} bg-gray-50 text-gray-700 border-gray-200`;
+    return `${base} bg-yellow-50 text-yellow-800 border-yellow-200`; // created/initialized/authorized/unknown
+  }
+
+  // Order status
+  if (v === "paid" || v === "completed")
+    return `${base} bg-green-50 text-green-700 border-green-200`;
+  if (v === "failed" || v === "cancelled" || v === "canceled")
+    return `${base} bg-red-50 text-red-700 border-red-200`;
+  if (v === "shipped")
+    return `${base} bg-blue-50 text-blue-700 border-blue-200`;
+  return;
+}
+
 function fmtMoney(val, currency = "CHF") {
   const n = Number(val ?? 0);
   return `${n.toFixed(2)} ${currency}`;
@@ -91,12 +159,19 @@ export default function Bestellungen() {
                   {new Date(o.created_at).toLocaleDateString("de-DE")}
                 </div>
 
-                <div className="text-sm text-gray-600 flex gap-3">
-                  <span>
-                    Status: <b>{o.status}</b>
+                <div className="text-sm text-gray-600 flex flex-wrap gap-2">
+                  <span className="flex items-center gap-2">
+                    <span>Status:</span>
+                    <span className={badgeClass("order", o.status)}>
+                      {mapOrderStatus(o.status)}
+                    </span>
                   </span>
-                  <span>
-                    Zahlung: <b>{o.payment_status}</b>
+
+                  <span className="flex items-center gap-2">
+                    <span>Zahlung:</span>
+                    <span className={badgeClass("payment", o.payment_status)}>
+                      {mapPaymentStatus(o.payment_status)}
+                    </span>
                   </span>
                 </div>
               </div>

@@ -3,15 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CheckCircle, XCircle } from "lucide-react";
 
-const API_BASE = "https://marco-webshop.onrender.com";
-
 export default function CheckoutSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const token = useMemo(() => {
+  const orderId = useMemo(() => {
     const qs = new URLSearchParams(location.search);
-    return qs.get("token");
+    return qs.get("orderId");
   }, [location.search]);
 
   const [loading, setLoading] = useState(true);
@@ -22,9 +20,9 @@ export default function CheckoutSuccess() {
     let cancelled = false;
 
     async function run() {
-      if (!token) {
+      if (!orderId) {
         setError(
-          "Kein Payment-Token gefunden. Bitte prüfen ob die Rückleitung korrekt ist.",
+          "Kein orderId gefunden. ReturnUrl muss ?orderId=... enthalten.",
         );
         setLoading(false);
         return;
@@ -35,20 +33,17 @@ export default function CheckoutSuccess() {
         setError("");
 
         const resp = await axios.post(
-          `${API_BASE}/api/payment/saferpay/confirm`,
-          { token },
+          `${process.env.BACKEND_URL}/api/payment/saferpay/confirm`,
+          { orderId },
           { headers: { "Content-Type": "application/json" } },
         );
 
-        if (cancelled) return;
-
-        // resp.data enthält ok + assert/capture (aus meinem Backend-Snippet)
-        setPaymentData(resp.data);
+        if (!cancelled) setPaymentData(resp.data);
       } catch (e) {
         if (cancelled) return;
         console.error("confirm error:", e?.response?.data || e);
         setError(
-          "Zahlung konnte nicht bestätigt werden. Bitte kontaktieren Sie den Support.",
+          "Zahlung konnte nicht bestätigt werden. Bitte Support kontaktieren.",
         );
       } finally {
         if (!cancelled) setLoading(false);
@@ -59,14 +54,13 @@ export default function CheckoutSuccess() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [orderId]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8">
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
           <p className="text-gray-700 font-semibold">Zahlung wird bestätigt…</p>
-          <p className="text-sm text-gray-500 mt-2">Bitte nicht schließen.</p>
         </div>
       </div>
     );
@@ -86,7 +80,7 @@ export default function CheckoutSuccess() {
             <p className="text-gray-600 mb-6">{error}</p>
             <button
               onClick={() => navigate("/warenkorb")}
-              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300"
             >
               Zurück zum Warenkorb
             </button>
@@ -96,11 +90,7 @@ export default function CheckoutSuccess() {
     );
   }
 
-  const transactionId =
-    paymentData?.capture?.Transaction?.Id ??
-    paymentData?.capture?.Capture?.Id ??
-    paymentData?.assert?.Transaction?.Id ??
-    null;
+  const transactionId = paymentData?.transactionId;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8">
@@ -109,14 +99,9 @@ export default function CheckoutSuccess() {
           <div className="flex justify-center mb-6">
             <CheckCircle className="h-16 w-16 text-green-500" />
           </div>
-
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             Zahlung erfolgreich!
           </h1>
-
-          <p className="text-gray-600 mb-6">
-            Vielen Dank. Ihre Zahlung wurde bestätigt.
-          </p>
 
           {transactionId && (
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -130,13 +115,13 @@ export default function CheckoutSuccess() {
           <div className="space-y-3">
             <button
               onClick={() => navigate("/bestellungen")}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
+              className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
             >
               Meine Bestellungen anzeigen
             </button>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300"
             >
               Zurück zum Shop
             </button>
