@@ -62,6 +62,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+app.use((req, res, next) => {
+  (res.setTimeout(15000),
+    () => {
+      console.error("Request timed out:", req.method, req.originalUrl);
+      res.status(504).json({ error: "Gateway Timeout" });
+    });
+  next();
+});
+
+app.post("/api/orders/ping", (req, res) => res.json({ ok: true }));
+
 app.get("/health/db", async (_req, res) => {
   try {
     await db.execute("SELECT 1 AS ok");

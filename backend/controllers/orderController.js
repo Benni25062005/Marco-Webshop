@@ -1,6 +1,8 @@
 import { saveOrder } from "../services/orderService.js";
 
 export const createOrder = async (req, res) => {
+  console.log("createOrder hit", req.body?.idUser);
+
   try {
     const data = await saveOrder(req.body);
     return res.status(201).json({ success: true, ...data });

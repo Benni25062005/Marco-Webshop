@@ -92,9 +92,9 @@ export async function saveOrder(orderData) {
                     const unit = Number(it.unit_price ?? it.unitPrice ?? 0);
 
                     if (!it.product_id) throw new Error("product_id fehlt");
-                    if (Number.isNaN(qty) || qty <= 0)
+                    if (!Number.isFinite(qty) || qty <= 0)
                       throw new Error("quantity ungültig");
-                    if (Number.isNaN(unit) || unit < 0)
+                    if (!Number.isFinite(unit) || unit < 0)
                       throw new Error("unit_price ungültig");
 
                     const lineTotal = Number((unit * qty).toFixed(2));

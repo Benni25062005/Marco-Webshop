@@ -126,6 +126,7 @@ export default function CartSummary({ cartItems }) {
 
       if (orderResult?.success !== true) {
         toast.error(orderResult?.message || "Bestellung fehlgeschlagen");
+        return;
       }
 
       const orderId = orderResult.order_id;
