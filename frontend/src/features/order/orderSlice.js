@@ -12,7 +12,9 @@ export const createOrder = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("Fehler bei erstellung", error);
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(
+        error.response?.data || { message: error.message || "Network error" },
+      );
     }
   },
 );
