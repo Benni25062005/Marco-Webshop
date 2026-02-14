@@ -11,7 +11,9 @@ export async function saveOrder(orderData) {
     currency: orderData?.currency,
     shippingCost: orderData?.shippingCost,
     totalAmount: orderData?.totalAmount,
-    itemsCount: Array.isArray(orderData?.items) ? orderData.items.length : "not-array",
+    itemsCount: Array.isArray(orderData?.items)
+      ? orderData.items.length
+      : "not-array",
   });
 
   let conn;
@@ -33,13 +35,16 @@ export async function saveOrder(orderData) {
     } = orderData;
 
     if (!idUser) throw new Error("idUser fehlt");
-    if (!Array.isArray(items) || items.length === 0) throw new Error("Keine Items übergeben");
+    if (!Array.isArray(items) || items.length === 0)
+      throw new Error("Keine Items übergeben");
 
     const total = Number(totalAmount);
-    if (!Number.isFinite(total) || total <= 0) throw new Error("totalAmount fehlt oder ungültig");
+    if (!Number.isFinite(total) || total <= 0)
+      throw new Error("totalAmount fehlt oder ungültig");
 
     const shipCost = Number(shippingCost);
-    if (!Number.isFinite(shipCost) || shipCost < 0) throw new Error("shippingCost ungültig");
+    if (!Number.isFinite(shipCost) || shipCost < 0)
+      throw new Error("shippingCost ungültig");
 
     const shipping_name = shipping?.name || null;
     const shipping_street = shipping?.street || null;
@@ -47,15 +52,19 @@ export async function saveOrder(orderData) {
     const shipping_city = shipping?.city || null;
     const shipping_country = shipping?.country || "CH";
 
+    // ✅ order_no muss beim INSERT gesetzt sein (weil DB kein Default erlaubt)
+    const placeholderOrderNo = `TMP-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
     console.log(`[${ts()}] [${rid}] INSERT orders...`);
     const [resOrder] = await conn.execute(
       `INSERT INTO orders
-       (idUser, status, currency, shipping_cost, total_amount,
+       (idUser, order_no, status, currency, shipping_cost, total_amount,
         shipping_name, shipping_street, shipping_zip, shipping_city, shipping_country,
         payment_provider, payment_status)
-       VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, 'saferpay', 'created')`,
+       VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, 'saferpay', 'created')`,
       [
         idUser,
+        placeholderOrderNo,
         currency,
         shipCost,
         total,
@@ -72,27 +81,37 @@ export async function saveOrder(orderData) {
     console.log(`[${ts()}] [${rid}] INSERT orders OK`, { orderId, orderNo });
 
     console.log(`[${ts()}] [${rid}] UPDATE order_no...`);
-    await conn.execute("UPDATE orders SET order_no = ? WHERE order_id = ?", [orderNo, orderId]);
+    await conn.execute("UPDATE orders SET order_no = ? WHERE order_id = ?", [
+      orderNo,
+      orderId,
+    ]);
     console.log(`[${ts()}] [${rid}] UPDATE order_no OK`);
 
-    let itemsValues = items.map((it, idx) => {
+    const itemsValues = items.map((it, idx) => {
       const pid = it.product_id;
       const qty = Number(it.quantity ?? 1);
       const unit = Number(it.unit_price ?? it.unitPrice ?? 0);
 
       if (!pid) throw new Error(`items[${idx}].product_id fehlt`);
-      if (!Number.isFinite(qty) || qty <= 0) throw new Error(`items[${idx}].quantity ungültig`);
-      if (!Number.isFinite(unit) || unit < 0) throw new Error(`items[${idx}].unit_price ungültig`);
+      if (!Number.isFinite(qty) || qty <= 0)
+        throw new Error(`items[${idx}].quantity ungültig`);
+      if (!Number.isFinite(unit) || unit < 0)
+        throw new Error(`items[${idx}].unit_price ungültig`);
 
       const lineTotal = Number((unit * qty).toFixed(2));
       return [orderId, pid, qty, unit, lineTotal];
     });
 
-    console.log(`[${ts()}] [${rid}] INSERT order_items...`, { count: itemsValues.length, first: itemsValues[0] });
+    console.log(`[${ts()}] [${rid}] INSERT order_items...`, {
+      count: itemsValues.length,
+      first: itemsValues[0],
+    });
+
     await conn.query(
       "INSERT INTO order_items (order_id, product_id, quantity, unit_price, line_total) VALUES ?",
       [itemsValues],
     );
+
     console.log(`[${ts()}] [${rid}] INSERT order_items OK`);
 
     console.log(`[${ts()}] [${rid}] COMMIT...`);
@@ -105,7 +124,9 @@ export async function saveOrder(orderData) {
   } catch (e) {
     console.error(`[${ts()}] [${rid}] ERROR`, e?.message || e);
     if (conn) {
-      try { await conn.rollback(); } catch {}
+      try {
+        await conn.rollback();
+      } catch {}
     }
     throw e;
   } finally {
