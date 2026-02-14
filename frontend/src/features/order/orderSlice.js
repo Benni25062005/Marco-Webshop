@@ -7,14 +7,14 @@ export const createOrder = createAsyncThunk(
     try {
       const response = await axios.post(
         `${process.env.BACKEND_URL}/api/orders`,
-        orderData
+        orderData,
       );
       return response.data;
     } catch (error) {
       console.error("Fehler bei erstellung", error);
       return rejectWithValue(error.response.data);
     }
-  }
+  },
 );
 
 export const getOrder = createAsyncThunk(
@@ -22,20 +22,21 @@ export const getOrder = createAsyncThunk(
   async (idUser, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${process.env.BACKEND_URL}/api/orders/${idUser}`
+        `${process.env.BACKEND_URL}/api/orders/${idUser}`,
       );
       return response.data;
     } catch (error) {
       console.error("→ Fehler im Thunk:", error);
       return rejectWithValue(error.response?.data || "Fehler beim Abrufen");
     }
-  }
+  },
 );
 
 const orderSlice = createSlice({
   name: "order",
   initialState: {
     orders: [],
+    lastCreatedOrder: null,
     loading: false,
     error: null,
     orderCompleted: false,
@@ -53,7 +54,7 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders.push(action.payload);
+        state.lastCreatedOrder = action.payload;
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;

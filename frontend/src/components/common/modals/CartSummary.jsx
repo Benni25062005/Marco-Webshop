@@ -14,6 +14,10 @@ export default function CartSummary({ cartItems }) {
   const [showAgbError, setShowAgbError] = useState(false);
 
   const [totalWeight, setTotalWeight] = useState(0);
+  const [street, setStreet] = useState("");
+  const [zip, setZip] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("CH");
 
   useEffect(() => {
     if (!Array.isArray(cartItems) || cartItems.length === 0) {
@@ -56,7 +60,6 @@ export default function CartSummary({ cartItems }) {
     }, 0);
 
     setTotalWeight(weightSum);
-    console.log("Gesamtgewicht im Warenkorb:", weightSum, "kg");
   }, [cartItems]);
   const shippingCost = useMemo(() => {
     if (totalWeight === 0) return 0;
@@ -93,17 +96,39 @@ export default function CartSummary({ cartItems }) {
         return;
       }
 
+      if (!street.trim() || !zip.trim() || !city.trim() || !country.trim()) {
+        toast.error("Bitte Lieferadresse vollständig ausfüllen");
+        return;
+      }
+
       const orderData = {
         idUser: user.idUser,
+        currency: "CHF",
+        shippingCost,
+        totalAmount: Number(grandTotal),
+        shipping: {
+          name: `${user.vorname ?? ""} ${user.nachname ?? ""}`.trim(),
+          street: street.trim(),
+          zip: zip.trim(),
+          city: city.trim(),
+          country: country.trim().toUpperCase(),
+        },
         items: cartItems.map((item) => ({
           product_id: item.product_id,
           quantity: item.menge,
+          unit_price: Number(item.Preis_brutto),
         })),
       };
 
+      console.log("orderdata", orderData);
+
       const orderResult = await dispatch(createOrder(orderData)).unwrap();
 
-      const orderId = orderResult?.order_id ?? orderResult?.order?.order_id;
+      if (orderResult?.success !== true) {
+        toast.error(orderResult?.message || "Bestellung fehlgeschlagen");
+      }
+
+      const orderId = orderResult.order_id;
 
       if (!orderId) {
         console.error("orderResult:", orderResult);
@@ -111,7 +136,7 @@ export default function CartSummary({ cartItems }) {
         return;
       }
 
-      const amount = Number(grandTotal); 
+      const amount = Number(grandTotal);
       if (Number.isNaN(amount) || amount <= 0) {
         toast.error("Ungültiger Betrag.");
         return;
@@ -140,8 +165,6 @@ export default function CartSummary({ cartItems }) {
       toast.error("Checkout fehlgeschlagen. Bitte erneut versuchen.");
     }
   };
-
-  console.log(cartItems);
 
   return (
     <>
@@ -175,7 +198,11 @@ export default function CartSummary({ cartItems }) {
               <label className="text-xs font-medium text-gray-600">
                 Straße & Hausnummer
               </label>
-              <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+              <input
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm"
+              />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -183,18 +210,30 @@ export default function CartSummary({ cartItems }) {
                 <label className="text-xs font-medium text-gray-600">
                   Postleitzahl
                 </label>
-                <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+                <input
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm"
+                />
               </div>
 
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-gray-600">Ort</label>
-                <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+                <input
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm"
+                />
               </div>
             </div>
 
             <div className="grid gap-1">
               <label className="text-xs font-medium text-gray-600">Land</label>
-              <input className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm" />
+              <input
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-red-500 focus:border outline-none transition duration-300 shadow-sm"
+              />
             </div>
           </div>
         </div>
