@@ -17,7 +17,7 @@ export default function CartSummary({ cartItems }) {
   const [street, setStreet] = useState("");
   const [zip, setZip] = useState("");
   const [city, setCity] = useState("");
-  const [country, setCountry] = useState("CH");
+  const [country, setCountry] = useState("");
 
   useEffect(() => {
     if (!Array.isArray(cartItems) || cartItems.length === 0) {
