@@ -13,14 +13,14 @@ export const fetchCart = createAsyncThunk(
         `${process.env.BACKEND_URL}/api/cartItems`,
         {
           params: { user_id },
-          withCredentials: true, 
-        }
+          withCredentials: true,
+        },
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
-  }
+  },
 );
 
 export const addItemToCart = createAsyncThunk(
@@ -34,7 +34,7 @@ export const addItemToCart = createAsyncThunk(
           product_id: product.idProdukt,
           menge,
         },
-        { withCredentials: true } // ⬅️ WICHTIG!
+        { withCredentials: true },
       );
 
       dispatch(
@@ -44,12 +44,12 @@ export const addItemToCart = createAsyncThunk(
           preis: product.Preis_brutto,
           bild: product.Bild,
           menge,
-        })
+        }),
       );
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
-  }
+  },
 );
 
 export const removeItemFromCart = createAsyncThunk(
@@ -60,16 +60,16 @@ export const removeItemFromCart = createAsyncThunk(
         `${process.env.BACKEND_URL}/api/cart/${user_id}/${product_id}`,
         {
           withCredentials: true, // ← wichtig für Cookie-Auth
-        }
+        },
       );
       dispatch(removeFromCart({ product_id }));
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || { message: "Unbekannter Fehler" }
+        error.response?.data || { message: "Unbekannter Fehler" },
       );
     }
-  }
+  },
 );
 
 export const updateItemQuantity = createAsyncThunk(
@@ -79,16 +79,16 @@ export const updateItemQuantity = createAsyncThunk(
       const response = await axios.put(
         `${process.env.BACKEND_URL}/api/cart/${user_id}/${product_id}`,
         { menge },
-        { withCredentials: true } // ⬅️ NICHT VERGESSEN!
+        { withCredentials: true }, // ⬅️ NICHT VERGESSEN!
       );
       dispatch(updateQuantity({ product_id, menge }));
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || { message: "unbekannter Fehler" }
+        error.response?.data || { message: "unbekannter Fehler" },
       );
     }
-  }
+  },
 );
 
 export const clearCartDB = createAsyncThunk(
@@ -101,16 +101,16 @@ export const clearCartDB = createAsyncThunk(
         `${process.env.BACKEND_URL}/api/cart/${userId}`,
         {
           withCredentials: true,
-        }
+        },
       );
       return res.data;
     } catch (error) {
       console.error("API Fehler beim Warenkorb löschen:", error);
       return rejectWithValue(
-        error.response?.data || "Fehler beim Leeren des Warenkorbs"
+        error.response?.data || "Fehler beim Leeren des Warenkorbs",
       );
     }
-  }
+  },
 );
 
 const cartSlice = createSlice({
@@ -120,7 +120,7 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const item = action.payload;
       const existing = state.items.find(
-        (i) => i.product_id === item.product_id
+        (i) => i.product_id === item.product_id,
       );
 
       if (existing) {
@@ -134,7 +134,7 @@ const cartSlice = createSlice({
     },
     removeFromCart: (state, action) => {
       state.items = state.items.filter(
-        (i) => i.product_id !== action.payload.product_id
+        (i) => i.product_id !== action.payload.product_id,
       );
     },
     updateQuantity: (state, action) => {
@@ -159,6 +159,18 @@ const cartSlice = createSlice({
         state.items = action.payload;
       })
       .addCase(fetchCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(clearCartDB.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(clearCartDB.fulfilled, (state) => {
+        state.loading = false;
+        state.items = [];
+      })
+      .addCase(clearCartDB.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

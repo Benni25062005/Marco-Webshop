@@ -2,10 +2,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CheckCircle, XCircle } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCart, clearCartDB } from "../../features/cart/cartSlice"; // pfad anpassen!
 
 export default function CheckoutSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((s) => s.auth.user);
 
   const orderId = useMemo(() => {
     const qs = new URLSearchParams(location.search);
@@ -38,7 +42,16 @@ export default function CheckoutSuccess() {
           { headers: { "Content-Type": "application/json" } },
         );
 
-        if (!cancelled) setPaymentData(resp.data);
+        if (cancelled) return;
+
+        setPaymentData(resp.data);
+
+        // ✅ WICHTIG: Cart im Frontend leeren (UI sofort leer)
+        dispatch(clearCart());
+
+        // Optional: wenn du wirklich auch per Frontend DB leeren willst
+        // (nur falls du NICHT schon im saferpayConfirm serverseitig leerst!)
+        // if (user?.idUser) await dispatch(clearCartDB(user.idUser));
       } catch (e) {
         if (cancelled) return;
         console.error("confirm error:", e?.response?.data || e);
@@ -54,7 +67,7 @@ export default function CheckoutSuccess() {
     return () => {
       cancelled = true;
     };
-  }, [orderId]);
+  }, [orderId, dispatch, user?.idUser]);
 
   if (loading) {
     return (

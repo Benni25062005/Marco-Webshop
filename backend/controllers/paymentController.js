@@ -77,12 +77,10 @@ export const saferpayInitialize = async (req, res) => {
     const token = resp.data?.Token;
 
     if (!redirectUrl || !token) {
-      return res
-        .status(502)
-        .json({
-          error: "Saferpay initialize returned no redirectUrl/token",
-          raw: resp.data,
-        });
+      return res.status(502).json({
+        error: "Saferpay initialize returned no redirectUrl/token",
+        raw: resp.data,
+      });
     }
 
     // Token in DB speichern (sonst kannst du später nicht confirm/capture)
@@ -107,30 +105,49 @@ export const saferpayInitialize = async (req, res) => {
 };
 
 export const saferpayConfirm = async (req, res) => {
+  let conn;
+
   try {
     const { orderId, token } = req.body;
 
-    let usedToken = token;
-
-    // bevorzugt: Token aus DB via orderId
-    if (!usedToken) {
-      if (!orderId)
-        return res.status(400).json({ error: "orderId or token is required" });
-
-      const [rows] = await db.execute(
-        "SELECT saferpay_token FROM orders WHERE order_id = ? LIMIT 1",
-        [orderId],
-      );
-
-      usedToken = rows?.[0]?.saferpay_token;
-      if (!usedToken)
-        return res
-          .status(400)
-          .json({ error: "No saferpay_token stored for this orderId" });
+    if (!orderId && !token) {
+      return res.status(400).json({ error: "orderId oder token ist required" });
     }
 
     const baseUrl =
       process.env.SAFERPAY_BASE_URL || "https://test.saferpay.com/api";
+
+    let usedToken = token;
+    let idUser = null;
+
+    if (orderId) {
+      const [rows] = await db.execute(
+        "SELECT idUser, saferpay_token, payment_status FROM orders WHERE order_id = ? LIMIT 1",
+        [orderId],
+      );
+
+      const order = rows?.[0];
+      if (!order) {
+        return res.status(404).json({ error: "Order nicht gefunden" });
+      }
+
+      idUser = order.idUser;
+
+      if (
+        order.payment_status === "paid" ||
+        order.payment_status === "captured"
+      ) {
+        return res.json({ ok: true, alreadyPaid: true });
+      }
+
+      if (!usedToken) usedToken = order.saferpay_token;
+    }
+
+    if (!usedToken) {
+      return res
+        .status(400)
+        .json({ error: "Kein Token vorhanden (weder Body noch DB)" });
+    }
 
     const assertResp = await axios.post(
       `${baseUrl}/Payment/v1/PaymentPage/Assert`,
@@ -166,9 +183,11 @@ export const saferpayConfirm = async (req, res) => {
       },
     );
 
-    // Order auf paid setzen
     if (orderId) {
-      await db.execute(
+      conn = await db.getConnection();
+      await conn.beginTransaction();
+
+      await conn.execute(
         `UPDATE orders
          SET payment_status = 'paid',
              status = 'paid',
@@ -177,6 +196,22 @@ export const saferpayConfirm = async (req, res) => {
          WHERE order_id = ?`,
         [transactionId, orderId],
       );
+
+      if (!idUser) {
+        const [urows] = await conn.execute(
+          "SELECT idUser FROM orders WHERE order_id = ? LIMIT 1",
+          [orderId],
+        );
+        idUser = urows?.[0]?.idUser ?? null;
+      }
+
+      if (idUser) {
+        await conn.execute("DELETE FROM warenkorb WHERE user_id = ?", [idUser]);
+      }
+
+      await conn.commit();
+      conn.release();
+      conn = null;
     }
 
     return res.json({
@@ -186,6 +221,15 @@ export const saferpayConfirm = async (req, res) => {
       capture: captureResp.data,
     });
   } catch (err) {
+    if (conn) {
+      try {
+        await conn.rollback();
+      } catch {}
+      try {
+        conn.release();
+      } catch {}
+    }
+
     console.error(
       "Saferpay Confirm Error:",
       err?.response?.data || err.message,
