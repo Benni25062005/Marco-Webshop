@@ -143,7 +143,7 @@ router.post("/products/save", async (req, res) => {
   try {
     const [result] = await db.execute(
       `INSERT INTO produkte (Name, Kategorie, Beschreibung, sort_order, Bild, Preis_netto, Preis_brutto, Details)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         Name ?? null,
         Kategorie ?? null,
