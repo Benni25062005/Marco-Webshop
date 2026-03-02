@@ -10,6 +10,7 @@ export default function ProduktDetail() {
     Name: "",
     Kategorie: "",
     Beschreibung: "",
+    sort_order: "",
     Preis_netto: "",
     Preis_brutto: "",
     Bild: "",
@@ -31,7 +32,7 @@ export default function ProduktDetail() {
       try {
         const res = await fetch(
           `${process.env.BACKEND_URL}/api/admin/products/${id}`,
-          { credentials: "include" }
+          { credentials: "include" },
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
@@ -55,6 +56,7 @@ export default function ProduktDetail() {
       Name: data.Name?.trim(),
       Kategorie: data.Kategorie?.trim(),
       Beschreibung: data.Beschreibung?.trim(),
+      sort_order: Number(data.sort_order) || 0,
       Preis_netto: Number(data.Preis_netto) || 0,
       Preis_brutto: Number(data.Preis_brutto) || 0,
       Bild: data.Bild,
@@ -68,6 +70,7 @@ export default function ProduktDetail() {
       !payload.Beschreibung ||
       !payload.Bild ||
       !payload.Details ||
+      !payload.sort_order ||
       !payload.Kategorie ||
       !payload.Name ||
       !payload.Preis_brutto ||
@@ -88,7 +91,7 @@ export default function ProduktDetail() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -162,6 +165,17 @@ export default function ProduktDetail() {
                   value={data.Beschreibung}
                   onChange={(e) =>
                     setData({ ...data, Beschreibung: e.target.value })
+                  }
+                />
+              </label>
+
+              <label className="flex flex-col">
+                <span className="font-medium">Sortierungs Nummer</span>
+                <input
+                  className="border rounded px-3 py-2"
+                  value={data.sort_order}
+                  onChange={(e) =>
+                    setData({ ...data, sort_order: e.target.value })
                   }
                 />
               </label>

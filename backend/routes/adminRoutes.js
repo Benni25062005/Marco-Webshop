@@ -5,16 +5,38 @@ const router = express.Router();
 
 router.get("/users", async (req, res) => {
   const [rows] = await db.query(
-    "SELECT idUser, email, vorname, nachname, role, createdAt FROM user ORDER BY createdAt DESC LIMIT 20"
+    "SELECT idUser, email, vorname, nachname, role, createdAt FROM user ORDER BY createdAt DESC LIMIT 20",
   );
   res.json({ data: rows, page: 1, limit: 20, total: rows.length });
 });
 
 router.get("/products", async (req, res) => {
-  const [rows] = await db.query(
-    "SELECT idProdukt, Name, Kategorie, Preis_netto, Preis_brutto FROM produkte ORDER BY Preis_netto DESC LIMIT 20"
+  const q = String(req.query.q || "").trim();
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+  const offset = (page - 1) * limit;
+
+  const where = q ? "WHERE Name LIKE ? OR Kategorie LIKE ?" : "";
+  const params = q ? [`%${q}%`, `%${q}%`] : [];
+
+  const [[countRow]] = await db.query(
+    `SELECT COUNT(*) AS total FROM produkte ${where}`,
+    params,
   );
-  res.json({ data: rows, page: 1, limit: 20, total: rows.length });
+  const total = countRow.total;
+
+  const [rows] = await db.query(
+    `
+    SELECT idProdukt, Name, Kategorie, Preis_netto, Preis_brutto, sort_order
+    FROM produkte
+    ${where}
+    ORDER BY sort_order ASC
+    LIMIT ? OFFSET ?
+    `,
+    [...params, limit, offset],
+  );
+
+  res.json({ data: rows, page, limit, total });
 });
 
 router.get("/products/categories", async (_req, res) => {
@@ -37,7 +59,7 @@ router.get("/products/:id", async (req, res) => {
   try {
     const [rows] = await db.query(
       "SELECT * FROM produkte WHERE idProdukt = ?",
-      [id]
+      [id],
     );
 
     if (rows.length === 0) {
@@ -56,6 +78,7 @@ router.put("/products/edit/:id", async (req, res) => {
     Name,
     Kategorie,
     Beschreibung,
+    sort_order,
     Preis_netto,
     Preis_brutto,
     Bild,
@@ -70,7 +93,7 @@ router.put("/products/edit/:id", async (req, res) => {
   try {
     const q = `
       UPDATE produkte 
-      SET Name = ?, Kategorie = ?, Beschreibung = ?, Preis_netto = ?, Preis_brutto = ?, Bild = ?, Details = ?
+      SET Name = ?, Kategorie = ?, Beschreibung = ?, sort_order = ?, Preis_netto = ?, Preis_brutto = ?, Bild = ?, Details = ?
       WHERE idProdukt = ? 
     `;
 
@@ -78,6 +101,7 @@ router.put("/products/edit/:id", async (req, res) => {
       Name,
       Kategorie,
       Beschreibung,
+      sort_order,
       Preis_netto,
       Preis_brutto,
       Bild,
@@ -91,7 +115,7 @@ router.put("/products/edit/:id", async (req, res) => {
 
     const [rows] = await db.execute(
       "SELECT * FROM produkte WHERE idProdukt = ?",
-      [id]
+      [id],
     );
 
     return res.status(200).json({
@@ -109,6 +133,7 @@ router.post("/products/save", async (req, res) => {
     Name,
     Kategorie,
     Beschreibung,
+    sort_order,
     Bild,
     Preis_netto,
     Preis_brutto,
@@ -117,17 +142,18 @@ router.post("/products/save", async (req, res) => {
 
   try {
     const [result] = await db.execute(
-      `INSERT INTO produkte (Name, Kategorie, Beschreibung, Bild, Preis_netto, Preis_brutto, Details)
+      `INSERT INTO produkte (Name, Kategorie, Beschreibung, sort_order, Bild, Preis_netto, Preis_brutto, Details)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         Name ?? null,
         Kategorie ?? null,
         Beschreibung ?? null,
+        sort_order ?? null,
         Bild ?? null,
         Preis_netto ?? null,
         Preis_brutto ?? null,
         Details ?? null,
-      ]
+      ],
     );
 
     return res
@@ -149,7 +175,7 @@ router.delete("/products/delete/:id", async (req, res) => {
   try {
     const [result] = await db.execute(
       "DELETE FROM produkte WHERE idProdukt = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -175,7 +201,7 @@ router.get("/orders", async (req, res) => {
          u.email AS user_email
        FROM orders o
        LEFT JOIN user u ON u.idUser = o.idUser
-       ORDER BY o.created_at DESC`
+       ORDER BY o.created_at DESC`,
     );
 
     return res.status(200).json(rows);
@@ -197,7 +223,7 @@ router.get("/orders/:id/items", async (req, res) => {
   try {
     const [orderExists] = await db.execute(
       "SELECT 1 FROM orders WHERE order_id = ? LIMIT 1",
-      [id]
+      [id],
     );
     if (orderExists.length === 0) {
       return res.status(404).json({ message: "Bestellung nicht gefunden" });
@@ -218,7 +244,7 @@ router.get("/orders/:id/items", async (req, res) => {
        JOIN produkte p ON p.idProdukt = oi.product_id
        WHERE oi.order_id = ?
        ORDER BY oi.order_items_id ASC`,
-      [id]
+      [id],
     );
 
     // Optional: Zwischensummen mitgeben

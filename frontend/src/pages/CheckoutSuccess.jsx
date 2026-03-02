@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearCart, clearCartDB } from "../../features/cart/cartSlice"; // pfad anpassen!
+import { clearCart } from "../features/cart/cartSlice";
 
 export default function CheckoutSuccess() {
   const location = useLocation();

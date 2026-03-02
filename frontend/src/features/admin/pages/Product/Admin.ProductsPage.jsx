@@ -18,11 +18,17 @@ export default function ProductsPage() {
       setErr("");
 
       try {
-        const query = new URLSearchParams({ q, page: String(page) }).toString();
+        const limit = 20;
+
+        const query = new URLSearchParams({
+          q,
+          page: String(page),
+          limit: String(limit),
+        }).toString();
 
         const res = await fetch(
           `${process.env.BACKEND_URL}/api/admin/products?${query}`,
-          { credentials: "include", signal: ac.signal }
+          { credentials: "include", signal: ac.signal },
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -52,7 +58,7 @@ export default function ProductsPage() {
     try {
       const res = await fetch(
         `${process.env.BACKEND_URL}/api/admin/products/delete/${id}`,
-        { method: "DELETE", credentials: "include" }
+        { method: "DELETE", credentials: "include" },
       );
 
       if (res.status === 204 || res.ok) {
@@ -73,7 +79,7 @@ export default function ProductsPage() {
 
       if (res.status === 409)
         throw new Error(
-          "Produkt kann nicht gelöscht werden (verknüpfte Datensätze vorhanden)."
+          "Produkt kann nicht gelöscht werden (verknüpfte Datensätze vorhanden).",
         );
 
       const msg = await res.text();
@@ -126,6 +132,7 @@ export default function ProductsPage() {
                   <th className="text-left p-2">Kategorie</th>
                   <th className="text-left p-2">Preis netto</th>
                   <th className="text-left p-2">Preis brutto</th>
+                  <th className="text-left p-2">Sortierungs Nummer</th>
                   <th className="text-left p-2">Bearbeiten</th>
                   <th className="text-left p-2">Löschen</th>
                 </tr>
@@ -138,6 +145,7 @@ export default function ProductsPage() {
                     <td className="p-2">{p.Kategorie}</td>
                     <td className="p-2">{p.Preis_netto}</td>
                     <td className="p-2">{p.Preis_brutto}</td>
+                    <td className="p-2">{p.sort_order}</td>
                     <td className="">
                       <button onClick={() => handleEdit(p.idProdukt)}>
                         Bearbeiten
