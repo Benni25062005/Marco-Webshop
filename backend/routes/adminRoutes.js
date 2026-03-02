@@ -165,6 +165,22 @@ router.post("/products/save", async (req, res) => {
   }
 });
 
+router.put("/products/:id/sort-order", async (req, res) => {
+  const id = Number(req.params.id);
+  const sort_order = Number(req.body.sort_order);
+
+  if (!Number.isInteger(id) || id <= 0) return res.status(400).send("Bad id");
+  if (!Number.isInteger(sort_order) || sort_order < 0)
+    return res.status(400).send("Bad sort_order");
+
+  await db.query("UPDATE produkte SET sort_order = ? WHERE idProdukt = ?", [
+    sort_order,
+    id,
+  ]);
+
+  res.json({ ok: true, idProdukt: id, sort_order });
+});
+
 router.delete("/products/delete/:id", async (req, res) => {
   const { id } = req.params;
 

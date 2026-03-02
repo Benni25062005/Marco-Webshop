@@ -40,6 +40,7 @@ const allowlist = [
   "https://marco-webshop.vercel.app",
   "https://marco-webshop-qu3m.vercel.app",
   "https://kaminfeger-knapp.ch",
+  "https://www.kaminfeger-knapp.ch",
 ];
 const vercelPreviewRegex = /^https:\/\/[^/]+\.vercel\.app$/;
 const renderPreviewRegex = /^https:\/\/[^/]+\.onrender\.com$/;
@@ -231,6 +232,8 @@ app.post("/api/login", async (req, res) => {
       secure: isProd,
       sameSite: isProd ? "none" : "lax",
       maxAge: 60 * 60 * 1000,
+      path: "/",
+      domain: ".kaminfeger-knapp.ch",
     });
 
     return res.status(200).json({

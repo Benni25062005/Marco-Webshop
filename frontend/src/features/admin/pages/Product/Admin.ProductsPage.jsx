@@ -6,6 +6,8 @@ export default function ProductsPage() {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [data, setData] = useState({ data: [], page: 1, limit: 20, total: 0 });
+  const [sortEdits, setSortEdits] = useState({});
+  const [savingId, setSavingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const navigate = useNavigate();
@@ -92,6 +94,51 @@ export default function ProductsPage() {
     }
   };
 
+  const saveSortOrder = async (id) => {
+    const raw = sortEdits[id];
+    const next = Number(raw);
+
+    if (!Number.isInteger(next) || next < 0) {
+      toast.error("Sortierungsnummer muss eine Zahl >= 0 sein");
+      return;
+    }
+
+    setSavingId(id);
+
+    setData((d) => ({
+      ...d,
+      data: d.data.map((p) =>
+        p.idProdukt === id ? { ...p, sort_order: next } : p,
+      ),
+    }));
+
+    try {
+      const res = await fetch(
+        `${process.env.BACKEND_URL}/api/admin/products/${id}/sort-order`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ sort_order: next }),
+        },
+      );
+
+      if (!res.ok) throw new Error(await res.text());
+      toast.success("Sortierung gespeichert");
+
+      setSortEdits((m) => {
+        const copy = { ...m };
+        delete copy[id];
+        return copy;
+      });
+    } catch (e) {
+      toast.error(e.message || "Speichern fehlgeschlagen");
+      setPage((p) => p);
+    } finally {
+      setSavingId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -145,7 +192,34 @@ export default function ProductsPage() {
                     <td className="p-2">{p.Kategorie}</td>
                     <td className="p-2">{p.Preis_netto}</td>
                     <td className="p-2">{p.Preis_brutto}</td>
-                    <td className="p-2">{p.sort_order}</td>
+                    <td className="p-2">
+                      <input
+                        className="border rounded px-2 py-1 w-24"
+                        value={
+                          sortEdits[p.idProdukt] ?? String(p.sort_order ?? "")
+                        }
+                        onChange={(e) =>
+                          setSortEdits((m) => ({
+                            ...m,
+                            [p.idProdukt]: e.target.value,
+                          }))
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveSortOrder(p.idProdukt);
+                          if (e.key === "Escape")
+                            setSortEdits((m) => {
+                              const copy = { ...m };
+                              delete copy[p.idProdukt];
+                              return copy;
+                            });
+                        }}
+                        onBlur={() => {
+                          if (sortEdits[p.idProdukt] != null)
+                            saveSortOrder(p.idProdukt);
+                        }}
+                        disabled={savingId === p.idProdukt}
+                      />
+                    </td>
                     <td className="">
                       <button onClick={() => handleEdit(p.idProdukt)}>
                         Bearbeiten
