@@ -9,6 +9,7 @@ export default function ProductAdd() {
     Name: "",
     Kategorie: "",
     Beschreibung: "",
+    sort_order: "",
     Bild: "",
     Preis_netto: "",
     Preis_brutto: "",
@@ -31,7 +32,7 @@ export default function ProductAdd() {
           {
             credentials: "include",
             signal: ac.signal,
-          }
+          },
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -54,6 +55,7 @@ export default function ProductAdd() {
       Name: (data.Name || "").trim(),
       Kategorie: (data.Kategorie || "").trim(),
       Beschreibung: (data.Beschreibung || "").trim(),
+      sort_order: Number(data.sort_order) || 0,
       Preis_netto: data.Preis_netto ? Number(data.Preis_netto) : null,
       Preis_brutto: data.Preis_brutto ? Number(data.Preis_brutto) : null,
       Bild: data.Bild || null,
@@ -67,6 +69,7 @@ export default function ProductAdd() {
       !payload.Beschreibung ||
       !payload.Bild ||
       !payload.Details ||
+      !payload.sort_order ||
       !payload.Kategorie ||
       !payload.Name ||
       !payload.Preis_brutto ||
@@ -87,7 +90,7 @@ export default function ProductAdd() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -164,6 +167,17 @@ export default function ProductAdd() {
                   value={data.Beschreibung}
                   onChange={(e) =>
                     setData({ ...data, Beschreibung: e.target.value })
+                  }
+                />
+              </label>
+
+              <label className="flex flex-col">
+                <span className="font-medium">Sortierungs Nummer</span>
+                <input
+                  className="border rounded px-3 py-2"
+                  value={data.sort_order}
+                  onChange={(e) =>
+                    setData({ ...data, sort_order: e.target.value })
                   }
                 />
               </label>
