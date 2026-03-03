@@ -19,7 +19,6 @@ export default function Main() {
     if (items.length === 0) {
       dispatch(fetchFeuerloescher("feuerloescher"));
     }
-    console.log("Items", items, Array.isArray(items));
   }, [dispatch, items.length]);
 
   const handleClick = (idProdukt, kategorie) => {
@@ -29,7 +28,7 @@ export default function Main() {
   const handleAddToCart = (item) => {
     if (!user) {
       toast.error(
-        "Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen."
+        "Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen.",
       );
       navigate("/login", { replace: true });
       return;
@@ -40,7 +39,7 @@ export default function Main() {
         user_id: user.idUser,
         product: item,
         menge: 1,
-      })
+      }),
     );
     toast.success(`Wurde zum Warenkorb hinzugefügt`);
   };

@@ -32,7 +32,7 @@ export default function Main() {
     setLoading(true);
     if (!user) {
       toast.error(
-        "Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen."
+        "Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen.",
       );
       navigate("/login", { replace: true });
       return;
@@ -43,7 +43,7 @@ export default function Main() {
         user_id: user.idUser,
         product: selectedItem,
         menge: number,
-      })
+      }),
     );
     toast.success(`Wurde zum Warenkorb hinzugefügt`);
     setLoading(false);
@@ -76,6 +76,13 @@ export default function Main() {
     );
   }
 
+  const details = selectedItem.Details;
+  const hasDetails =
+    details &&
+    typeof details === "object" &&
+    !Array.isArray(details) &&
+    Object.keys(details).length > 0;
+
   return (
     <>
       {loading && (
@@ -85,27 +92,23 @@ export default function Main() {
       )}
 
       <div className="mt-10 mb-16 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl flex flex-col lg:flex-row gap-8 lg:gap-16 items-center lg:items-start">
+        <div className="mx-auto max-w-6xl flex flex-col lg:flex-row items-center lg:items-start justify-center">
           <img
-            className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg border-2 border-red-600 rounded-xl p-8 sm:p-12 object-contain"
+            className="max-h-[420px] w-auto mx-auto  border-2 border-red-600 rounded-xl p-8 sm:p-12 object-contain"
             src={selectedItem.Bild}
             alt={selectedItem.Name}
           />
-
-          <div className="w-full lg:flex-1 max-w-xl">
+          <div className="w-full lg:flex-1 max-w-xl lg:-ml-8">
             <h1 className="text-2xl sm:text-3xl font-medium">
               {selectedItem.Name}
             </h1>
-
             <p className="mt-3 text-2xl sm:text-3xl font-semibold text-red-600">
               <span className="text-xs sm:text-sm text-black mr-1">CHF</span>
               {Number(selectedItem.Preis_brutto).toFixed(2)}
             </p>
-
             <p className="mt-4 sm:mt-6 text-sm sm:text-base text-gray-500 leading-relaxed">
               {selectedItem.Beschreibung}
             </p>
-
             <div
               id="counter"
               className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-6"
@@ -133,8 +136,7 @@ export default function Main() {
                 Zum Warenkorb hinzufügen
               </motion.button>
             </div>
-            
-            {selectedItem.Details && (
+            {hasDetails && (
               <div className="mt-6">
                 <button
                   onClick={() => setIsOpen(!isOpen)}
@@ -176,7 +178,7 @@ export default function Main() {
                             </>
                           )}
                         </div>
-                      )
+                      ),
                     )}
                   </motion.div>
                 )}

@@ -41,7 +41,7 @@ export default function Main() {
   const HandleAddToCart = (e) => {
     if (!user) {
       toast.error(
-        "Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen."
+        "Bitte melden Sie sich an, um einen Artikel in den Warenkorb zu legen.",
       );
       navigate("/login", { replace: true });
       return;
@@ -52,7 +52,7 @@ export default function Main() {
         user_id: user.idUser,
         product: selectedItem,
         menge: number,
-      })
+      }),
     );
     toast.success(`Wurde zum Warenkorb hinzugefügt`);
   };
@@ -61,6 +61,7 @@ export default function Main() {
     if (id && kategorie) {
       dispatch(fetchFeuerloescherById({ idProdukt: id, kategorie }));
     }
+    console.log(selectedItem.Details);
   }, [id, kategorie, dispatch]);
 
   if (status === "loading") {
@@ -74,6 +75,14 @@ export default function Main() {
       <p className="text-center mt-10 text-3xl">Feuerlöscher nicht gefunden</p>
     );
   }
+
+  const details = selectedItem.Details;
+
+  const hasDetails =
+    details &&
+    (typeof details === "string"
+      ? details.trim() !== "{}"
+      : Object.keys(details).length > 0);
 
   return (
     <>
@@ -126,7 +135,7 @@ export default function Main() {
             </motion.button>
           </div>
 
-          {selectedItem.Details && (
+          {hasDetails && (
             <div className="mt-6">
               <button
                 onClick={() => setIsOpen(!isOpen)}

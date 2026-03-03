@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 export default function ProduktCard({ item, onClick, onAddToCart, delay = 0 }) {
   if (!item) return null;
 
-  console.log(item);
-
   return (
     <motion.div
       onClick={() => onClick(item.idProdukt, item.Kategorie)}
