@@ -1,10 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
-import Feuerloescher from "../features/feuerloescher/Feuerloescher";
 import Brandschutz from "../pages/Brandschutz";
 import Kontakt from "../pages/Kontakt";
 import Feuerungskontrolle from "../pages/Feuerungskontrolle";
-import FeuerloescherDetail from "../features/feuerloescher/FeuerloescherDetail";
 import Service from "../pages/Service";
 import NotFound from "../pages/NotFound";
 import Login from "../features/auth/Login";
@@ -37,7 +35,6 @@ export default function AppRoutes() {
     <Routes>
       <Route index element={<Dashboard />} />
       <Route path="home" element={<Dashboard />} />
-      <Route path="feuerloescher" element={<Feuerloescher />} />
       <Route path="produkte" element={<ProduktListe />} />
       <Route path="produkt/:id" element={<ProduktDetail />} />
       <Route path="brandschutz" element={<Brandschutz />} />
@@ -54,7 +51,6 @@ export default function AppRoutes() {
       <Route path="bestellungen" element={<Bestellungen />} />
       <Route path="feuerungskontrolle" element={<Feuerungskontrolle />} />
       <Route path="service" element={<Service />} />
-      <Route path="feuerloescher/:id" element={<FeuerloescherDetail />} />
       <Route
         path="profile"
         element={

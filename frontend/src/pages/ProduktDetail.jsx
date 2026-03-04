@@ -72,7 +72,13 @@ export default function Main() {
 
   if (!selectedItem) {
     return (
-      <p className="text-center mt-10 text-3xl">Feuerlöscher nicht gefunden</p>
+      <div className="flex justify-center pt-16">
+        <div
+          className="animate-spin inline-block w-12 h-12 border-4 border-gray-300 border-t-red-600 rounded-full"
+          role="status"
+          aria-label="Lädt..."
+        />
+      </div>
     );
   }
 
