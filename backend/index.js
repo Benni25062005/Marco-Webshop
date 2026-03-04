@@ -233,7 +233,6 @@ app.post("/api/login", async (req, res) => {
       sameSite: isProd ? "none" : "lax",
       maxAge: 60 * 60 * 1000,
       path: "/",
-      domain: ".kaminfeger-knapp.ch",
     });
 
     return res.status(200).json({
