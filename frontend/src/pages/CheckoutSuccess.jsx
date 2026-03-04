@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CheckCircle, XCircle } from "lucide-react";
@@ -10,6 +10,7 @@ export default function CheckoutSuccess() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
+  const didRun = useRef(false);
 
   const orderId = useMemo(() => {
     const qs = new URLSearchParams(location.search);
@@ -21,6 +22,9 @@ export default function CheckoutSuccess() {
   const [paymentData, setPaymentData] = useState(null);
 
   useEffect(() => {
+    if (didRun.current) return;
+    didRun.current = true;
+
     let cancelled = false;
 
     async function run() {
@@ -45,13 +49,7 @@ export default function CheckoutSuccess() {
         if (cancelled) return;
 
         setPaymentData(resp.data);
-
-        // ✅ WICHTIG: Cart im Frontend leeren (UI sofort leer)
         dispatch(clearCart());
-
-        // Optional: wenn du wirklich auch per Frontend DB leeren willst
-        // (nur falls du NICHT schon im saferpayConfirm serverseitig leerst!)
-        // if (user?.idUser) await dispatch(clearCartDB(user.idUser));
       } catch (e) {
         if (cancelled) return;
         console.error("confirm error:", e?.response?.data || e);
@@ -67,7 +65,7 @@ export default function CheckoutSuccess() {
     return () => {
       cancelled = true;
     };
-  }, [orderId, dispatch, user?.idUser]);
+  }, [orderId, dispatch]);
 
   if (loading) {
     return (

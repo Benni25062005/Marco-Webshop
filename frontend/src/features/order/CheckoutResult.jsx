@@ -30,7 +30,7 @@ export default function CheckoutResult() {
                 product_id: item.product_id,
                 quantity: item.menge,
               })),
-            })
+            }),
           ).unwrap();
 
           try {
@@ -38,7 +38,7 @@ export default function CheckoutResult() {
           } catch (err) {
             console.warn(
               "Warenkorb konnte nicht gelöscht werden (ignoriert):",
-              err?.response?.data || err.message || err
+              err?.response?.data || err.message || err,
             );
           }
 
@@ -50,7 +50,7 @@ export default function CheckoutResult() {
         } catch (err) {
           console.error(
             "Fehler im CheckoutResult:",
-            err?.response?.data || err.message || err
+            err?.response?.data || err.message || err,
           );
 
           navigate("/bestellungen", {
@@ -63,5 +63,5 @@ export default function CheckoutResult() {
     placeOrder();
   }, [params, navigate, dispatch, user]);
 
-  return <div>Chekcout</div>;
+  return <div>Checkout</div>;
 }

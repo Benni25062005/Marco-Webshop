@@ -168,34 +168,53 @@ export const saferpayConfirm = async (req, res) => {
         .json({ error: "No transaction id", raw: assertResp.data });
     }
 
-    const captureResp = await axios.post(
-      `${baseUrl}/Payment/v1/Transaction/Capture`,
-      {
-        RequestHeader: requestHeader(),
-        TransactionReference: { TransactionId: transactionId },
-      },
-      {
-        headers: {
-          Authorization: basicAuthHeader(),
-          "Content-Type": "application/json",
+    let captureResp;
+    try {
+      captureResp = await axios.post(
+        `${baseUrl}/Payment/v1/Transaction/Capture`,
+        {
+          RequestHeader: requestHeader(),
+          TransactionReference: { TransactionId: transactionId },
         },
-        timeout: 15000,
-      },
-    );
+        {
+          headers: {
+            Authorization: basicAuthHeader(),
+            "Content-Type": "application/json",
+          },
+          timeout: 15000,
+        },
+      );
+    } catch (e) {
+      const data = e?.response?.data;
+      const name = data?.ErrorName;
+
+      if (name === "TRANSACTION_ALREADY_CAPTURED") {
+        captureResp = { data: data };
+      } else {
+        throw e;
+      }
+    }
 
     if (orderId) {
       conn = await db.getConnection();
       await conn.beginTransaction();
 
-      await conn.execute(
+      const [upd] = await conn.execute(
         `UPDATE orders
-         SET payment_status = 'paid',
-             status = 'paid',
-             payment_transaction_id = ?,
-             paid_at = NOW()
-         WHERE order_id = ?`,
+   SET payment_status = 'captured',
+       status = 'paid',
+       payment_transaction_id = ?,
+       paid_at = NOW()
+   WHERE order_id = ?
+     AND payment_status NOT IN ('paid','captured','captured')`,
         [transactionId, orderId],
       );
+
+      if (upd.affectedRows === 0) {
+        await conn.rollback();
+        conn.release();
+        return res.json({ ok: true, alreadyPaid: true, transactionId });
+      }
 
       if (!idUser) {
         const [urows] = await conn.execute(
