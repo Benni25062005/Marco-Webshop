@@ -4,7 +4,13 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { fetchProductById } from "../features/products/productsSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { addItemToCart } from "../features/cart/cartSlice.js";
-import { Plus, Minus, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Plus,
+  Minus,
+  ChevronDown,
+  ChevronUp,
+  TriangleAlert,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
@@ -100,7 +106,7 @@ export default function Main() {
       <div className="mt-10 mb-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl flex flex-col lg:flex-row items-center lg:items-start justify-center">
           <img
-            className="max-h-[420px] w-auto mx-auto  border-2 border-red-600 rounded-xl p-8 sm:p-12 object-contain"
+            className="max-h-[420px] max-w-full lg:max-w-[520px] w-auto mx-auto border-2 border-red-600 rounded-xl p-8 sm:p-12 object-contain"
             src={selectedItem.Bild}
             alt={selectedItem.Name}
           />
@@ -108,10 +114,16 @@ export default function Main() {
             <h1 className="text-2xl sm:text-3xl font-medium">
               {selectedItem.Name}
             </h1>
-            <p className="mt-3 text-2xl sm:text-3xl font-semibold text-red-600">
-              <span className="text-xs sm:text-sm text-black mr-1">CHF</span>
-              {Number(selectedItem.Preis_brutto).toFixed(2)}
-            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <p className="text-2xl sm:text-3xl font-semibold text-red-600">
+                <span className="text-xs sm:text-sm text-black mr-1">CHF</span>
+                {Number(selectedItem.Preis_brutto).toFixed(2)}
+              </p>
+
+              {Number(selectedItem.hasWarning) === 1 && (
+                <TriangleAlert className="h-6 w-6 text-red-600 shrink-0 relative top-[2px]" />
+              )}
+            </div>
             <p className="mt-4 sm:mt-6 text-sm sm:text-base text-gray-500 leading-relaxed">
               {selectedItem.Beschreibung}
             </p>
